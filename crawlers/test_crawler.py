@@ -9,7 +9,12 @@ from selenium_toolkit import SeleniumToolKit
 class WebscraperIOCrawler(Crawler):
     crawler_name = "WebscraperIO"
     allowed_domains = ['webscraper.io']
-    regex_rules = ['/product']
+    regex_rules = [
+        '/product',
+        '/computers',
+        '/computers/tablets',
+        '/computers/laptops',
+    ]
 
     def __init__(self):
         self.driver = get_undetected_chromedriver()

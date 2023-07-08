@@ -24,8 +24,9 @@ class CrawlerRunner:
                 print('todas as request feitas')
                 return True
             next_request = CrawlerRequest(site_url=next_request_url)
-
             crawler_response = self.crawler.process_request(crawler_request=next_request)
+
+            self.__add_urls_to_queue(crawler_response=crawler_response)
             self.crawler.parse_crawler_response(crawler_response=crawler_response)
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse):
