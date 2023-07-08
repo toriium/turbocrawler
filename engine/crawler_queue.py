@@ -7,13 +7,14 @@ class CrawledQueue:
         self.crawler_name = crawler_name
 
         self.__file_name = f"{self.crawler_name}_crawled_queue.txt"
-        self.__queue_dir = '/home/jorge/Desktop/CIH/poc-crawler'
-        self.__crawler_queue_file_path = f'{self.__queue_dir}/{self.__file_name}'
+        self.__queue_dir_name = f'crawlers_queue'
+        self.__queue_dir_path = f'{os.getcwd()}/{self.__queue_dir_name}'
+        self.__crawler_queue_file_path = f'{self.__queue_dir_path}/{self.__file_name}'
 
         self.__create_file_path()
 
     def __create_file_path(self):
-        os.makedirs(self.__queue_dir, exist_ok=True)
+        os.makedirs(self.__queue_dir_path, exist_ok=True)
         if not os.path.exists(self.__crawler_queue_file_path):
             with open(self.__crawler_queue_file_path, 'w'):
                 ...
