@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "crawler_manager"
+version = "0.1.0"
+description = ""
+authors = ["jorgepvasconcelos"]
+readme = "README.md"
+packages = [{include = "crawler_manager"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+selenium-toolkit = "^0.0.6"
+selenium = "^4.10.0"
+undetected-chromedriver = "^3.5.0"
+parsel = "^1.8.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
