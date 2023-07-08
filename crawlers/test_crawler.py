@@ -8,16 +8,12 @@ from selenium_toolkit import SeleniumToolKit
 
 class WebscraperIOCrawler(Crawler):
     crawler_name = "WebscraperIO"
-    site_domain = 'webscraper.io'
     allowed_domains = ['webscraper.io']
-    internet_protocol = 'https'
+    regex_rules = ['/product']
 
     def __init__(self):
         self.driver = get_undetected_chromedriver()
         self.sk = SeleniumToolKit(driver=self.driver)
-
-    def extraction_rules(self) -> list[str]:
-        return ['/product']
 
     def start_crawler(self) -> CrawlerResponse:
         url = 'https://check.torproject.org/'

@@ -9,11 +9,8 @@ class CrawlerRunner:
     def __init__(self, crawler: Crawler):
         self.crawler = crawler
         self.crawler_queue = CrawlerQueue(crawler_name=self.crawler.crawler_name)
-        self.rules = None
 
     def run(self):
-        self.rules = self.__get_crawler_rules()
-
         first_request = True
         crawler_response = self.__run_star_crawler()
 
@@ -33,10 +30,10 @@ class CrawlerRunner:
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse):
         urls_to_extract = UrlExtractor.get_urls(
+            site_current_url=crawler_response.site_url,
             html_body=crawler_response.site_body,
-            regex_rules=self.rules,
-            site_domain=self.crawler.site_domain,
-            internet_protocol=self.crawler.internet_protocol)
+            regex_rules=self.crawler.regex_rules,
+            allowed_domains=self.crawler.allowed_domains)
 
         for url in urls_to_extract:
             self.crawler_queue.add_request_to_queue(url=url)
@@ -46,6 +43,3 @@ class CrawlerRunner:
         if not isinstance(crawler_response, CrawlerResponse):
             raise ValueError('star_crawler return type must be a CrawlerResponse')
         return crawler_response
-
-    def __get_crawler_rules(self):
-        return self.crawler.extraction_rules()

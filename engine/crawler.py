@@ -7,8 +7,8 @@ from engine.crawler_request import CrawlerRequest
 
 class Crawler(ABC):
     crawler_name: str
-    site_domain: str
-    internet_protocol: str
+    allowed_domains: list[str]
+    regex_rules: list[str]
 
     @abstractmethod
     def start_crawler(self) -> CrawlerResponse:
@@ -28,8 +28,4 @@ class Crawler(ABC):
 
     @abstractmethod
     def parse_crawler_response(self, crawler_response: CrawlerResponse) -> Any:
-        ...
-
-    @abstractmethod
-    def extraction_rules(self) -> list[str]:
         ...
