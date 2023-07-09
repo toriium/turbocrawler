@@ -13,14 +13,13 @@ class WebscraperIOCrawler(Crawler):
         '/product',
         '/computers',
         '/computers/tablets',
-        '/computers/laptops',
     ]
 
     def __init__(self):
         self.driver = get_undetected_chromedriver()
         self.sk = SeleniumToolKit(driver=self.driver)
 
-    def start_crawler(self) -> CrawlerResponse:
+    def crawler_first_request(self) -> CrawlerResponse:
         url = 'https://check.torproject.org/'
         self.sk.goto(url=url)
         url = "https://webscraper.io/test-sites/e-commerce/static"

@@ -11,17 +11,16 @@ class CrawlerRunner:
         self.crawler_queue = CrawlerQueue(crawler_name=self.crawler.crawler_name)
 
     def run(self):
-        first_request = True
-        crawler_response = self.__run_star_crawler()
+        crawler_response = self.crawler.crawler_first_request()
+        self.__add_urls_to_queue(crawler_response=crawler_response)
 
+        self.__process_crawler_queue()
+
+    def __process_crawler_queue(self):
         while True:
-            if first_request:
-                first_request = False
-                self.__add_urls_to_queue(crawler_response=crawler_response)
-
             next_request_url = self.crawler_queue.get_request_from_queue()
             if not next_request_url:
-                print('todas as request feitas')
+                print('All requests were made')
                 return True
             next_request = CrawlerRequest(site_url=next_request_url)
             crawler_response = self.crawler.process_request(crawler_request=next_request)
@@ -35,12 +34,5 @@ class CrawlerRunner:
             html_body=crawler_response.site_body,
             regex_rules=self.crawler.regex_rules,
             allowed_domains=self.crawler.allowed_domains)
-
         for url in urls_to_extract:
             self.crawler_queue.add_request_to_queue(url=url)
-
-    def __run_star_crawler(self) -> CrawlerResponse:
-        crawler_response = self.crawler.start_crawler()
-        if not isinstance(crawler_response, CrawlerResponse):
-            raise ValueError('star_crawler return type must be a CrawlerResponse')
-        return crawler_response
