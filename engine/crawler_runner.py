@@ -1,3 +1,5 @@
+import time
+
 from engine.crawler import Crawler
 from engine.crawler_queue import CrawlerQueue
 from engine.crawler_request import CrawlerRequest
@@ -26,10 +28,12 @@ class CrawlerRunner:
             if not next_request_url:
                 print('All requests were made')
                 return True
+
+            time.sleep(self.crawler.time_between_requests)
             next_request = CrawlerRequest(site_url=next_request_url)
             crawler_response = self.crawler.process_request(crawler_request=next_request)
-
             self.__add_urls_to_queue(crawler_response=crawler_response)
+
             self.crawler.parse_crawler_response(crawler_response=crawler_response)
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse):

@@ -16,6 +16,7 @@ class WebscraperIOCrawler(Crawler):
         '/computers',
         '/computers/tablets',
     ]
+    time_between_requests = 1
 
     def __init__(self):
         self.sk: SeleniumToolKit = None
