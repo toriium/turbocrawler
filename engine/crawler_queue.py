@@ -30,6 +30,10 @@ class CrawledQueue:
             else:
                 return False
 
+    def delete_crawled_queue(self):
+        if os.path.exists(self.__crawler_queue_file_path):
+            os.remove(self.__crawler_queue_file_path)
+
     def __append_queue(self, url):
         with open(self.__crawler_queue_file_path, 'a') as file:
             file.write(f"\n{url}")
@@ -40,14 +44,17 @@ class CrawlerQueue:
     The queue is a FIFO
     """
 
-    def __init__(self, crawler_name: str):
+    def __init__(self, crawler_name: str, save_crawled_queue: bool = False):
         self.__crawler_queue = deque()
+        self.save_crawled_queue = save_crawled_queue
         self.crawled_queue = CrawledQueue(crawler_name)
 
     def get_request_from_queue(self):
         if self.__crawler_queue:
             url = self.__crawler_queue.popleft()
         else:
+            if not self.save_crawled_queue:
+                self.crawled_queue.delete_crawled_queue()
             return None
 
         self.__add_to_crawled_queue(url=url)

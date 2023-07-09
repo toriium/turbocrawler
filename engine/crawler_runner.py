@@ -8,9 +8,9 @@ from engine.url_extractor import UrlExtractor
 
 
 class CrawlerRunner:
-    def __init__(self, crawler: type[Crawler]):
+    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueue):
         self.crawler = crawler
-        self.crawler_queue = CrawlerQueue(crawler_name=self.crawler.crawler_name)
+        self.crawler_queue = crawler_queue
 
     def run(self):
         self.crawler = self.crawler()
