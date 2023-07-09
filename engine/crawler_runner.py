@@ -1,5 +1,3 @@
-from typing import Type
-
 from engine.crawler import Crawler
 from engine.crawler_queue import CrawlerQueue
 from engine.crawler_request import CrawlerRequest
@@ -8,12 +6,13 @@ from engine.url_extractor import UrlExtractor
 
 
 class CrawlerRunner:
-    def __init__(self, crawler: Type[Crawler]):
+    def __init__(self, crawler: type[Crawler]):
         self.crawler = crawler
         self.crawler_queue = CrawlerQueue(crawler_name=self.crawler.crawler_name)
 
     def run(self):
         self.crawler = self.crawler()
+        self.crawler.start_crawler()
 
         crawler_response = self.crawler.crawler_first_request()
         self.__add_urls_to_queue(crawler_response=crawler_response)
