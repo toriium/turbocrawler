@@ -1,6 +1,8 @@
 import os
 from collections import deque
 
+from engine.crawler import Crawler
+
 
 class CrawledQueue:
     def __init__(self, crawler_name: str):
@@ -44,10 +46,10 @@ class CrawlerQueue:
     The queue is a FIFO
     """
 
-    def __init__(self, crawler_name: str, save_crawled_queue: bool = False):
+    def __init__(self, crawler: type[Crawler], save_crawled_queue: bool = False):
         self.__crawler_queue = deque()
         self.save_crawled_queue = save_crawled_queue
-        self.crawled_queue = CrawledQueue(crawler_name)
+        self.crawled_queue = CrawledQueue(crawler_name=crawler.crawler_name)
 
     def get_request_from_queue(self):
         if self.__crawler_queue:
