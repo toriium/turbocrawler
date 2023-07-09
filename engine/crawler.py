@@ -11,6 +11,10 @@ class Crawler(ABC):
     regex_rules: list[str]
 
     @abstractmethod
+    def start_crawler(self) -> None:
+        ...
+
+    @abstractmethod
     def crawler_first_request(self) -> CrawlerResponse:
         ...
 
@@ -28,4 +32,8 @@ class Crawler(ABC):
 
     @abstractmethod
     def parse_crawler_response(self, crawler_response: CrawlerResponse) -> Any:
+        ...
+
+    @abstractmethod
+    def stop_crawler(self) -> None:
         ...

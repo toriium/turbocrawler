@@ -1,3 +1,5 @@
+from selenium.webdriver.chromium.webdriver import ChromiumDriver
+
 from engine.crawler import Crawler
 from engine.crawler_request import CrawlerRequest
 from engine.crawler_response import CrawlerResponse
@@ -16,6 +18,10 @@ class WebscraperIOCrawler(Crawler):
     ]
 
     def __init__(self):
+        self.sk: SeleniumToolKit = None
+        self.driver: ChromiumDriver = None
+
+    def start_crawler(self) -> None:
         self.driver = get_undetected_chromedriver()
         self.sk = SeleniumToolKit(driver=self.driver)
 
@@ -44,3 +50,7 @@ class WebscraperIOCrawler(Crawler):
     def parse_crawler_response(self, crawler_response: CrawlerResponse):
         json_data = {"site_url": crawler_response.site_url, "site_html": crawler_response.site_body}
         JsonFileMaker(crawler_name=self.crawler_name).create(json_data=json_data)
+
+    def stop_crawler(self) -> None:
+        if self.sk.webdriver_is_open():
+            self.driver.quit()
