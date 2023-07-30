@@ -1,8 +1,8 @@
 from selenium.webdriver.chromium.webdriver import ChromiumDriver
 
 from engine.crawler import Crawler
-from engine.crawler_request import CrawlerRequest
-from engine.crawler_response import CrawlerResponse
+from engine.models import CrawlerRequest, CrawlerResponse
+
 from parsers.json_file_maker import JsonFileMaker
 from selenium_module.get_driver import get_undetected_chromedriver
 from selenium_toolkit import SeleniumToolKit
@@ -37,6 +37,9 @@ class WebscraperIOCrawler(Crawler):
         kwargs = {"agua": 'agua'}
         return CrawlerResponse(site_url=site_url,
                                site_body=site_body,
+                               status_code=200,
+                               headers={},
+                               cookies=self.driver.get_cookies(),
                                kwargs=kwargs)
 
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:

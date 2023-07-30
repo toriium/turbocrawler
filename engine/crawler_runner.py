@@ -2,8 +2,7 @@ import time
 
 from engine.crawler import Crawler
 from engine.crawler_queue import CrawlerQueue
-from engine.crawler_request import CrawlerRequest
-from engine.crawler_response import CrawlerResponse
+from engine.models import CrawlerRequest, CrawlerResponse
 from engine.url_extractor import UrlExtractor
 
 
@@ -24,14 +23,13 @@ class CrawlerRunner:
 
     def __process_crawler_queue(self):
         while True:
-            next_request_url = self.crawler_queue.get_request_from_queue()
-            if not next_request_url:
+            next_crawler_request = self.crawler_queue.get_request_from_queue()
+            if not next_crawler_request:
                 print('All requests were made')
                 return True
 
             time.sleep(self.crawler.time_between_requests)
-            next_request = CrawlerRequest(site_url=next_request_url)
-            crawler_response = self.crawler.process_request(crawler_request=next_request)
+            crawler_response = self.crawler.process_request(crawler_request=next_crawler_request)
             self.__add_urls_to_queue(crawler_response=crawler_response)
 
             self.crawler.parse_crawler_response(crawler_response=crawler_response)
@@ -43,4 +41,5 @@ class CrawlerRunner:
             regex_rules=self.crawler.regex_rules,
             allowed_domains=self.crawler.allowed_domains)
         for url in urls_to_extract:
-            self.crawler_queue.add_request_to_queue(url=url)
+            crawler_request = CrawlerRequest(site_url=url)
+            self.crawler_queue.add_request_to_queue(crawler_request=crawler_request)

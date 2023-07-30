@@ -2,6 +2,7 @@ import os
 from collections import deque
 
 from engine.crawler import Crawler
+from engine.models import CrawlerRequest
 
 
 class CrawledQueue:
@@ -51,25 +52,26 @@ class CrawlerQueue:
         self.save_crawled_queue = save_crawled_queue
         self.crawled_queue = CrawledQueue(crawler_name=crawler.crawler_name)
 
-    def get_request_from_queue(self):
+    def get_request_from_queue(self) -> CrawlerRequest | None:
         if self.__crawler_queue:
-            url = self.__crawler_queue.popleft()
+            crawler_request = self.__crawler_queue.popleft()
         else:
             if not self.save_crawled_queue:
                 self.crawled_queue.delete_crawled_queue()
             return None
 
-        self.__add_to_crawled_queue(url=url)
+        self.__add_to_crawled_queue(url=crawler_request.site_url)
 
-        return url
+        return crawler_request
 
-    def add_request_to_queue(self, url) -> None:
+    def add_request_to_queue(self, crawler_request: CrawlerRequest) -> None:
+        url = crawler_request.site_url
         if url in self.__crawler_queue:
             print(f'URL: {url} is on the __crawler_queue')
             return
 
         if not self.__page_already_crawled(url=url):
-            self.__crawler_queue.append(url)
+            self.__crawler_queue.append(crawler_request)
         else:
             print(f'URL: {url} already_crawled')
 

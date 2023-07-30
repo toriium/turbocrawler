@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from engine.crawler_response import CrawlerResponse
-from engine.crawler_request import CrawlerRequest
+from engine.models import CrawlerRequest, CrawlerResponse
 
 
 class Crawler(ABC):
@@ -10,6 +9,9 @@ class Crawler(ABC):
     allowed_domains: list[str]
     regex_rules: list[str]
     time_between_requests: int | float = 0
+
+    def __init__(self) -> None:
+        ...
 
     @abstractmethod
     def start_crawler(self) -> None:
