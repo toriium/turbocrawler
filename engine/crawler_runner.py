@@ -14,6 +14,8 @@ class CrawlerRunner:
 
     def run(self):
         self.crawler = self.crawler()
+        if 'crawler_queue' in self.crawler.__annotations__:
+            setattr(self.crawler, 'crawler_queue', self.crawler_queue)
 
         try:
             self.crawler.start_crawler()

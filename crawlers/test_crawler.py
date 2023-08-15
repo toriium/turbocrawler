@@ -1,6 +1,7 @@
 from selenium.webdriver.chromium.webdriver import ChromiumDriver
 
 from engine.crawler import Crawler
+from engine.crawler_queue import CrawlerQueue
 from engine.models import CrawlerRequest, CrawlerResponse
 
 from parsers.json_file_maker import JsonFileMaker
@@ -18,6 +19,8 @@ class WebscraperIOCrawler(Crawler):
     ]
     time_between_requests = 1
 
+    crawler_queue: CrawlerQueue
+
     def __init__(self):
         self.sk: SeleniumToolKit = None
         self.driver: ChromiumDriver = None
@@ -27,6 +30,9 @@ class WebscraperIOCrawler(Crawler):
         self.sk = SeleniumToolKit(driver=self.driver)
 
     def crawler_first_request(self) -> CrawlerResponse:
+        request = CrawlerRequest(site_url='https://google.com')
+        self.crawler_queue.add_request_to_queue(request)
+
         url = 'https://check.torproject.org/'
         self.sk.goto(url=url)
         url = "https://webscraper.io/test-sites/e-commerce/static"
