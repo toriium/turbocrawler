@@ -1,7 +1,7 @@
 import re
 from parsel import Selector
 
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 
 class UrlExtractor:
@@ -43,7 +43,7 @@ class UrlExtractor:
             if href.startswith(("https://", "http://")):
                 transformed_urls.append(href)
             if href.startswith('/'):
-                transformed_url = f'{site_current_domain}{href}'
+                transformed_url = urljoin(site_current_domain, href)
                 transformed_urls.append(transformed_url)
         return transformed_urls
 
