@@ -1,4 +1,4 @@
-from crawler_manager import Crawler, CrawlerQueue, CrawlerRequest, CrawlerResponse
+from crawler_manager import Crawler, CrawlerRequest, CrawlerResponse
 from crawler_manager.parsers.json_file_maker import JsonFileMaker
 
 
@@ -11,8 +11,6 @@ class WebscraperIOCrawler(Crawler):
         '/computers/tablets',
     ]
     time_between_requests = 1
-
-    crawler_queue: CrawlerQueue
 
     def start_crawler(self) -> None:
         ...
