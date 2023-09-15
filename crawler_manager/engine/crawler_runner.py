@@ -1,10 +1,10 @@
 import time
 
-from engine.crawler import Crawler
-from engine.crawler_queue import CrawlerQueue
-from engine.models import CrawlerRequest, CrawlerResponse
-from engine.url_extractor import UrlExtractor
-from engine.control import ReMakeRequest, SkipRequest, StopCrawler
+from crawler_manager.engine.crawler import Crawler
+from crawler_manager.engine.crawler_queue import CrawlerQueue
+from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
+from crawler_manager.engine.url_extractor import UrlExtractor
+from crawler_manager.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 
 
 class CrawlerRunner:

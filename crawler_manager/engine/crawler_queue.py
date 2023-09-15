@@ -1,8 +1,8 @@
 import os
 from collections import deque
 
-from engine.crawler import Crawler
-from engine.models import CrawlerRequest
+from crawler_manager.engine.crawler import Crawler
+from crawler_manager.engine.models import CrawlerRequest
 
 
 class CrawledQueue:
