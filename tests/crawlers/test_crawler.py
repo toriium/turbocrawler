@@ -1,6 +1,8 @@
 from crawler_manager import Crawler, CrawlerRequest, CrawlerResponse
 from crawler_manager.parsers.json_file_maker import JsonFileMaker
 
+import requests
+
 
 class WebscraperIOCrawler(Crawler):
     crawler_name = "WebscraperIO"
@@ -8,36 +10,34 @@ class WebscraperIOCrawler(Crawler):
     regex_rules = [
         '/product',
         '/computers',
-        '/computers/tablets',
     ]
     time_between_requests = 1
+    session = requests.Session
 
     def start_crawler(self) -> None:
-        ...
+        print('[start_crawler] aaaa')
+        self.session = requests.session()
 
     def crawler_first_request(self) -> CrawlerResponse:
-        request = CrawlerRequest(site_url='https://google.com')
-        self.crawler_queue.add_request_to_queue(request)
-
-        url = 'https://check.torproject.org/'
-        self.sk.goto(url=url)
         url = "https://webscraper.io/test-sites/e-commerce/static"
-        self.sk.goto(url=url)
+        response = self.session.get(url=url)
 
-        site_url = self.driver.current_url
-        site_body = self.driver.page_source
+        site_url = response.url
+        status_code = response.status_code
+        site_body = response.text
+
         kwargs = {"agua": 'agua'}
         return CrawlerResponse(site_url=site_url,
                                site_body=site_body,
-                               status_code=200,
+                               status_code=status_code,
                                headers={},
-                               cookies=self.driver.get_cookies(),
+                               cookies=[],
                                kwargs=kwargs)
 
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
-        self.sk.goto(crawler_request.site_url)
-        site_url = self.driver.current_url
-        site_body = self.driver.page_source
+        response = self.session.get(crawler_request.site_url)
+        site_url = response.url
+        site_body = response.text
         kwargs = {"agua2": 'agua2'}
         return CrawlerResponse(site_url=site_url,
                                site_body=site_body,
@@ -48,5 +48,4 @@ class WebscraperIOCrawler(Crawler):
         JsonFileMaker(crawler_name=self.crawler_name).create(json_data=json_data)
 
     def stop_crawler(self) -> None:
-        if self.sk.webdriver_is_open():
-            self.driver.quit()
+        self.session.close()
