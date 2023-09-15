@@ -1,10 +1,10 @@
 import time
 
+from crawler_manager.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from crawler_manager.engine.crawler import Crawler
 from crawler_manager.engine.crawler_queue import CrawlerQueue
 from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 from crawler_manager.engine.url_extractor import UrlExtractor
-from crawler_manager.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 
 
 class CrawlerRunner:
@@ -15,7 +15,7 @@ class CrawlerRunner:
     def run(self):
         self.crawler = self.crawler()
         if 'crawler_queue' in self.crawler.__annotations__:
-            setattr(self.crawler, 'crawler_queue', self.crawler_queue)
+            self.crawler.crawler_queue = self.crawler_queue
 
         try:
             self.crawler.start_crawler()

@@ -1,7 +1,7 @@
 import re
-from parsel import Selector
+from urllib.parse import urljoin, urlparse
 
-from urllib.parse import urlparse, urljoin
+from parsel import Selector
 
 
 class UrlExtractor:

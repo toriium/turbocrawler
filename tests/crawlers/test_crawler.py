@@ -1,5 +1,4 @@
 from crawler_manager import Crawler, CrawlerQueue, CrawlerRequest, CrawlerResponse
-
 from crawler_manager.parsers.json_file_maker import JsonFileMaker
 
 

@@ -10,7 +10,7 @@ class CrawledQueue:
         self.crawler_name = crawler_name
 
         self.__file_name = f"{self.crawler_name}_crawled_queue.txt"
-        self.__queue_dir_name = f'crawlers_queue'
+        self.__queue_dir_name = 'crawlers_queue'
         self.__queue_dir_path = f'{os.getcwd()}/{self.__queue_dir_name}'
         self.__crawler_queue_file_path = f'{self.__queue_dir_path}/{self.__file_name}'
 
@@ -27,7 +27,7 @@ class CrawledQueue:
 
     def is_on_crawled_queue(self, url: str) -> bool:
         with open(self.__crawler_queue_file_path, 'r') as file:
-            for line, line_value in enumerate(file):
+            for _line, line_value in enumerate(file):
                 if url == line_value.strip():
                     return True
             else:
