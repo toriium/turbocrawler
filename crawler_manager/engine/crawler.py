@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from crawler_manager.engine.crawler_queue import CrawlerQueue
+from crawler_manager.engine.crawler_queue import CrawlerQueueABC
 from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 
 
@@ -11,7 +11,7 @@ class Crawler(ABC):
     regex_rules: list[str]
     time_between_requests: int | float = 0
 
-    crawler_queue: CrawlerQueue
+    crawler_queue: CrawlerQueueABC
 
     def __init__(self) -> None:
         ...

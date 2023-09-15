@@ -2,13 +2,13 @@ import time
 
 from crawler_manager.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from crawler_manager.engine.crawler import Crawler
-from crawler_manager.engine.crawler_queue import CrawlerQueue
+from crawler_manager.engine.crawler_queue import CrawlerQueueABC
 from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 from crawler_manager.engine.url_extractor import UrlExtractor
 
 
 class CrawlerRunner:
-    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueue):
+    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC):
         self.crawler = crawler
         self.crawler_queue = crawler_queue
 
