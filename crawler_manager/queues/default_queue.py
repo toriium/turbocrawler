@@ -2,11 +2,11 @@ import os
 from collections import deque
 
 from crawler_manager.engine.crawler import Crawler
-from crawler_manager.engine.crawler_queue import CrawlerQueueABC
+from crawler_manager.engine.crawler_queue import CrawlerQueueABC, CrawledQueueABC
 from crawler_manager.engine.models import CrawlerRequest
 
 
-class CrawledQueue:
+class TextCrawledQueue(CrawledQueueABC):
     def __init__(self, crawler_name: str):
         self.crawler_name = crawler_name
 
@@ -24,7 +24,8 @@ class CrawledQueue:
                 ...
 
     def add_to_crawled_queue(self, url: str) -> None:
-        self.__append_queue(url=url)
+        with open(self.__crawler_queue_file_path, 'a') as file:
+            file.write(f"\n{url}")
 
     def is_on_crawled_queue(self, url: str) -> bool:
         with open(self.__crawler_queue_file_path, 'r') as file:
@@ -38,19 +39,12 @@ class CrawledQueue:
         if os.path.exists(self.__crawler_queue_file_path):
             os.remove(self.__crawler_queue_file_path)
 
-    def __append_queue(self, url):
-        with open(self.__crawler_queue_file_path, 'a') as file:
-            file.write(f"\n{url}")
-
 
 class FIFOMemoryQueue(CrawlerQueueABC):
-    """
-        The queue is a FIFO
-        """
+    """The queue is a FIFO"""
 
-    def __init__(self, crawler: type[Crawler], save_crawled_queue: bool = False):
-        super().__init__(crawled_queue=CrawledQueue(crawler_name=crawler.crawler_name),
-                         save_crawled_queue=save_crawled_queue)
+    def __init__(self, crawler: type[Crawler], crawled_queue: CrawledQueueABC, save_crawled_queue: bool = False):
+        super().__init__(crawled_queue=crawled_queue, save_crawled_queue=save_crawled_queue)
         self.__crawler_queue = deque()
 
     def _insert_queue(self, crawler_request: CrawlerRequest):
