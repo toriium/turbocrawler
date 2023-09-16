@@ -33,7 +33,10 @@ class CrawlerQueueABC(ABC):
         self.__add_to_crawled_queue(url=crawler_request.site_url)
         return crawler_request
 
-    def add_request_to_queue(self, crawler_request: CrawlerRequest) -> None:
+    def add_request_to_queue(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
+        if not verify_crawled:
+            self._insert_queue(crawler_request)
+
         url = crawler_request.site_url
         if self._is_url_in_queue(url=url):
             print(f'URL: {url} is on the __crawler_queue')
