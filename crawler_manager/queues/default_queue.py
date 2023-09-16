@@ -40,6 +40,20 @@ class TextCrawledQueue(CrawledQueueABC):
             os.remove(self.__crawler_queue_file_path)
 
 
+class MemoryCrawledQueue(CrawledQueueABC):
+    def __init__(self):
+        self.crawled_queue = set()
+
+    def add_to_crawled_queue(self, url: str) -> None:
+        self.crawled_queue.add(url)
+
+    def is_on_crawled_queue(self, url: str) -> bool:
+        return url in self.crawled_queue
+
+    def delete_crawled_queue(self) -> None:
+        del self.crawled_queue
+
+
 class FIFOMemoryQueue(CrawlerQueueABC):
     """The queue is a FIFO"""
 
