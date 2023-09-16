@@ -21,17 +21,22 @@ class CrawlerRunner:
         self.crawler.crawler_queue = self.crawler_queue
 
         try:
+            logger.info('Calling  start_crawler')
             self.crawler.start_crawler()
 
+            logger.info('Calling  crawler_first_request')
             crawler_response = self.crawler.crawler_first_request()
             self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
             self.crawler.parse_crawler_response(crawler_response=crawler_response)
             self.__add_urls_to_queue(crawler_response=crawler_response)
 
+            logger.info('Processing crawler queue')
             self.__process_crawler_queue()
 
+            logger.info('Calling  stop_crawler')
             self.crawler.stop_crawler()
         except StopCrawler:
+            logger.exception('Calling  stop_crawler')
             self.crawler.stop_crawler()
 
     def __process_crawler_queue(self):
@@ -39,7 +44,7 @@ class CrawlerRunner:
         while True:
             next_crawler_request = self.crawler_queue.get_request_from_queue()
             if not next_crawler_request:
-                logger.info('All requests were made')
+                logger.info('Crawler queue is empty, all crawler_requests made')
                 return True
 
             self.__make_request(crawler_request=next_crawler_request)
@@ -51,6 +56,8 @@ class CrawlerRunner:
                 time.sleep(self.crawler.time_between_requests)
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
                 self.__add_urls_to_queue(crawler_response=crawler_response)
+
+                logger.debug(f'[parse_crawler_response] parsing page: {crawler_response.site_url}')
                 self.crawler.parse_crawler_response(crawler_response=crawler_response)
                 break
             except ReMakeRequest as error:
@@ -60,6 +67,7 @@ class CrawlerRunner:
                     logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
                     break
             except SkipRequest:
+                logger.info(f'Skipping request for url {crawler_request.site_url}')
                 break
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:

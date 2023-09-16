@@ -13,7 +13,6 @@ class QuotesToScrapeCrawler(Crawler):
     session = requests.Session
 
     def start_crawler(self) -> None:
-        print('[start_crawler] aaaa')
         self.session = requests.session()
 
     def crawler_first_request(self) -> CrawlerResponse:
@@ -42,10 +41,9 @@ class QuotesToScrapeCrawler(Crawler):
                                kwargs=kwargs)
 
     def parse_crawler_response(self, crawler_response: CrawlerResponse):
-        print(f'[parse_crawler_response] parsing page: {crawler_response.site_url}')
+        ...
         # json_data = {"site_url": crawler_response.site_url, "site_html": crawler_response.site_body}
         # JsonFileMaker(crawler_name=self.crawler_name).create(json_data=json_data)
 
     def stop_crawler(self) -> None:
-        print('[stop_crawler] aaaa')
         self.session.close()
