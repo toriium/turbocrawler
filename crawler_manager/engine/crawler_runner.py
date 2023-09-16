@@ -3,13 +3,17 @@ import time
 from crawler_manager.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from crawler_manager.engine.crawler import Crawler
 from crawler_manager.engine.base_queues.crawler_queue_base import CrawlerQueueABC
+from crawler_manager.queues.crawler_queues import FIFOMemoryQueue
+
 from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 from crawler_manager.engine.url_extractor import UrlExtractor
 
 
 class CrawlerRunner:
-    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC):
+    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
         self.crawler = crawler
+        if not crawler_queue:
+            crawler_queue = FIFOMemoryQueue()
         self.crawler_queue = crawler_queue
 
     def run(self):
