@@ -63,6 +63,9 @@ class CrawlerRunner:
                 break
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse):
+        if not self.crawler.regex_rules:
+            return None
+
         urls_to_extract = UrlExtractor.get_urls(
             site_current_url=crawler_response.site_url,
             html_body=crawler_response.site_body,

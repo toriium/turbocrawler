@@ -8,7 +8,7 @@ from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 class Crawler(ABC):
     crawler_name: str
     allowed_domains: list[str]
-    regex_rules: list[str]
+    regex_rules: list[str] = []
     time_between_requests: int | float = 0
 
     crawler_queue: CrawlerQueueABC
