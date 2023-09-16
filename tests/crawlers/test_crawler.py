@@ -18,7 +18,7 @@ class QuotesToScrapeCrawler(Crawler):
         self.session = requests.session()
 
     def crawler_first_request(self) -> CrawlerResponse:
-        url = "https://quotes.toscrape.com/"
+        url = "https://quotes.toscrape.com/page/1/"
         response = self.session.get(url=url)
 
         site_url = response.url

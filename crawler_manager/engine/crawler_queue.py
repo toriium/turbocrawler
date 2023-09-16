@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class CrawledQueueABC(ABC):
     @abstractmethod
-    def add_to_crawled_queue(self, url: str) -> None:
+    def add_url_to_crawled_queue(self, url: str) -> None:
         pass
 
     @abstractmethod
@@ -21,16 +21,18 @@ class CrawlerQueueABC(ABC):
     def __init__(self, crawled_queue: CrawledQueueABC, save_crawled_queue: bool = False):
         self.save_crawled_queue = save_crawled_queue
         self.crawled_queue = crawled_queue
+        self.__crawled_queue_control = set()
 
     def get_request_from_queue(self) -> CrawlerRequest | None:
         if self._is_queue_empty():
             if not self.save_crawled_queue:
                 self.crawled_queue.delete_crawled_queue()
             return None
-        else:
-            crawler_request = self._get_and_remove_request_from_queue()
 
-        self.__add_to_crawled_queue(url=crawler_request.site_url)
+        crawler_request = self._get_and_remove_request_from_queue()
+        self.__crawled_queue_control.remove(crawler_request.site_url)
+
+        self.__add_url_to_crawled_queue(url=crawler_request.site_url)
         return crawler_request
 
     def add_request_to_queue(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
@@ -44,6 +46,7 @@ class CrawlerQueueABC(ABC):
 
         if not self.__page_already_crawled(url=url):
             self._insert_queue(crawler_request)
+            self.__crawled_queue_control.add(url)
         else:
             print(f'URL: {url} already_crawled')
 
@@ -55,9 +58,8 @@ class CrawlerQueueABC(ABC):
     def _get_and_remove_request_from_queue(self) -> CrawlerRequest:
         pass
 
-    @abstractmethod
     def _is_url_in_queue(self, url) -> bool:
-        pass
+        return url in self.__crawled_queue_control
 
     @abstractmethod
     def _is_queue_empty(self) -> bool:
@@ -66,5 +68,5 @@ class CrawlerQueueABC(ABC):
     def __page_already_crawled(self, url: str) -> bool:
         return self.crawled_queue.is_on_crawled_queue(url=url)
 
-    def __add_to_crawled_queue(self, url: str) -> None:
-        self.crawled_queue.add_to_crawled_queue(url=url)
+    def __add_url_to_crawled_queue(self, url: str) -> None:
+        self.crawled_queue.add_url_to_crawled_queue(url=url)

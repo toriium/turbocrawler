@@ -44,7 +44,7 @@ class MemoryCrawledQueue(CrawledQueueABC):
     def __init__(self):
         self.crawled_queue = set()
 
-    def add_to_crawled_queue(self, url: str) -> None:
+    def add_url_to_crawled_queue(self, url: str) -> None:
         self.crawled_queue.add(url)
 
     def is_on_crawled_queue(self, url: str) -> bool:
@@ -66,10 +66,6 @@ class FIFOMemoryQueue(CrawlerQueueABC):
 
     def _get_and_remove_request_from_queue(self) -> CrawlerRequest:
         return self.__crawler_queue.popleft()
-
-    def _is_url_in_queue(self, url) -> bool:
-        request = CrawlerRequest(site_url=url)
-        return request in self.__crawler_queue
 
     def _is_queue_empty(self) -> bool:
         return False if bool(self.__crawler_queue) else True
