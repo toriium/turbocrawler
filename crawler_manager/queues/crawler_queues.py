@@ -18,4 +18,4 @@ class FIFOMemoryQueue(CrawlerQueueABC):
         return self.__crawler_queue.popleft()
 
     def _is_queue_empty(self) -> bool:
-        return False if bool(self.__crawler_queue) else True
+        return not bool(self.__crawler_queue)

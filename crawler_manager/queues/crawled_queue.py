@@ -30,8 +30,8 @@ class TextCrawledQueue(CrawledQueueABC):
             for _line, line_value in enumerate(file):
                 if url == line_value.strip():
                     return True
-            else:
-                return False
+
+        return False
 
     def delete_crawled_queue(self):
         if os.path.exists(self.__crawler_queue_file_path):

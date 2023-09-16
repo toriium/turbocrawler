@@ -34,7 +34,7 @@ select = [
     "PLE", # pylint
     "PLR", # pylint import style
     "PLW", # pylint
-    "RET", # flake8-return
+#    "RET", # flake8-return
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
     "T20", # flake8-print
