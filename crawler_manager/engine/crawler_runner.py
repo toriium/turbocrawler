@@ -8,6 +8,8 @@ from crawler_manager.queues.crawler_queues import FIFOMemoryQueue
 from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 from crawler_manager.engine.url_extractor import UrlExtractor
 
+from crawler_manager.logger import logger
+
 
 class CrawlerRunner:
     def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
@@ -39,7 +41,7 @@ class CrawlerRunner:
         while True:
             next_crawler_request = self.crawler_queue.get_request_from_queue()
             if not next_crawler_request:
-                print('All requests were made')
+                logger.info('All requests were made')
                 return True
 
             self.__make_request(crawler_request=next_crawler_request)
@@ -57,7 +59,7 @@ class CrawlerRunner:
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
-                    print('Exceed retry tentatives')
+                    logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
                     break
             except SkipRequest:
                 break

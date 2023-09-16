@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 
 from crawler_manager.queues.crawled_queue import MemoryCrawledQueue
 
+from crawler_manager.logger import logger
+
 
 class CrawlerQueueABC(ABC):
 
@@ -32,14 +34,14 @@ class CrawlerQueueABC(ABC):
 
         url = crawler_request.site_url
         if self._is_url_in_queue(url=url):
-            print(f'URL: {url} is on the __crawler_queue')
+            logger.debug(f'URL: {url} is on the __crawler_queue')
             return
 
         if not self.__page_already_crawled(url=url):
             self._insert_queue(crawler_request)
             self.__crawled_queue_control.add(url)
         else:
-            print(f'URL: {url} already_crawled')
+            logger.debug(f'URL: {url} already_crawled')
 
     @abstractmethod
     def _insert_queue(self, crawler_request: CrawlerRequest):
