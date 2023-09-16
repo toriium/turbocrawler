@@ -1,14 +1,12 @@
 import time
 
+from crawler_manager.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from crawler_manager.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from crawler_manager.engine.crawler import Crawler
-from crawler_manager.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from crawler_manager.queues.crawler_queues import FIFOMemoryQueue
-
 from crawler_manager.engine.models import CrawlerRequest, CrawlerResponse
 from crawler_manager.engine.url_extractor import UrlExtractor
-
 from crawler_manager.logger import logger
+from crawler_manager.queues.crawler_queues import FIFOMemoryQueue
 
 
 class CrawlerRunner:
@@ -64,7 +62,7 @@ class CrawlerRunner:
             except SkipRequest:
                 break
 
-    def __add_urls_to_queue(self, crawler_response: CrawlerResponse):
+    def __add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
         if not self.crawler.regex_rules:
             return None
 

@@ -1,7 +1,7 @@
 from collections import deque
 
-from crawler_manager.engine.models import CrawlerRequest
 from crawler_manager.engine import CrawledQueueABC, CrawlerQueueABC
+from crawler_manager.engine.models import CrawlerRequest
 
 
 class FIFOMemoryQueue(CrawlerQueueABC):

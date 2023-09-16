@@ -35,7 +35,6 @@ select = [
     "PLR", # pylint import style
     "PLW", # pylint
     "RET", # flake8-return
-    "RUF", # ruff-specific rules
     "SIM", # flake8-simplify
     "T10", # flake8-debugger
     "T20", # flake8-print

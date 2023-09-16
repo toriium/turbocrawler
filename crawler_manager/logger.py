@@ -1,5 +1,5 @@
-import logging
 import argparse
+import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-log',

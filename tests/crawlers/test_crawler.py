@@ -1,7 +1,6 @@
-from crawler_manager import Crawler, CrawlerRequest, CrawlerResponse
-from crawler_manager.parsers.json_file_maker import JsonFileMaker
-
 import requests
+
+from crawler_manager import Crawler, CrawlerRequest, CrawlerResponse
 
 
 class QuotesToScrapeCrawler(Crawler):

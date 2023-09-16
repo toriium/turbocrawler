@@ -1,10 +1,9 @@
-from crawler_manager.engine.base_queues.crawled_queue_base import CrawledQueueABC
-from crawler_manager.engine.models import CrawlerRequest
 from abc import ABC, abstractmethod
 
-from crawler_manager.queues.crawled_queue import MemoryCrawledQueue
-
+from crawler_manager.engine.base_queues.crawled_queue_base import CrawledQueueABC
+from crawler_manager.engine.models import CrawlerRequest
 from crawler_manager.logger import logger
+from crawler_manager.queues.crawled_queue import MemoryCrawledQueue
 
 
 class CrawlerQueueABC(ABC):
