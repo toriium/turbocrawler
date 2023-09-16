@@ -24,7 +24,10 @@ class CrawlerRunner:
             self.crawler.start_crawler()
 
             crawler_response = self.crawler.crawler_first_request()
+            self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
+            self.crawler.parse_crawler_response(crawler_response=crawler_response)
             self.__add_urls_to_queue(crawler_response=crawler_response)
+
             self.__process_crawler_queue()
 
             self.crawler.stop_crawler()
