@@ -6,14 +6,16 @@ from parsel import Selector
 
 class UrlExtractor:
     @classmethod
-    def get_urls(cls, site_current_url: str, html_body: str, regex_rules: list[str], allowed_domains: list[str]):
+    def get_urls(cls, site_current_url: str, html_body: str, allowed_domains: list[str], regex_rules: list[str] = None):
         site_current_domain = cls.get_url_domain(site_current_url)
 
         hrefs_in_html = cls.extract_hrefs_from_html(html_body=html_body)
         urls = cls.transform_hrefs(site_current_domain=site_current_domain, hrefs=hrefs_in_html)
         urls = cls.validate_urls_with_allowed_domains(urls=urls, allowed_domains=allowed_domains)
+        if not regex_rules:
+            return urls
         urls = cls.validate_urls_with_regex(urls=urls, regex_rules=regex_rules)
-        urls = list(set(urls))
+
         return urls
 
     @staticmethod
@@ -28,7 +30,7 @@ class UrlExtractor:
         return matched_urls
 
     @staticmethod
-    def validate_urls_with_allowed_domains(urls: list[str], allowed_domains: list[str]):
+    def validate_urls_with_allowed_domains(urls: set[str], allowed_domains: list[str]):
         valid_urls = []
         for url in urls:
             for domain in allowed_domains:
@@ -37,14 +39,14 @@ class UrlExtractor:
         return valid_urls
 
     @staticmethod
-    def transform_hrefs(site_current_domain: str, hrefs: list[str]) -> list[str]:
-        transformed_urls = []
+    def transform_hrefs(site_current_domain: str, hrefs: list[str]) -> set[str]:
+        transformed_urls = set()
         for href in hrefs:
             if href.startswith(("https://", "http://")):
-                transformed_urls.append(href)
+                transformed_urls.add(href)
             if href.startswith('/'):
                 transformed_url = urljoin(site_current_domain, href)
-                transformed_urls.append(transformed_url)
+                transformed_urls.add(transformed_url)
         return transformed_urls
 
     @staticmethod

@@ -66,11 +66,18 @@ class CrawlerRunner:
         if not self.crawler.regex_rules:
             return None
 
-        urls_to_extract = UrlExtractor.get_urls(
-            site_current_url=crawler_response.site_url,
-            html_body=crawler_response.site_body,
-            regex_rules=self.crawler.regex_rules,
-            allowed_domains=self.crawler.allowed_domains)
+        if self.crawler.regex_rules[0] == '*':
+            urls_to_extract = UrlExtractor.get_urls(
+                site_current_url=crawler_response.site_url,
+                html_body=crawler_response.site_body,
+                allowed_domains=self.crawler.allowed_domains)
+        else:
+            urls_to_extract = UrlExtractor.get_urls(
+                site_current_url=crawler_response.site_url,
+                html_body=crawler_response.site_body,
+                regex_rules=self.crawler.regex_rules,
+                allowed_domains=self.crawler.allowed_domains)
+
         for url in urls_to_extract:
             crawler_request = CrawlerRequest(site_url=url,
                                              headers=crawler_response.headers,
