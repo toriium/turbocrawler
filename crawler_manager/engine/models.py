@@ -6,7 +6,7 @@ class CrawlerRequest:
     site_url: str
     headers: dict = None
     cookies: list[dict] = None
-    proxy: str = None
+    proxy: str | None = None
 
 
 @dataclass

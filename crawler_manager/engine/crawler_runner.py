@@ -66,5 +66,8 @@ class CrawlerRunner:
             regex_rules=self.crawler.regex_rules,
             allowed_domains=self.crawler.allowed_domains)
         for url in urls_to_extract:
-            crawler_request = CrawlerRequest(site_url=url)
+            crawler_request = CrawlerRequest(site_url=url,
+                                             headers=crawler_response.headers,
+                                             cookies=crawler_response.cookies,
+                                             proxy=None)
             self.crawler_queue.add_request_to_queue(crawler_request=crawler_request)
