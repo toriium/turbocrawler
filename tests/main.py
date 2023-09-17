@@ -1,4 +1,4 @@
-from crawler_manager.engine.crawler_runner import CrawlerRunner
+from easycrawl.engine.crawler_runner import CrawlerRunner
 from tests.crawlers.test_crawler import QuotesToScrapeCrawler
 
 crawler = QuotesToScrapeCrawler

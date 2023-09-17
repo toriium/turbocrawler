@@ -1,17 +1,21 @@
 [tool.poetry]
-name = "crawler_manager"
-version = "0.1.0"
-description = ""
+name = "easycrawl"
+version = "0.0.1"
+license = "MIT"
+description = "this is not a awesome description"
 authors = ["jorgepvasconcelos"]
+keywords = ["crawler", "crawler framework", "scraping"]
 readme = "README.md"
-packages = [{ include = "crawler_manager" }]
+packages = [{ include = "crawle" }]
+homepage = "https://github.com/jorgepvasconcelos/easycrawl"
+repository = "https://github.com/jorgepvasconcelos/easycrawl"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+parsel = "*"
 
 
 [tool.poetry.group.dev.dependencies]
-parsel = "*"
 requests = "*"
 ruff = "*"
 
@@ -23,7 +27,6 @@ select = [
     "B", # flake8-bugbear
     "BLE", # flake8-blind-except
     "C4", # comprehensions
-#    "D", # pydocstyle
     "E", # pycodestyle
     "F", # pyflakes
     "I", # isort

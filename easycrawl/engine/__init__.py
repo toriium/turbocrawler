@@ -1,0 +1,2 @@
+from easycrawl.engine.base_queues.crawled_queue_base import CrawledQueueABC
+from easycrawl.engine.base_queues.crawler_queue_base import CrawlerQueueABC

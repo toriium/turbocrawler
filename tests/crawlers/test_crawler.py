@@ -1,6 +1,6 @@
 import requests
 
-from crawler_manager import Crawler, CrawlerRequest, CrawlerResponse
+from easycrawl import Crawler, CrawlerRequest, CrawlerResponse
 
 
 class QuotesToScrapeCrawler(Crawler):
