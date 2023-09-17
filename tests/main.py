@@ -1,6 +1,5 @@
 from easycrawl.engine.crawler_runner import CrawlerRunner
 from tests.crawlers.test_crawler import QuotesToScrapeCrawler
 
-crawler = QuotesToScrapeCrawler
-response = CrawlerRunner(crawler=crawler).run()
+response = CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
 print('Success')
