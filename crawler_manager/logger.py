@@ -1,5 +1,6 @@
 import argparse
 import logging
+# import logging.config
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-log',
@@ -7,8 +8,7 @@ parser.add_argument('-log',
                     default='info',
                     help='Provide logging level. Example --loglevel debug, default=info')
 args = parser.parse_args()
-
-logger = logging.getLogger()
+logger = logging.getLogger('crawler_manager')
 logger.setLevel(args.loglevel.upper())
 
 ch = logging.StreamHandler()
