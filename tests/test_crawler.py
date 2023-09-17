@@ -1,7 +1,10 @@
+from pprint import pprint
+
 import requests
 from parsel import Selector
-from pprint import pprint
+
 from easycrawl import Crawler, CrawlerRequest, CrawlerResponse
+from easycrawl.engine.crawler_runner import CrawlerRunner
 
 
 class QuotesToScrapeCrawler(Crawler):
@@ -38,3 +41,6 @@ class QuotesToScrapeCrawler(Crawler):
 
     def stop_crawler(self) -> None:
         self.session.close()
+
+
+CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
