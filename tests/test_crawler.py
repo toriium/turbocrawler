@@ -3,8 +3,7 @@ from pprint import pprint
 import requests
 from parsel import Selector
 
-from easycrawl import Crawler, CrawlerRequest, CrawlerResponse
-from easycrawl.engine.crawler_runner import CrawlerRunner
+from easycrawl import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
 
 
 class QuotesToScrapeCrawler(Crawler):
@@ -30,7 +29,7 @@ class QuotesToScrapeCrawler(Crawler):
                                site_body=response.text,
                                status_code=response.status_code)
 
-    def parse_crawler_response(self, crawler_response: CrawlerResponse):
+    def parse_crawler_response(self, crawler_response: CrawlerResponse) -> None:
         selector = Selector(crawler_response.site_body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:
