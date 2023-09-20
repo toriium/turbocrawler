@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from easycrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
-from easycrawler.engine.models import CrawlerRequest
-from easycrawler.logger import logger
-from easycrawler.queues.crawled_queue import MemoryCrawledQueue
+from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
+from turbocrawler.engine.models import CrawlerRequest
+from turbocrawler.logger import logger
+from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
 
 class CrawlerQueueABC(ABC):

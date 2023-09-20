@@ -1,7 +1,7 @@
 from collections import deque
 
-from easycrawler.engine import CrawledQueueABC, CrawlerQueueABC
-from easycrawler.engine.models import CrawlerRequest
+from turbocrawler.engine import CrawledQueueABC, CrawlerQueueABC
+from turbocrawler.engine.models import CrawlerRequest
 
 
 class FIFOMemoryQueue(CrawlerQueueABC):

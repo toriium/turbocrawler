@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from easycrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from easycrawler.engine.models import CrawlerRequest, CrawlerResponse
+from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
+from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse
 
 
 class Crawler(ABC):

@@ -1,6 +1,6 @@
 import os
 
-from easycrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
+from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 
 
 class TextCrawledQueue(CrawledQueueABC):

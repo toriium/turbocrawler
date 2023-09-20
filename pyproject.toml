@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "easycrawl"
-version = "0.0.1"
+name = "turbocrawler"
+version = "0.0.1-rc1"
 license = "MIT"
 description = "this is not a awesome description"
 authors = ["jorgepvasconcelos"]
-keywords = ["crawler", "crawler framework", "scraping"]
+keywords = ["crawler", "crawler framework", "scraping", "turbocrawler"]
 readme = "README.md"
-packages = [{ include = "crawle" }]
-homepage = "https://github.com/jorgepvasconcelos/easycrawl"
-repository = "https://github.com/jorgepvasconcelos/easycrawl"
+packages = [{ include = "turbocrawler" }]
+homepage = "https://github.com/jorgepvasconcelos/turbocrawler"
+repository = "https://github.com/jorgepvasconcelos/turbocrawler"
 
 [tool.poetry.dependencies]
 python = "^3.11"
