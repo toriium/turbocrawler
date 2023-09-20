@@ -3,7 +3,7 @@ from pprint import pprint
 import requests
 from parsel import Selector
 
-from easycrawl import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
+from easycrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
 
 
 class QuotesToScrapeCrawler(Crawler):

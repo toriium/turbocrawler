@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger('easycrawl')
+logger = logging.getLogger('easycrawler')
 logger.setLevel(logging.INFO)
 
 ch = logging.StreamHandler()

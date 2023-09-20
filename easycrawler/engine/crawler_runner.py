@@ -1,12 +1,12 @@
 import time
 
-from easycrawl.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from easycrawl.engine.control import ReMakeRequest, SkipRequest, StopCrawler
-from easycrawl.engine.crawler import Crawler
-from easycrawl.engine.models import CrawlerRequest, CrawlerResponse
-from easycrawl.engine.url_extractor import UrlExtractor
-from easycrawl.logger import logger
-from easycrawl.queues.crawler_queues import FIFOMemoryQueue
+from easycrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
+from easycrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
+from easycrawler.engine.crawler import Crawler
+from easycrawler.engine.models import CrawlerRequest, CrawlerResponse
+from easycrawler.engine.url_extractor import UrlExtractor
+from easycrawler.logger import logger
+from easycrawler.queues.crawler_queues import FIFOMemoryQueue
 
 
 class CrawlerRunner:
