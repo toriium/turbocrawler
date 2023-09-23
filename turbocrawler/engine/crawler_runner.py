@@ -26,9 +26,10 @@ class CrawlerRunner:
 
             logger.info('Calling  crawler_first_request')
             crawler_response = self.crawler.crawler_first_request()
-            self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
-            self.crawler.parse_crawler_response(crawler_response=crawler_response)
-            self.__add_urls_to_queue(crawler_response=crawler_response)
+            if crawler_response is not None:
+                self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
+                self.crawler.parse_crawler_response(crawler_response=crawler_response)
+                self.__add_urls_to_queue(crawler_response=crawler_response)
 
             logger.info('Processing crawler queue')
             self.__process_crawler_queue()
@@ -54,10 +55,11 @@ class CrawlerRunner:
         while True:
             try:
                 time.sleep(self.crawler.time_between_requests)
+                logger.info(f'[process_request] URL: {crawler_request.site_url}')
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
                 self.__add_urls_to_queue(crawler_response=crawler_response)
 
-                logger.debug(f'[parse_crawler_response] parsing page: {crawler_response.site_url}')
+                logger.info(f'[parse_crawler_response] URL: {crawler_response.site_url}')
                 self.crawler.parse_crawler_response(crawler_response=crawler_response)
                 break
             except ReMakeRequest as error:

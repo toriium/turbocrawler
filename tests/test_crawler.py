@@ -16,7 +16,7 @@ class QuotesToScrapeCrawler(Crawler):
     def start_crawler(self) -> None:
         self.session = requests.session()
 
-    def crawler_first_request(self) -> CrawlerResponse:
+    def crawler_first_request(self) -> CrawlerResponse | None:
         url = "https://quotes.toscrape.com/page/1/"
         response = self.session.get(url=url)
         return CrawlerResponse(site_url=response.url,
