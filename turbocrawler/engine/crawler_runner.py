@@ -15,7 +15,7 @@ class CrawlerRunner:
     def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
         self.crawler = crawler
         if not crawler_queue:
-            crawler_queue = FIFOMemoryQueue()
+            crawler_queue = FIFOMemoryQueue(crawler_name=crawler.crawler_name)
         self.crawler_queue = crawler_queue
         self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
                                                                           class_object=self.crawler,

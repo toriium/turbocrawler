@@ -8,17 +8,21 @@ from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
 class CrawlerQueueABC(ABC):
 
-    def __init__(self, crawled_queue: CrawledQueueABC = None, save_crawled_queue: bool = False):
+    def __init__(self, crawler_name: str, crawled_queue: CrawledQueueABC = None, save_crawled_queue: bool = False):
+        self.crawler_name = crawler_name
         self.save_crawled_queue = save_crawled_queue
         if not crawled_queue:
-            crawled_queue = MemoryCrawledQueue()
+            crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
         self.__crawled_queue_control = set()
 
     def get_request_from_queue(self) -> CrawlerRequest | None:
         if self._is_queue_empty():
-            if not self.save_crawled_queue:
+            if self.save_crawled_queue:
+                self.crawled_queue.save_crawled_queue()
+            else:
                 self.crawled_queue.delete_crawled_queue()
+
             return None
 
         crawler_request = self._get_and_remove_request_from_queue()
