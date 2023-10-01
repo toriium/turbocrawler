@@ -1,3 +1,4 @@
+from datetime import datetime
 from pprint import pprint
 
 import requests
@@ -9,7 +10,7 @@ from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
 class QuotesToScrapeCrawler(Crawler):
     crawler_name = "QuotesToScrape"
     allowed_domains = ['quotes.toscrape']
-    regex_rules = [r'/page/[0-9]']
+    regex_rules = [r'^/page/[0-9]']
     time_between_requests = 1
     session: requests.Session
 
@@ -42,4 +43,6 @@ class QuotesToScrapeCrawler(Crawler):
         self.session.close()
 
 
+start = datetime.now()
 CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
+print(f'Process Time {datetime.now() - start}')
