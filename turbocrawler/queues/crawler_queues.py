@@ -7,8 +7,8 @@ from turbocrawler.engine.models import CrawlerRequest
 class FIFOMemoryQueue(CrawlerQueueABC):
     """The queue is a FIFO"""
 
-    def __init__(self, crawler_name: str, crawled_queue: CrawledQueueABC = None, save_crawled_queue: bool = False):
-        super().__init__(crawler_name=crawler_name, crawled_queue=crawled_queue, save_crawled_queue=save_crawled_queue)
+    def __init__(self, crawler_name: str, crawled_queue: CrawledQueueABC = None):
+        super().__init__(crawler_name=crawler_name, crawled_queue=crawled_queue)
         self.__crawler_queue = deque()
 
     def _insert_queue(self, crawler_request: CrawlerRequest):

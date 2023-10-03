@@ -4,7 +4,7 @@ from pprint import pprint
 import requests
 from parsel import Selector
 
-from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
+from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, FIFOMemoryQueue
 
 
 class QuotesToScrapeCrawler(Crawler):
@@ -44,5 +44,6 @@ class QuotesToScrapeCrawler(Crawler):
 
 
 start = datetime.now()
-CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
+q = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name)
+CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=q).run()
 print(f'Process Time {datetime.now() - start}')
