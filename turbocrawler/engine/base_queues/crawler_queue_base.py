@@ -13,16 +13,10 @@ class CrawlerQueueABC(ABC):
         if not crawled_queue:
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
-        self.save_crawled_queue = self.crawled_queue.save_crawled_queue
         self.__crawled_queue_control = set()
 
     def get_request_from_queue(self) -> CrawlerRequest | None:
         if self._is_queue_empty():
-            if self.save_crawled_queue:
-                self.crawled_queue.save_crawled_queue()
-            else:
-                self.crawled_queue.delete_crawled_queue()
-
             return None
 
         crawler_request = self._get_and_remove_request_from_queue()

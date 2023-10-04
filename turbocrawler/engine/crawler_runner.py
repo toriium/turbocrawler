@@ -28,31 +28,44 @@ class CrawlerRunner:
         self.crawler.crawler_queue = self.crawler_queue
 
         try:
-            logger.info('Calling  start_crawler')
-            self.crawler.start_crawler()
+            self.__call_all_start_crawler()
 
-            logger.info('Calling  crawler_first_request')
-            crawler_response = self.crawler.crawler_first_request()
-            if crawler_response is not None:
-                self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
-                self.crawler.parse_crawler_response(crawler_response=crawler_response)
-                self.__add_urls_to_queue(crawler_response=crawler_response)
+            self.__call_crawler_first_request()
 
-            logger.info('Processing crawler queue')
             self.__process_crawler_queue()
 
-            logger.info('Calling  stop_crawler')
-            self.crawler.stop_crawler()
+            self.__call_all_stop_crawler()
         except StopCrawler:
-            logger.exception('Calling  stop_crawler')
-            self.crawler.stop_crawler()
+            self.__call_all_stop_crawler()
+
+    def __call_all_start_crawler(self):
+        logger.info('Calling  start_crawler')
+        self.crawler.start_crawler()
+        self.crawler_queue.crawled_queue.start_crawler()
+
+    def __call_all_stop_crawler(self):
+        logger.info('Calling  stop_crawler')
+        self.crawler.stop_crawler()
+        self.crawler_queue.crawled_queue.stop_crawler()
+
+    def __call_crawler_first_request(self):
+        logger.info('Calling  crawler_first_request')
+        crawler_response = self.crawler.crawler_first_request()
+        if crawler_response is not None:
+            self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
+            self.crawler.parse_crawler_response(crawler_response=crawler_response)
+            self.__add_urls_to_queue(crawler_response=crawler_response)
 
     def __process_crawler_queue(self):
-        # get_request_from_queue
+        logger.info('Processing crawler queue')
+
+        # get requests from crawler queue
         while True:
             next_crawler_request = self.crawler_queue.get_request_from_queue()
             if not next_crawler_request:
                 logger.info('Crawler queue is empty, all crawler_requests made')
+
+                # Wait until parse_queue is empty
                 self.parse_queue_manager.stop_workers()
                 logger.info('Parse queue is empty, all parse_crawler_response made')
                 return True

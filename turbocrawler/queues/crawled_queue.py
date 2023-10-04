@@ -12,8 +12,8 @@ class TextCrawledQueue(CrawledQueueABC):
             save_crawled_queue: bool = False,
             load_crawled_queue: bool = False):
         super().__init__(crawler_name=crawler_name,
-                         save_crawled_queue=save_crawled_queue,
-                         load_crawled_queue=load_crawled_queue)
+                         must_load_crawled_queue=save_crawled_queue,
+                         must_save_crawled_queue=load_crawled_queue)
 
         self.__file_name = f"{self.crawler_name}_crawled_queue.txt"
         self.__queue_dir_name = 'crawlers_queue'
@@ -52,8 +52,8 @@ class MemoryCrawledQueue(CrawledQueueABC):
             save_crawled_queue: bool = False,
             load_crawled_queue: bool = False):
         super().__init__(crawler_name=crawler_name,
-                         save_crawled_queue=save_crawled_queue,
-                         load_crawled_queue=load_crawled_queue)
+                         must_load_crawled_queue=save_crawled_queue,
+                         must_save_crawled_queue=load_crawled_queue)
 
         self.crawled_queue = set()
 
@@ -69,9 +69,12 @@ class MemoryCrawledQueue(CrawledQueueABC):
         return url in self.crawled_queue
 
     def load_crawled_queue(self) -> None:
-        with open(self.__crawler_queue_file_path, 'w') as file:
+        if not os.path.exists(self.__crawler_queue_file_path):
+            raise FileNotFoundError(f'Unable to find path {self.__crawler_queue_file_path}'
+                                    f' to execute load_crawled_queue')
+        with open(self.__crawler_queue_file_path, 'r') as file:
             for line in file:
-                self.crawled_queue.add(line)
+                self.crawled_queue.add(line.strip())
 
     def delete_crawled_queue(self) -> None:
         del self.crawled_queue
