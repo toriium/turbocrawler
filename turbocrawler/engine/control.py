@@ -4,8 +4,10 @@ class ReMakeRequest(Exception):
 
 
 class SkipRequest(Exception):
-    ...
+    def __init__(self, reason: str = None):
+        self.reason = reason
 
 
 class StopCrawler(Exception):
-    ...
+    def __init__(self, reason: str = None):
+        self.reason = reason

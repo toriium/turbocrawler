@@ -24,17 +24,9 @@ class Crawler(ABC):
     def crawler_first_request(self) -> CrawlerResponse:
         ...
 
-    # @abstractmethod
-    # def before_request(self):
-    #     ...
-
     @abstractmethod
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
         ...
-
-    # @abstractmethod
-    # def after_request(self):
-    #     ...
 
     @abstractmethod
     def parse_crawler_response(self, crawler_response: CrawlerResponse) -> Any:

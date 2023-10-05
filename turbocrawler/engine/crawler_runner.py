@@ -38,7 +38,8 @@ class CrawlerRunner:
             self.__process_crawler_queue()
 
             self.__call_all_stop_crawler()
-        except StopCrawler:
+        except StopCrawler as error:
+            logger.info(f'StopCrawler raised reason {error.reason}')
             self.__call_all_stop_crawler()
 
     def __call_all_start_crawler(self):
@@ -92,8 +93,8 @@ class CrawlerRunner:
                 if request_retries >= error_retries:
                     logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
                     break
-            except SkipRequest:
-                logger.info(f'Skipping request for url {crawler_request.site_url}')
+            except SkipRequest as error:
+                logger.info(f'Skipping request for url {crawler_request.site_url} reason: {error.reason}')
                 break
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
