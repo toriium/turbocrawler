@@ -46,7 +46,7 @@ class QuotesToScrapeCrawler(Crawler):
 
 start = datetime.now()
 cq = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,
-                        load_crawled_queue=True)
+                        load_crawled_queue=False)
 q = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=cq)
 CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=q).run()
 print(f'Process Time {datetime.now() - start}')

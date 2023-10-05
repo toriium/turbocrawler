@@ -17,7 +17,7 @@ class CrawledQueueABC(ABC):
 
     def start_crawler(self):
         if self.must_load_crawled_queue:
-            logger.info('Calling load_crawled_queue')
+            logger.info(f'Calling {self.__class__.__name__}.load_crawled_queue')
             self.load_crawled_queue()
 
     @staticmethod
@@ -54,8 +54,8 @@ class CrawledQueueABC(ABC):
 
     def stop_crawler(self):
         if self.must_save_crawled_queue:
-            logger.info('Calling save_crawled_queue')
+            logger.info(f'Calling {self.__class__.__name__}.save_crawled_queue')
             self.save_crawled_queue()
         else:
-            logger.info('Calling delete_crawled_queue')
+            logger.info(f'Calling {self.__class__.__name__}.delete_crawled_queue')
             self.delete_crawled_queue()

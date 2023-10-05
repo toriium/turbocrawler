@@ -62,7 +62,6 @@ class ConsumerQueueWorker(Thread):
                 if self.worker_queue_manager.must_stop_workers:
                     logger.debug(f'{self.queue_name}|{self.worker_name}| STOPPING')
                     break
-                logger.debug(f'{self.queue_name}|{self.worker_name}| WAITING')
                 time.sleep(1)
                 continue
 
