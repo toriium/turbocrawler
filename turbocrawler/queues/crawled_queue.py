@@ -13,8 +13,8 @@ class TextCrawledQueue(CrawledQueueABC):
             save_crawled_queue: bool = False,
             load_crawled_queue: bool = False):
         super().__init__(crawler_name=crawler_name,
-                         must_load_crawled_queue=save_crawled_queue,
-                         must_save_crawled_queue=load_crawled_queue)
+                         must_save_crawled_queue=save_crawled_queue,
+                         must_load_crawled_queue=load_crawled_queue)
 
         self.__file_name = f"{self.crawler_name}_crawled_queue.txt"
         self.__queue_dir_name = 'crawlers_queue'
@@ -65,8 +65,8 @@ class MemoryCrawledQueue(CrawledQueueABC):
             save_crawled_queue: bool = False,
             load_crawled_queue: bool = False):
         super().__init__(crawler_name=crawler_name,
-                         must_load_crawled_queue=save_crawled_queue,
-                         must_save_crawled_queue=load_crawled_queue)
+                         must_save_crawled_queue=save_crawled_queue,
+                         must_load_crawled_queue=load_crawled_queue)
 
         self.crawled_queue = set()
 
