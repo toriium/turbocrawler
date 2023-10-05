@@ -1,3 +1,4 @@
+import re
 import time
 from multiprocessing import cpu_count
 
@@ -22,6 +23,7 @@ class CrawlerRunner:
                                                                           target=self.crawler.parse_crawler_response,
                                                                           qtd_workers=cpu_count())
         self.parse_queue_manager.start_workers()
+        self.__compile_regex()
 
     def run(self):
         self.crawler = self.crawler()
@@ -29,6 +31,7 @@ class CrawlerRunner:
 
         try:
             self.__call_all_start_crawler()
+            self.__remove_crawled()
 
             self.__call_crawler_first_request()
 
@@ -94,10 +97,10 @@ class CrawlerRunner:
                 break
 
     def __add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
-        if not self.crawler.regex_rules:
+        if not self.crawler.regex_extract_rules:
             return None
 
-        if self.crawler.regex_rules[0] == '*':
+        if self.crawler.regex_extract_rules[0] == '*':
             urls_to_extract = UrlExtractor.get_urls(
                 site_current_url=crawler_response.site_url,
                 html_body=crawler_response.site_body,
@@ -106,7 +109,7 @@ class CrawlerRunner:
             urls_to_extract = UrlExtractor.get_urls(
                 site_current_url=crawler_response.site_url,
                 html_body=crawler_response.site_body,
-                regex_rules=self.crawler.regex_rules,
+                extract_rules=self.crawler.regex_extract_rules,
                 allowed_domains=self.crawler.allowed_domains)
 
         for url in urls_to_extract:
@@ -115,3 +118,15 @@ class CrawlerRunner:
                                              cookies=crawler_response.cookies,
                                              proxy=None)
             self.crawler_queue.add_request_to_queue(crawler_request=crawler_request)
+
+    def __compile_regex(self):
+        for i, extract_rule in enumerate(self.crawler.regex_extract_rules):
+            raw_regex = extract_rule.regex
+            if not isinstance(raw_regex, re.Pattern):
+                self.crawler.regex_extract_rules[i].regex = re.compile(raw_regex)
+
+    def __remove_crawled(self):
+        extract_rules_remove_crawled = [extract_rule for extract_rule in self.crawler.regex_extract_rules
+                                        if extract_rule.remove_crawled]
+        self.crawler_queue.crawled_queue.remove_urls_with_remove_crawled(
+            extract_rules_remove_crawled=extract_rules_remove_crawled)

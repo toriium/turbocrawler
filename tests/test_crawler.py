@@ -4,13 +4,14 @@ from pprint import pprint
 import requests
 from parsel import Selector
 
-from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, FIFOMemoryQueue
+from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExtractRule, FIFOMemoryQueue
+from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
 
 class QuotesToScrapeCrawler(Crawler):
     crawler_name = "QuotesToScrape"
     allowed_domains = ['quotes.toscrape']
-    regex_rules = [r'^/page/[0-9]']
+    regex_extract_rules = [ExtractRule(r'https://quotes.toscrape.com/page/[0-9]')]
     time_between_requests = 1
     session: requests.Session
 
@@ -44,6 +45,8 @@ class QuotesToScrapeCrawler(Crawler):
 
 
 start = datetime.now()
-q = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name)
+cq = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,
+                        load_crawled_queue=True)
+q = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=cq)
 CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=q).run()
 print(f'Process Time {datetime.now() - start}')

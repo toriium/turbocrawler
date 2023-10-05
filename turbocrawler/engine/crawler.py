@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse
+from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, ExtractRule
 
 
 class Crawler(ABC):
     crawler_name: str
     allowed_domains: list[str]
-    regex_rules: list[str] = []
+    regex_extract_rules: list[ExtractRule] = []
     time_between_requests: int | float = 0
 
     crawler_queue: CrawlerQueueABC

@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+
+from turbocrawler.engine.models import ExtractRule
 from turbocrawler.logger import logger
 
 
@@ -18,12 +20,20 @@ class CrawledQueueABC(ABC):
             logger.info('Calling load_crawled_queue')
             self.load_crawled_queue()
 
+    @staticmethod
+    def _match_with_regex(url: str, extract_rules: list[ExtractRule]):
+        for extract_rule in extract_rules:
+            regex = extract_rule.regex
+            if regex.findall(url):
+                return True
+        return False
+
     @abstractmethod
     def add_url_to_crawled_queue(self, url: str) -> None:
         pass
 
     @abstractmethod
-    def is_on_crawled_queue(self, url: str) -> bool:
+    def is_url_in_crawled_queue(self, url: str) -> bool:
         pass
 
     @abstractmethod
@@ -36,6 +46,10 @@ class CrawledQueueABC(ABC):
 
     @abstractmethod
     def save_crawled_queue(self) -> None:
+        pass
+
+    @abstractmethod
+    def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
         pass
 
     def stop_crawler(self):

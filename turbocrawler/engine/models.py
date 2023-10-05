@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 
@@ -17,3 +18,9 @@ class CrawlerResponse:
     headers: dict = None
     cookies: list[dict] = None
     kwargs: dict = None
+
+
+@dataclass
+class ExtractRule:
+    regex: str | re.Pattern
+    remove_crawled: bool = False

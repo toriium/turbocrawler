@@ -56,7 +56,7 @@ class CrawlerQueueABC(ABC):
         pass
 
     def __page_already_crawled(self, url: str) -> bool:
-        return self.crawled_queue.is_on_crawled_queue(url=url)
+        return self.crawled_queue.is_url_in_crawled_queue(url=url)
 
     def __add_url_to_crawled_queue(self, url: str) -> None:
         self.crawled_queue.add_url_to_crawled_queue(url=url)

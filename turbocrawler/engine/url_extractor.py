@@ -1,35 +1,35 @@
-import re
 from urllib.parse import urljoin, urlparse
 
 from parsel import Selector
 
+from turbocrawler.engine.models import ExtractRule
+
 
 class UrlExtractor:
     @classmethod
-    def get_urls(cls, site_current_url: str, html_body: str, allowed_domains: list[str], regex_rules: list[str] = None):
+    def get_urls(cls, site_current_url: str, html_body: str, allowed_domains: list[str],
+                 extract_rules: list[ExtractRule] = None):
         site_current_domain = cls.get_url_domain(site_current_url)
 
         hrefs_in_html = cls.extract_hrefs_from_html(html_body=html_body)
-        if regex_rules:
-            hrefs_in_html = cls.validate_hrefs_with_regex(hrefs=hrefs_in_html, regex_rules=regex_rules)
-            urls = cls.transform_hrefs(site_current_domain=site_current_domain, hrefs=hrefs_in_html)
-            urls = cls.validate_urls_with_allowed_domains(urls=urls, allowed_domains=allowed_domains)
-        else:
-            urls = cls.transform_hrefs(site_current_domain=site_current_domain, hrefs=hrefs_in_html)
-            urls = cls.validate_urls_with_allowed_domains(urls=urls, allowed_domains=allowed_domains)
+        urls = cls.transform_hrefs(site_current_domain=site_current_domain, hrefs=hrefs_in_html)
+        urls = cls.validate_urls_with_allowed_domains(urls=urls, allowed_domains=allowed_domains)
+
+        if extract_rules:
+            urls = cls.validate_urls_with_regex(urls=urls, extract_rules=extract_rules)
 
         return urls
 
     @staticmethod
-    def validate_hrefs_with_regex(hrefs: list[str], regex_rules: list[str]):
-        matched_hrefs = []
-        for regex in regex_rules:
-            re_rule = re.compile(regex)
-            for href in hrefs:
-                href_match = re_rule.findall(href)
+    def validate_urls_with_regex(urls: list[str], extract_rules: list[ExtractRule]):
+        matched_urls = []
+        for extract_rule in extract_rules:
+            re_rule = extract_rule.regex
+            for url in urls:
+                href_match = re_rule.findall(url)
                 if href_match:
-                    matched_hrefs.append(href)
-        return matched_hrefs
+                    matched_urls.append(url)
+        return matched_urls
 
     @staticmethod
     def validate_urls_with_allowed_domains(urls: set[str], allowed_domains: list[str]):
