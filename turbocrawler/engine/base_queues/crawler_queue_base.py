@@ -15,6 +15,10 @@ class CrawlerQueueABC(ABC):
         self.crawled_queue = crawled_queue
         self.__crawled_queue_control = set()
 
+    @abstractmethod
+    def __len__(self):
+        pass
+
     def get_request_from_queue(self) -> CrawlerRequest | None:
         if self._is_queue_empty():
             return None

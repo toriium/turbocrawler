@@ -1,6 +1,6 @@
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from multiprocessing import cpu_count
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
@@ -16,6 +16,8 @@ from turbocrawler.queues.crawler_queues import FIFOMemoryQueue
 class CrawlerRunner:
     def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
         self.__start_process_time = datetime.now()
+        self.__last_info_log_time = datetime.now()
+        self.__pages_crawled = 0
         self.crawler = crawler
         if not crawler_queue:
             crawler_queue = FIFOMemoryQueue(crawler_name=crawler.crawler_name)
@@ -54,7 +56,7 @@ class CrawlerRunner:
         self.crawler.stop_crawler()
         self.crawler_queue.crawled_queue.stop_crawler()
 
-        logger.info(f'Running time {datetime.now()- self.__start_process_time}')
+        logger.info(f'Running time {datetime.now() - self.__start_process_time}')
 
     def __call_crawler_first_request(self):
         logger.info(f'Calling  {self.crawler.crawler_name}.crawler_first_request')
@@ -69,6 +71,7 @@ class CrawlerRunner:
 
         # get requests from crawler queue
         while True:
+            self.__log_info()
             next_crawler_request = self.crawler_queue.get_request_from_queue()
             if not next_crawler_request:
                 logger.info('Crawler queue is empty, all crawler_requests made')
@@ -79,6 +82,7 @@ class CrawlerRunner:
                 return True
 
             self.__make_request(crawler_request=next_crawler_request)
+            self.__pages_crawled += 1
 
     def __make_request(self, crawler_request: CrawlerRequest):
         request_retries = 0
@@ -135,3 +139,21 @@ class CrawlerRunner:
                                         if extract_rule.remove_crawled]
         self.crawler_queue.crawled_queue.remove_urls_with_remove_crawled(
             extract_rules_remove_crawled=extract_rules_remove_crawled)
+
+    def __log_info(self):
+        have_passed_time = self.__last_info_log_time + timedelta(minutes=1) < datetime.now()
+        if have_passed_time:
+            qtd_crawler_queue = len(self.crawler_queue)
+            qtd_crawled_queue = len(self.crawler_queue.crawled_queue)
+
+            msg = '\n'
+            msg += f'pages_crawled: {self.__pages_crawled}\n'
+            msg += f'crawler_queue: {qtd_crawler_queue}\n'
+            missing = qtd_crawler_queue - self.__pages_crawled
+            if missing > 0:
+                msg += f'missing: {missing}\n'
+            else:
+                msg += f'missing: 0\n'
+            msg += f'crawled_queue: {qtd_crawled_queue}\n'
+
+            logger.info(msg)

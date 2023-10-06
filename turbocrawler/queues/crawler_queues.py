@@ -11,6 +11,9 @@ class FIFOMemoryQueue(CrawlerQueueABC):
         super().__init__(crawler_name=crawler_name, crawled_queue=crawled_queue)
         self.__crawler_queue = deque()
 
+    def __len__(self):
+        return len(self.__crawler_queue)
+
     def _insert_queue(self, crawler_request: CrawlerRequest):
         self.__crawler_queue.append(crawler_request)
 

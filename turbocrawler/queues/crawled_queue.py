@@ -23,6 +23,12 @@ class TextCrawledQueue(CrawledQueueABC):
 
         create_file_path(self.__crawler_queue_file_path)
 
+    def __len__(self):
+        with open(self.__crawler_queue_file_path, 'r') as file:
+            for line_number, _ in enumerate(file, 1):
+                pass
+        return line_number
+
     def add_url_to_crawled_queue(self, url: str) -> None:
         with open(self.__crawler_queue_file_path, 'a') as file:
             file.write(f"{url}\n")
@@ -45,7 +51,6 @@ class TextCrawledQueue(CrawledQueueABC):
         pass
 
     def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
-
         temp_file_path = f"{self.__crawler_queue_file_path}_temp_file"
         with open(self.__crawler_queue_file_path, 'r') as original_file:
             with open(temp_file_path, 'w') as temp_file:
@@ -74,6 +79,9 @@ class MemoryCrawledQueue(CrawledQueueABC):
         self.__queue_dir_name = 'crawlers_queue'
         self.__queue_dir_path = f'{os.getcwd()}/{self.__queue_dir_name}'
         self.__crawler_queue_file_path = f'{self.__queue_dir_path}/{self.__file_name}'
+
+    def __len__(self):
+        return len(self.crawled_queue)
 
     def add_url_to_crawled_queue(self, url: str) -> None:
         self.crawled_queue.add(url)

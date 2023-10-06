@@ -29,6 +29,10 @@ class CrawledQueueABC(ABC):
         return False
 
     @abstractmethod
+    def __len__(self):
+        pass
+
+    @abstractmethod
     def add_url_to_crawled_queue(self, url: str) -> None:
         pass
 
