@@ -1,4 +1,3 @@
-from datetime import datetime
 from pprint import pprint
 
 import requests
@@ -44,9 +43,7 @@ class QuotesToScrapeCrawler(Crawler):
         self.session.close()
 
 
-start = datetime.now()
-cq = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,
-                        load_crawled_queue=False)
-q = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=cq)
-CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=q).run()
-print(f'Process Time {datetime.now() - start}')
+crawled_queue = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,
+                                   load_crawled_queue=False)
+crawler_queue = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=crawled_queue)
+CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=crawler_queue).run()
