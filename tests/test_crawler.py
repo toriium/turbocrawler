@@ -3,8 +3,9 @@ from pprint import pprint
 import requests
 from parsel import Selector
 
-from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExtractRule, FIFOMemoryQueue
+from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExtractRule
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
+from turbocrawler.queues.crawler_queues import FIFOMemoryQueue
 
 
 class QuotesToScrapeCrawler(Crawler):
