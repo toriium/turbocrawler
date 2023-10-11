@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(slots=True)
 class CrawlerRequest:
     site_url: str
     headers: dict = None
@@ -10,7 +10,7 @@ class CrawlerRequest:
     proxy: str | None = None
 
 
-@dataclass
+@dataclass(slots=True)
 class CrawlerResponse:
     site_url: str
     site_body: str
@@ -20,7 +20,7 @@ class CrawlerResponse:
     kwargs: dict = None
 
 
-@dataclass
+@dataclass(slots=True)
 class ExtractRule:
     regex: str | re.Pattern
     remove_crawled: bool = False
