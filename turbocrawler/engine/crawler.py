@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, ExtractRule
+from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
 
 
 class Crawler(ABC):
@@ -33,5 +33,5 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def stop_crawler(self) -> None:
+    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         ...

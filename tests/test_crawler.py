@@ -3,7 +3,7 @@ from pprint import pprint
 import requests
 from parsel import Selector
 
-from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExtractRule
+from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo, ExtractRule
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 from turbocrawler.queues.crawler_queues import FIFOMemoryQueue
 
@@ -40,7 +40,7 @@ class QuotesToScrapeCrawler(Crawler):
                     "tags_list": quote.css('div[class="tags"]>a::text').getall()}
             pprint(data)
 
-    def stop_crawler(self) -> None:
+    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         self.session.close()
 
 

@@ -2,11 +2,12 @@ import re
 import time
 from datetime import datetime, timedelta
 from multiprocessing import cpu_count
+from pprint import pformat
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse
+from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, RunningInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
@@ -47,20 +48,34 @@ class CrawlerRunner:
 
             self.__call_all_stop_crawler()
         except StopCrawler as error:
-            logger.info(f'StopCrawler raised reason {error.reason}')
-            self.__call_all_stop_crawler()
+            self.__call_all_stop_crawler(error)
 
     def __call_all_start_crawler(self):
         logger.info(f'Calling  {self.crawler.crawler_name}.start_crawler')
         self.crawler.start_crawler()
         self.crawler_queue.crawled_queue.start_crawler()
 
-    def __call_all_stop_crawler(self):
+    def __call_all_stop_crawler(self, stop: StopCrawler = None):
+        forced_stop = False
+        reason = ""
+        if stop:
+            forced_stop = True
+            reason = stop.reason
+            logger.info(f'StopCrawler raised reason {reason}')
         logger.info(f'Calling  {self.crawler.crawler_name}.stop_crawler')
-        self.crawler.stop_crawler()
-        self.crawler_queue.crawled_queue.stop_crawler()
 
-        logger.info(f'Running time {datetime.now() - self.__start_process_time}')
+        running_time = datetime.now() - self.__start_process_time
+        execution_info = {
+            **self.__get_running_info(),
+            "forced_stop": forced_stop,
+            "reason": reason,
+            "running_time": running_time,
+        }
+
+        self.crawler_queue.crawled_queue.stop_crawler()
+        self.crawler.stop_crawler(execution_info=execution_info)
+
+        logger.info(f'Execution info\n{pformat(execution_info)}')
 
     def __call_crawler_first_request(self):
         logger.info(f'Calling  {self.crawler.crawler_name}.crawler_first_request')
@@ -146,16 +161,21 @@ class CrawlerRunner:
         self.crawler_queue.crawled_queue.remove_urls_with_remove_crawled(
             extract_rules_remove_crawled=extract_rules_remove_crawled)
 
+    def __get_running_info(self) -> RunningInfo:
+        return {
+            "crawler_queue": len(self.crawler_queue),
+            "crawled_queue": len(self.crawler_queue.crawled_queue),
+            "scheduled_requests": self.crawler_queue.scheduled_requests,
+            "requests_made": self.__requests_info["Made"],
+            "requests_remade": self.__requests_info["ReMakeRequest"],
+            "requests_skipped": self.__requests_info["SkipRequest"]
+        }
+
     def __log_info(self):
         have_passed_time = self.__last_info_log_time + timedelta(minutes=1) < datetime.now()
         if have_passed_time:
-
+            crawler_info = self.__get_running_info()
             msg = '\n'
-            msg += f'crawler_queue: {len(self.crawler_queue)}\n'
-            msg += f'crawled_queue: {len(self.crawler_queue.crawled_queue)}\n'
-            msg += f'scheduled requests: {self.crawler_queue.scheduled_requests}\n'
-            msg += f'requests made: {self.__requests_info["Made"]}\n'
-            msg += f'requests remade: {self.__requests_info["ReMakeRequest"]}\n'
-            msg += f'requests skipped: {self.__requests_info["SkipRequest"]}\n'
-
+            for key, value in crawler_info.items():
+                msg += f'{key}: {value}\n'
             logger.info(msg)

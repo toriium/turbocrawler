@@ -1,5 +1,7 @@
 import re
 from dataclasses import dataclass
+from datetime import datetime
+from typing import TypedDict
 
 
 @dataclass(slots=True)
@@ -24,3 +26,18 @@ class CrawlerResponse:
 class ExtractRule:
     regex: str | re.Pattern
     remove_crawled: bool = False
+
+
+class RunningInfo(TypedDict):
+    crawler_queue: int
+    crawled_queue: int
+    scheduled_requests: int
+    requests_made: int
+    requests_remade: int
+    requests_skipped: int
+
+
+class ExecutionInfo(RunningInfo):
+    forced_stop: bool
+    reason: str
+    running_time: datetime
