@@ -14,6 +14,7 @@ class CrawlerQueueABC(ABC):
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
         self.__crawled_queue_control = set()
+        self.scheduled_requests = 0
 
     @abstractmethod
     def __len__(self):
@@ -30,6 +31,8 @@ class CrawlerQueueABC(ABC):
         return crawler_request
 
     def add_request_to_queue(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
+        self.scheduled_requests += 1
+
         if not verify_crawled:
             self._insert_queue(crawler_request)
 

@@ -17,7 +17,6 @@ class CrawlerRunner:
     def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
         self.__start_process_time = datetime.now()
         self.__last_info_log_time = datetime.now()
-        self.__pages_crawled = 0
         self.crawler = crawler
         if not crawler_queue:
             crawler_queue = FIFOMemoryQueue(crawler_name=crawler.crawler_name)
@@ -28,6 +27,11 @@ class CrawlerRunner:
                                                                           qtd_workers=cpu_count())
         self.parse_queue_manager.start_workers()
         self.__compile_regex()
+        self.__requests_info = {
+            "Made": 0,
+            "ReMakeRequest": 0,
+            "SkipRequest": 0,
+        }
 
     def run(self):
         self.crawler = self.crawler()
@@ -82,7 +86,6 @@ class CrawlerRunner:
                 return True
 
             self.__make_request(crawler_request=next_crawler_request)
-            self.__pages_crawled += 1
 
     def __make_request(self, crawler_request: CrawlerRequest):
         request_retries = 0
@@ -94,14 +97,17 @@ class CrawlerRunner:
                 self.__add_urls_to_queue(crawler_response=crawler_response)
 
                 self.parse_queue_manager.queue.put({"crawler_response": crawler_response})
+                self.__requests_info['Made'] = self.__requests_info['Made'] + 1
                 break
             except ReMakeRequest as error:
+                self.__requests_info['ReMakeRequest'] = self.__requests_info['ReMakeRequest'] + 1
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
                     logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
                     break
             except SkipRequest as error:
+                self.__requests_info['SkipRequest'] = self.__requests_info['SkipRequest'] + 1
                 logger.info(f'Skipping request for url {crawler_request.site_url} reason: {error.reason}')
                 break
 
@@ -143,17 +149,13 @@ class CrawlerRunner:
     def __log_info(self):
         have_passed_time = self.__last_info_log_time + timedelta(minutes=1) < datetime.now()
         if have_passed_time:
-            qtd_crawler_queue = len(self.crawler_queue)
-            qtd_crawled_queue = len(self.crawler_queue.crawled_queue)
 
             msg = '\n'
-            msg += f'pages_crawled: {self.__pages_crawled}\n'
-            msg += f'crawler_queue: {qtd_crawler_queue}\n'
-            missing = qtd_crawler_queue - self.__pages_crawled
-            if missing > 0:
-                msg += f'missing: {missing}\n'
-            else:
-                msg += f'missing: 0\n'
-            msg += f'crawled_queue: {qtd_crawled_queue}\n'
+            msg += f'crawler_queue: {len(self.crawler_queue)}\n'
+            msg += f'crawled_queue: {len(self.crawler_queue.crawled_queue)}\n'
+            msg += f'scheduled requests: {self.crawler_queue.scheduled_requests}\n'
+            msg += f'requests made: {self.__requests_info["Made"]}\n'
+            msg += f'requests remade: {self.__requests_info["ReMakeRequest"]}\n'
+            msg += f'requests skipped: {self.__requests_info["SkipRequest"]}\n'
 
             logger.info(msg)
