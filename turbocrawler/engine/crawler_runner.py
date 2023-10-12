@@ -64,12 +64,10 @@ class CrawlerRunner:
             logger.info(f'StopCrawler raised reason {reason}')
         logger.info(f'Calling  {self.crawler.crawler_name}.stop_crawler')
 
-        running_time = datetime.now() - self.__start_process_time
         execution_info = {
             **self.__get_running_info(),
             "forced_stop": forced_stop,
             "reason": reason,
-            "running_time": running_time,
         }
 
         self.crawler_queue.crawled_queue.stop_crawler()
@@ -162,13 +160,16 @@ class CrawlerRunner:
             extract_rules_remove_crawled=extract_rules_remove_crawled)
 
     def __get_running_info(self) -> RunningInfo:
+        running_time = datetime.now() - self.__start_process_time
+
         return {
             "crawler_queue": len(self.crawler_queue),
             "crawled_queue": len(self.crawler_queue.crawled_queue),
             "scheduled_requests": self.crawler_queue.scheduled_requests,
             "requests_made": self.__requests_info["Made"],
             "requests_remade": self.__requests_info["ReMakeRequest"],
-            "requests_skipped": self.__requests_info["SkipRequest"]
+            "requests_skipped": self.__requests_info["SkipRequest"],
+            "running_time": running_time
         }
 
     def __log_info(self):

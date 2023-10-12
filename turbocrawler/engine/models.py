@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import timedelta
 from typing import TypedDict
 
 
@@ -35,9 +35,9 @@ class RunningInfo(TypedDict):
     requests_made: int
     requests_remade: int
     requests_skipped: int
+    running_time: timedelta
 
 
 class ExecutionInfo(RunningInfo):
     forced_stop: bool
     reason: str
-    running_time: datetime
