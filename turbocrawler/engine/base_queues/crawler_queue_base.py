@@ -10,7 +10,7 @@ class CrawlerQueueABC(ABC):
 
     def __init__(self, crawler_name: str, crawled_queue: CrawledQueueABC = None):
         self.crawler_name = crawler_name
-        if not crawled_queue:
+        if crawled_queue is None:
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
         self.__crawled_queue_control = set()

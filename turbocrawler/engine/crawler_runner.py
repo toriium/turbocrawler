@@ -19,7 +19,7 @@ class CrawlerRunner:
         self.__start_process_time = datetime.now()
         self.__last_info_log_time = datetime.now()
         self.crawler = crawler
-        if not crawler_queue:
+        if crawler_queue is None:
             crawler_queue = FIFOMemoryQueue(crawler_name=crawler.crawler_name)
         self.crawler_queue = crawler_queue
         self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
@@ -174,6 +174,7 @@ class CrawlerRunner:
     def __log_info(self):
         have_passed_time = self.__last_info_log_time + timedelta(minutes=1) < datetime.now()
         if have_passed_time:
+            self.__last_info_log_time = datetime.now()
             crawler_info = self.__get_running_info()
             msg = '\n'
             for key, value in crawler_info.items():
