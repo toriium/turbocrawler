@@ -7,7 +7,7 @@ from pprint import pformat
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, RunningInfo
+from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, RunningInfo, ExecutionInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
@@ -64,15 +64,11 @@ class CrawlerRunner:
             logger.info(f'StopCrawler raised reason {reason}')
         logger.info(f'Calling  {self.crawler.crawler_name}.stop_crawler')
 
-        execution_info = {
-            **self.__get_running_info(),
-            "forced_stop": forced_stop,
-            "reason": reason,
-        }
+        execution_info = ExecutionInfo(**self.__get_running_info(),
+                                       forced_stop=forced_stop, reason=reason)
 
         self.crawler_queue.crawled_queue.stop_crawler()
         self.crawler.stop_crawler(execution_info=execution_info)
-
         logger.info(f'Execution info\n{pformat(execution_info)}')
 
     def __call_crawler_first_request(self):
@@ -161,16 +157,16 @@ class CrawlerRunner:
 
     def __get_running_info(self) -> RunningInfo:
         running_time = datetime.now() - self.__start_process_time
-
-        return {
-            "crawler_queue": len(self.crawler_queue),
-            "crawled_queue": len(self.crawler_queue.crawled_queue),
-            "scheduled_requests": self.crawler_queue.scheduled_requests,
-            "requests_made": self.__requests_info["Made"],
-            "requests_remade": self.__requests_info["ReMakeRequest"],
-            "requests_skipped": self.__requests_info["SkipRequest"],
-            "running_time": running_time
-        }
+        return RunningInfo(
+            crawler_queue=len(self.crawler_queue),
+            crawled_queue=len(self.crawler_queue.crawled_queue),
+            scheduled_requests=self.crawler_queue.scheduled_requests,
+            requests_made=self.__requests_info["Made"],
+            requests_remade=self.__requests_info["ReMakeRequest"],
+            requests_skipped=self.__requests_info["SkipRequest"],
+            worker_queues_info=[self.parse_queue_manager.get_info()],
+            running_time=running_time
+        )
 
     def __log_info(self):
         have_passed_time = self.__last_info_log_time + timedelta(minutes=1) < datetime.now()

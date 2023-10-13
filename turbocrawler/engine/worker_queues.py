@@ -2,27 +2,46 @@ import time
 from queue import Empty, Queue
 from threading import Thread
 from typing import Callable
+from enum import Enum
 
+from turbocrawler.engine.models import WorkerQueueManagerInfo, WorkerQueueInfo
 from turbocrawler.logger import logger
 
 
+class WorkerState(Enum):
+    WAITING = "WAITING"
+    EXECUTING = "EXECUTING"
+    STOPPED = "STOPPED"
+
+
 class WorkerQueue:
-    __queue = Queue()
+    def __init__(self):
+        self.__queue = Queue()
+        self.info = {"get": 0, "put": 0, 'len': 0}
 
-    @classmethod
-    def put(cls, data):
-        cls.__queue.put(data)
+    def get_info(self) -> WorkerQueueInfo:
+        return WorkerQueueInfo(put=self.info["put"], get=self.info["get"], len=self.info["len"])
 
-    @classmethod
-    def get(cls):
+    def put(self, data):
+        self.info["put"] += 1
+        self.info["len"] += 1
+        self.__queue.put(data)
+
+    def get(self):
         try:
-            return cls.__queue.get(block=False)
+            value = self.__queue.get(block=False)
+            self.info["get"] += 1
+            self.info["len"] -= 1
+
         except Empty:
             return None
+        return value
 
-    @classmethod
-    def is_empty(cls):
-        return cls.__queue.empty()
+    def is_empty(self):
+        return self.__queue.empty()
+
+    def __len__(self):
+        return self.info["len"]
 
 
 class WorkerQueueManager:
@@ -31,9 +50,25 @@ class WorkerQueueManager:
         self.class_object = class_object
         self.target = target
         self.qtd_workers = qtd_workers
-        self.workers = None
+        self.workers: list[ConsumerQueueWorker]
         self.queue = WorkerQueue()
         self.must_stop_workers = False
+
+    def __get_workers_state(self) -> dict[WorkerState, int]:
+        sum_stats = dict()
+        for worker in self.workers:
+            state = worker.worker_state.value
+            if state in sum_stats.keys():
+                sum_stats[state] += 1
+            else:
+                sum_stats[state] = 0
+        return sum_stats
+
+    def get_info(self) -> WorkerQueueManagerInfo:
+        workers_state = self.__get_workers_state()
+        return WorkerQueueManagerInfo(queue_name=self.queue_name,
+                                      queue_info=self.queue.get_info(),
+                                      workers_state=workers_state)
 
     def start_workers(self):
         self.workers = [
@@ -54,6 +89,7 @@ class ConsumerQueueWorker(Thread):
         self.worker_queue_manager = worker_queue_manager
         self.queue = worker_queue_manager.queue
         self.target = worker_queue_manager.target
+        self.worker_state = WorkerState.WAITING
         logger.debug(f'{self.queue_name}|{self.worker_name}| CREATED')
 
     def run(self):
@@ -61,7 +97,9 @@ class ConsumerQueueWorker(Thread):
             if self.queue.is_empty():
                 if self.worker_queue_manager.must_stop_workers:
                     logger.debug(f'{self.queue_name}|{self.worker_name}| STOPPING')
+                    self.worker_state = WorkerState.STOPPED
                     break
+                self.worker_state = WorkerState.WAITING
                 time.sleep(1)
                 continue
 
@@ -71,6 +109,7 @@ class ConsumerQueueWorker(Thread):
 
             try:
                 logger.debug(f'[{self.target.__name__}] URL: {next_call.get("crawler_response").site_url}')
+                self.worker_state = WorkerState.EXECUTING
                 self.target(self.worker_queue_manager.class_object, **next_call)
             except Exception as error:
                 logger.error(error)

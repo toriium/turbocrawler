@@ -28,6 +28,18 @@ class ExtractRule:
     remove_crawled: bool = False
 
 
+class WorkerQueueInfo(TypedDict):
+    put: int
+    get: int
+    len: int
+
+
+class WorkerQueueManagerInfo(TypedDict):
+    queue_name: str
+    queue_info: WorkerQueueInfo
+    workers_state: dict
+
+
 class RunningInfo(TypedDict):
     crawler_queue: int
     crawled_queue: int
@@ -35,6 +47,7 @@ class RunningInfo(TypedDict):
     requests_made: int
     requests_remade: int
     requests_skipped: int
+    worker_queues_info: list[WorkerQueueManagerInfo]
     running_time: timedelta
 
 
