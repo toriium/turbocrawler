@@ -7,7 +7,7 @@ from pprint import pformat
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, RunningInfo, ExecutionInfo
+from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, ExecutionInfo, RunningInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
@@ -51,7 +51,7 @@ class CrawlerRunner:
             self.__call_all_stop_crawler(error)
 
     def __call_all_start_crawler(self):
-        logger.info(f'Calling  {self.crawler.crawler_name}.start_crawler')
+        logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
         self.crawler.start_crawler()
         self.crawler_queue.crawled_queue.start_crawler()
 
@@ -62,17 +62,18 @@ class CrawlerRunner:
             forced_stop = True
             reason = stop.reason
             logger.info(f'StopCrawler raised reason {reason}')
-        logger.info(f'Calling  {self.crawler.crawler_name}.stop_crawler')
+        logger.info(f'Calling {self.crawler.crawler_name}.stop_crawler')
 
         execution_info = ExecutionInfo(**self.__get_running_info(),
                                        forced_stop=forced_stop, reason=reason)
 
         self.crawler_queue.crawled_queue.stop_crawler()
         self.crawler.stop_crawler(execution_info=execution_info)
-        logger.info(f'Execution info\n{pformat(execution_info)}')
+        formatted_info = pformat(execution_info, sort_dicts=False)
+        logger.info(f'Execution info\n{formatted_info}')
 
     def __call_crawler_first_request(self):
-        logger.info(f'Calling  {self.crawler.crawler_name}.crawler_first_request')
+        logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')
         crawler_response = self.crawler.crawler_first_request()
         if crawler_response is not None:
             self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
@@ -164,7 +165,7 @@ class CrawlerRunner:
             requests_made=self.__requests_info["Made"],
             requests_remade=self.__requests_info["ReMakeRequest"],
             requests_skipped=self.__requests_info["SkipRequest"],
-            worker_queues_info=[self.parse_queue_manager.get_info()],
+            parse_queue=self.parse_queue_manager.get_info(),
             running_time=running_time
         )
 
@@ -172,8 +173,6 @@ class CrawlerRunner:
         have_passed_time = self.__last_info_log_time + timedelta(minutes=1) < datetime.now()
         if have_passed_time:
             self.__last_info_log_time = datetime.now()
-            crawler_info = self.__get_running_info()
-            msg = '\n'
-            for key, value in crawler_info.items():
-                msg += f'{key}: {value}\n'
-            logger.info(msg)
+            running_info = self.__get_running_info()
+            formatted_info = pformat(running_info, sort_dicts=False)
+            logger.info(f'\n{formatted_info}')

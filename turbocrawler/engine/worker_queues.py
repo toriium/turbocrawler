@@ -1,10 +1,10 @@
 import time
+from enum import Enum
 from queue import Empty, Queue
 from threading import Thread
 from typing import Callable
-from enum import Enum
 
-from turbocrawler.engine.models import WorkerQueueManagerInfo, WorkerQueueInfo
+from turbocrawler.engine.models import WorkerQueueInfo, WorkerQueueManagerInfo
 from turbocrawler.logger import logger
 
 
@@ -55,7 +55,7 @@ class WorkerQueueManager:
         self.must_stop_workers = False
 
     def __get_workers_state(self) -> dict[WorkerState, int]:
-        sum_stats = dict()
+        sum_stats = {}
         for worker in self.workers:
             state = worker.worker_state.value
             if state in sum_stats.keys():
