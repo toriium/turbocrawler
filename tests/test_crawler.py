@@ -15,23 +15,27 @@ class QuotesToScrapeCrawler(Crawler):
     time_between_requests = 1
     session: requests.Session
 
-    def start_crawler(self) -> None:
-        self.session = requests.session()
+    @classmethod
+    def start_crawler(cls) -> None:
+        cls.session = requests.session()
 
-    def crawler_first_request(self) -> CrawlerResponse | None:
+    @classmethod
+    def crawler_first_request(cls) -> CrawlerResponse | None:
         url = "https://quotes.toscrape.com/page/1/"
-        response = self.session.get(url=url)
+        response = cls.session.get(url=url)
         return CrawlerResponse(site_url=response.url,
                                site_body=response.text,
                                status_code=response.status_code)
 
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
-        response = self.session.get(crawler_request.site_url)
+    @classmethod
+    def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse:
+        response = cls.session.get(crawler_request.site_url)
         return CrawlerResponse(site_url=response.url,
                                site_body=response.text,
                                status_code=response.status_code)
 
-    def parse_crawler_response(self, crawler_response: CrawlerResponse) -> None:
+    @classmethod
+    def parse_crawler_response(cls, crawler_response: CrawlerResponse) -> None:
         selector = Selector(crawler_response.site_body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:
@@ -40,8 +44,9 @@ class QuotesToScrapeCrawler(Crawler):
                     "tags_list": quote.css('div[class="tags"]>a::text').getall()}
             pprint(data)
 
-    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
-        self.session.close()
+    @classmethod
+    def stop_crawler(cls, execution_info: ExecutionInfo) -> None:
+        cls.session.close()
 
 
 crawled_queue = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,

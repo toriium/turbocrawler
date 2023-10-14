@@ -13,25 +13,27 @@ class Crawler(ABC):
 
     crawler_queue: CrawlerQueueABC
 
-    def __init__(self) -> None:
+    @classmethod
+    @abstractmethod
+    def start_crawler(cls) -> None:
         ...
 
+    @classmethod
     @abstractmethod
-    def start_crawler(self) -> None:
+    def crawler_first_request(cls) -> CrawlerResponse:
         ...
 
+    @classmethod
     @abstractmethod
-    def crawler_first_request(self) -> CrawlerResponse:
+    def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse:
         ...
 
+    @classmethod
     @abstractmethod
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
+    def parse_crawler_response(cls, crawler_response: CrawlerResponse) -> Any:
         ...
 
+    @classmethod
     @abstractmethod
-    def parse_crawler_response(self, crawler_response: CrawlerResponse) -> Any:
-        ...
-
-    @abstractmethod
-    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
+    def stop_crawler(cls, execution_info: ExecutionInfo) -> None:
         ...

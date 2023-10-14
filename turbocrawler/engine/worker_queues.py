@@ -110,6 +110,8 @@ class ConsumerQueueWorker(Thread):
             try:
                 logger.debug(f'[{self.target.__name__}] URL: {next_call.get("crawler_response").site_url}')
                 self.worker_state = WorkerState.EXECUTING
-                self.target(self.worker_queue_manager.class_object, **next_call)
+                # self.target(self.worker_queue_manager.class_object, **next_call)
+                self.target(**next_call)
+
             except Exception as error:
-                logger.error(error)
+                logger.exception(f'{self.queue_name}|{self.worker_name}\n{error}')

@@ -26,8 +26,9 @@ class CrawlerRunner:
                                                                           class_object=self.crawler,
                                                                           target=self.crawler.parse_crawler_response,
                                                                           qtd_workers=cpu_count())
-        self.parse_queue_manager.start_workers()
+
         self.__compile_regex()
+        self.parse_queue_manager.start_workers()
         self.__requests_info = {
             "Made": 0,
             "ReMakeRequest": 0,
@@ -35,11 +36,12 @@ class CrawlerRunner:
         }
 
     def run(self):
-        self.crawler = self.crawler()
+        # self.crawler = self.crawler.__init__()
         self.crawler.crawler_queue = self.crawler_queue
 
         try:
             self.__call_all_start_crawler()
+
             self.__remove_crawled()
 
             self.__call_crawler_first_request()
