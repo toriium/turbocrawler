@@ -20,18 +20,16 @@ class WorkerQueue:
         self.info = {"get": 0, "put": 0, 'len': 0}
 
     def get_info(self) -> WorkerQueueInfo:
-        return WorkerQueueInfo(put=self.info["put"], get=self.info["get"], len=self.info["len"])
+        return WorkerQueueInfo(put=self.info["put"], get=self.info["get"], len=self.__queue.qsize())
 
     def put(self, data):
         self.info["put"] += 1
-        self.info["len"] += 1
         self.__queue.put(data)
 
     def get(self):
         try:
             value = self.__queue.get(block=False)
             self.info["get"] += 1
-            self.info["len"] -= 1
 
         except Empty:
             return None
@@ -41,7 +39,7 @@ class WorkerQueue:
         return self.__queue.empty()
 
     def __len__(self):
-        return self.info["len"]
+        return self.__queue.qsize()
 
 
 class WorkerQueueManager:
@@ -61,8 +59,16 @@ class WorkerQueueManager:
             if state in sum_stats.keys():
                 sum_stats[state] += 1
             else:
-                sum_stats[state] = 0
+                sum_stats[state] = 1
         return sum_stats
+
+    def workers_executing(self) -> bool:
+        states = self.__get_workers_state()
+        print(self.queue_name,states)
+        executing = states.get(WorkerState.EXECUTING.value)
+        if executing:
+            return True
+        return False
 
     def get_info(self) -> WorkerQueueManagerInfo:
         workers_state = self.__get_workers_state()
@@ -99,8 +105,8 @@ class ConsumerQueueWorker(Thread):
                     logger.debug(f'{self.queue_name}|{self.worker_name}| STOPPING')
                     self.worker_state = WorkerState.STOPPED
                     break
-                self.worker_state = WorkerState.WAITING
                 time.sleep(1)
+                self.worker_state = WorkerState.WAITING
                 continue
 
             next_call = self.queue.get()
@@ -108,7 +114,7 @@ class ConsumerQueueWorker(Thread):
                 continue
 
             try:
-                logger.debug(f'[{self.target.__name__}] URL: {next_call.get("crawler_response").site_url}')
+                # logger.debug(f'[{self.target.__name__}] URL: {next_call.get("crawler_response").site_url}')
                 self.worker_state = WorkerState.EXECUTING
                 # self.target(self.worker_queue_manager.class_object, **next_call)
                 self.target(**next_call)
