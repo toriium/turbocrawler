@@ -27,8 +27,8 @@ class CrawlerRunner:
                                                                           target=self.crawler.parse_crawler_response,
                                                                           qtd_workers=cpu_count())
 
-        self.__compile_regex()
         self.parse_queue_manager.start_workers()
+        self.__compile_regex()
         self.__requests_info = {
             "Made": 0,
             "ReMakeRequest": 0,
@@ -89,15 +89,14 @@ class CrawlerRunner:
         while True:
             self.__log_info()
             next_crawler_request = self.crawler_queue.get_request_from_queue()
-            if not next_crawler_request:
+            if next_crawler_request:
+                self.__make_request(crawler_request=next_crawler_request)
+            else:
                 logger.info('Crawler queue is empty, all crawler_requests made')
-
                 # Wait until parse_queue is empty
                 self.parse_queue_manager.stop_workers()
                 logger.info('Parse queue is empty, all parse_crawler_response made')
                 return True
-
-            self.__make_request(crawler_request=next_crawler_request)
 
     def __make_request(self, crawler_request: CrawlerRequest):
         request_retries = 0
@@ -109,17 +108,17 @@ class CrawlerRunner:
                 self.__add_urls_to_queue(crawler_response=crawler_response)
 
                 self.parse_queue_manager.queue.put({"crawler_response": crawler_response})
-                self.__requests_info['Made'] = self.__requests_info['Made'] + 1
+                self.__requests_info['Made'] += 1
                 break
             except ReMakeRequest as error:
-                self.__requests_info['ReMakeRequest'] = self.__requests_info['ReMakeRequest'] + 1
+                self.__requests_info['ReMakeRequest'] += 1
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
                     logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
                     break
             except SkipRequest as error:
-                self.__requests_info['SkipRequest'] = self.__requests_info['SkipRequest'] + 1
+                self.__requests_info['SkipRequest'] += 1
                 logger.info(f'Skipping request for url {crawler_request.site_url} reason: {error.reason}')
                 break
 
