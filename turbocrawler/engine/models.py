@@ -47,7 +47,7 @@ class RunningInfo(TypedDict):
     requests_made: int
     requests_remade: int
     requests_skipped: int
-    parse_queue: WorkerQueueManagerInfo
+    parse_queue: WorkerQueueManagerInfo | None
     running_time: timedelta
 
 

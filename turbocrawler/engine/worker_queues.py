@@ -64,7 +64,6 @@ class WorkerQueueManager:
 
     def workers_executing(self) -> bool:
         states = self.__get_workers_state()
-        print(self.queue_name,states)
         executing = states.get(WorkerState.EXECUTING.value)
         if executing:
             return True
