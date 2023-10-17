@@ -1,4 +1,3 @@
-
 import time
 from datetime import datetime
 
@@ -13,17 +12,22 @@ from turbocrawler.logger import logger
 
 
 class ThreadCrawlerRunner(CrawlerRunner):
-    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
+    def __init__(self,
+                 crawler: type[Crawler],
+                 crawler_queue: CrawlerQueueABC = None,
+                 qtd_parse: int = 2,
+                 qtd_request: int = 2):
         super().__init__(crawler=crawler, crawler_queue=crawler_queue)
+
         self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
                                                                           class_object=self.crawler,
                                                                           target=self.crawler.parse_crawler_response,
-                                                                          qtd_workers=2)
+                                                                          qtd_workers=qtd_parse)
         self.parse_queue_manager.start_workers()
         self.request_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='request_queue',
                                                                             class_object=self.crawler,
                                                                             target=self._make_request,
-                                                                            qtd_workers=2)
+                                                                            qtd_workers=qtd_request)
         self.request_queue_manager.start_workers()
 
     def _process_crawler_queue(self):
