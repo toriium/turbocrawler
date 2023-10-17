@@ -70,7 +70,7 @@ class CrawlerRunner:
         logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')
         crawler_response = self.crawler.crawler_first_request()
         if crawler_response is not None:
-            self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.site_url)
+            self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
             self.crawler.parse_crawler_response(crawler_response=crawler_response)
             self._add_urls_to_queue(crawler_response=crawler_response)
 
@@ -92,7 +92,7 @@ class CrawlerRunner:
         while True:
             try:
                 time.sleep(self.crawler.time_between_requests)
-                logger.debug(f'[process_request] URL: {crawler_request.site_url}')
+                logger.debug(f'[process_request] URL: {crawler_request.url}')
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
                 self.crawler.parse_crawler_response(crawler_response=crawler_response)
                 self._add_urls_to_queue(crawler_response=crawler_response)
@@ -103,11 +103,11 @@ class CrawlerRunner:
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
-                    logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
+                    logger.warn(f'Exceed retry tentatives for url {crawler_request.url}')
                     break
             except SkipRequest as error:
                 self._requests_info['SkipRequest'] += 1
-                logger.info(f'Skipping request for url {crawler_request.site_url} reason: {error.reason}')
+                logger.info(f'Skipping request for url {crawler_request.url} reason: {error.reason}')
                 break
 
     def _add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
@@ -116,21 +116,21 @@ class CrawlerRunner:
 
         if self.crawler.regex_extract_rules[0] == '*':
             urls_to_extract = UrlExtractor.get_urls(
-                site_current_url=crawler_response.site_url,
+                site_current_url=crawler_response.url,
                 html_body=crawler_response.site_body,
                 allowed_domains=self.crawler.allowed_domains)
         else:
             urls_to_extract = UrlExtractor.get_urls(
-                site_current_url=crawler_response.site_url,
+                site_current_url=crawler_response.url,
                 html_body=crawler_response.site_body,
                 extract_rules=self.crawler.regex_extract_rules,
                 allowed_domains=self.crawler.allowed_domains)
 
         for url in urls_to_extract:
-            crawler_request = CrawlerRequest(site_url=url,
+            crawler_request = CrawlerRequest(url=url,
                                              headers=crawler_response.headers,
                                              cookies=crawler_response.cookies,
-                                             proxy=None)
+                                             kwargs=crawler_response.kwargs)
             self.crawler_queue.add_request_to_queue(crawler_request=crawler_request)
 
     def _compile_regex(self):

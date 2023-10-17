@@ -22,13 +22,13 @@ class QuotesToScrapeCrawler(Crawler):
     def crawler_first_request(self) -> CrawlerResponse:
         url = "https://quotes.toscrape.com/page/1/"
         response = self.session.get(url=url)
-        return CrawlerResponse(site_url=response.url,
+        return CrawlerResponse(url=response.url,
                                site_body=response.text,
                                status_code=response.status_code)
 
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
-        response = self.session.get(crawler_request.site_url)
-        return CrawlerResponse(site_url=response.url,
+        response = self.session.get(crawler_request.url)
+        return CrawlerResponse(url=response.url,
                                site_body=response.text,
                                status_code=response.status_code)
 

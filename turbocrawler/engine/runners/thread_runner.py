@@ -58,7 +58,7 @@ class ThreadCrawlerRunner(CrawlerRunner):
         while True:
             try:
                 time.sleep(self.crawler.time_between_requests)
-                logger.debug(f'[process_request] URL: {crawler_request.site_url}')
+                logger.debug(f'[process_request] URL: {crawler_request.url}')
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
                 self._add_urls_to_queue(crawler_response=crawler_response)
 
@@ -70,11 +70,11 @@ class ThreadCrawlerRunner(CrawlerRunner):
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
-                    logger.warn(f'Exceed retry tentatives for url {crawler_request.site_url}')
+                    logger.warn(f'Exceed retry tentatives for url {crawler_request.url}')
                     break
             except SkipRequest as error:
                 self._requests_info['SkipRequest'] += 1
-                logger.info(f'Skipping request for url {crawler_request.site_url} reason: {error.reason}')
+                logger.info(f'Skipping request for url {crawler_request.url} reason: {error.reason}')
                 break
 
     def _get_running_info(self) -> RunningInfo:

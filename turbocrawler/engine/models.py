@@ -6,19 +6,19 @@ from typing import TypedDict
 
 @dataclass(slots=True)
 class CrawlerRequest:
-    site_url: str
+    url: str
     headers: dict = None
-    cookies: list[dict] = None
-    proxy: str | None = None
+    cookies: dict = None
+    kwargs: dict = None
 
 
 @dataclass(slots=True)
 class CrawlerResponse:
-    site_url: str
+    url: str
     site_body: str
     status_code: int = 200
     headers: dict = None
-    cookies: list[dict] = None
+    cookies: dict = None
     kwargs: dict = None
 
 

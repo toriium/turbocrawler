@@ -112,11 +112,17 @@ class ConsumerQueueWorker(Thread):
             if not next_call:
                 continue
 
+            self.worker_state = WorkerState.EXECUTING
             try:
-                # logger.debug(f'[{self.target.__name__}] URL: {next_call.get("crawler_response").site_url}')
-                self.worker_state = WorkerState.EXECUTING
+                logger.debug(f'[{self.target.__name__}] URL: {self.__get_url(next_call)}')
                 # self.target(self.worker_queue_manager.class_object, **next_call)
                 self.target(**next_call)
-
             except Exception as error:
                 logger.exception(f'{self.queue_name}|{self.worker_name}\n{error}')
+
+    @staticmethod
+    def __get_url(next_call):
+        data = next_call.get("crawler_response")
+        if data:
+            return data.url
+        return next_call.get("crawler_request").url

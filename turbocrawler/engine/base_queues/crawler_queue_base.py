@@ -25,9 +25,9 @@ class CrawlerQueueABC(ABC):
             return None
 
         crawler_request = self._get_and_remove_request_from_queue()
-        self.__crawled_queue_control.remove(crawler_request.site_url)
+        self.__crawled_queue_control.remove(crawler_request.url)
 
-        self.__add_url_to_crawled_queue(url=crawler_request.site_url)
+        self.__add_url_to_crawled_queue(url=crawler_request.url)
         return crawler_request
 
     def add_request_to_queue(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
@@ -36,7 +36,7 @@ class CrawlerQueueABC(ABC):
             self._insert_queue(crawler_request)
             return
 
-        url = crawler_request.site_url
+        url = crawler_request.url
         if self._is_url_in_queue(url=url):
             logger.debug(f'[{self.__class__.__name__}] {url} is on the __crawler_queue')
             return

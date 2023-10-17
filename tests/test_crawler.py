@@ -23,14 +23,14 @@ class QuotesToScrapeCrawler(Crawler):
     def crawler_first_request(cls) -> CrawlerResponse | None:
         url = "https://quotes.toscrape.com/page/1/"
         response = cls.session.get(url=url)
-        return CrawlerResponse(site_url=response.url,
+        return CrawlerResponse(url=response.url,
                                site_body=response.text,
                                status_code=response.status_code)
 
     @classmethod
     def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse:
-        response = cls.session.get(crawler_request.site_url)
-        return CrawlerResponse(site_url=response.url,
+        response = cls.session.get(crawler_request.url)
+        return CrawlerResponse(url=response.url,
                                site_body=response.text,
                                status_code=response.status_code)
 
