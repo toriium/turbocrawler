@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+from uuid import uuid4
 
 
 def create_file_path(file_path: str):
@@ -8,3 +10,8 @@ def create_file_path(file_path: str):
         with open(file_path, 'w'):
             ...
 
+
+def get_running_id():
+    now = datetime.now()
+    f_date = now.strftime("%Y%m%d_%H%M%S")
+    print(f"{f_date}_{uuid4().hex[-5:]}")

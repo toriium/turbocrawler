@@ -88,5 +88,6 @@ class ThreadCrawlerRunner(CrawlerRunner):
             requests_remade=self._requests_info["ReMakeRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=self.parse_queue_manager.get_info(),
-            running_time=running_time
+            running_time=running_time,
+            running_id=self._running_id
         )

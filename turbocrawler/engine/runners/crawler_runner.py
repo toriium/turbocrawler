@@ -11,10 +11,12 @@ from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.logger import logger
 from turbocrawler.queues.crawler_queues import FIFOMemoryQueue
+from turbocrawler.utils import get_running_id
 
 
 class CrawlerRunner:
     def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None):
+        self._running_id = get_running_id()
         self._start_process_time = datetime.now()
         self._last_info_log_time = datetime.now()
         self.crawler = crawler
@@ -156,7 +158,8 @@ class CrawlerRunner:
             requests_remade=self._requests_info["ReMakeRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=None,
-            running_time=running_time
+            running_time=running_time,
+            running_id=self._running_id
         )
 
     def _log_info(self):

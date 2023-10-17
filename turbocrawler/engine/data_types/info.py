@@ -23,6 +23,7 @@ class RunningInfo(TypedDict):
     requests_skipped: int
     parse_queue: WorkerQueueManagerInfo | None
     running_time: timedelta
+    running_id: str
 
 
 class ExecutionInfo(RunningInfo):
