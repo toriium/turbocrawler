@@ -4,7 +4,7 @@ from queue import Empty, Queue
 from threading import Thread
 from typing import Callable
 
-from turbocrawler.engine.models import WorkerQueueInfo, WorkerQueueManagerInfo
+from turbocrawler.engine.data_types.info import WorkerQueueInfo, WorkerQueueManagerInfo
 from turbocrawler.logger import logger
 
 

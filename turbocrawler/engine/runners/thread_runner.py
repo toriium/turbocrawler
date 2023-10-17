@@ -6,7 +6,8 @@ from turbocrawler import CrawlerRunner
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import ReMakeRequest, SkipRequest
 from turbocrawler.engine.crawler import Crawler
-from turbocrawler.engine.models import CrawlerRequest, RunningInfo
+from turbocrawler.engine.data_types.crawler import CrawlerRequest
+from turbocrawler.engine.data_types.info import RunningInfo
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
 

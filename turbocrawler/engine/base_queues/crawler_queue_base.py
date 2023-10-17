@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
-from turbocrawler.engine.models import CrawlerRequest
+from turbocrawler.engine.data_types.crawler import CrawlerRequest
 from turbocrawler.logger import logger
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 

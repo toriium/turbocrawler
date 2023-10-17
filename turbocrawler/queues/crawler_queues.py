@@ -2,7 +2,7 @@ from collections import deque
 from queue import Queue
 
 from turbocrawler.engine import CrawledQueueABC, CrawlerQueueABC
-from turbocrawler.engine.models import CrawlerRequest
+from turbocrawler.engine.data_types.crawler import CrawlerRequest
 
 
 class FIFOMemoryQueue(CrawlerQueueABC):

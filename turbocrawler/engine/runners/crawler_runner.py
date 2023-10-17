@@ -6,7 +6,8 @@ from pprint import pformat
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, ExecutionInfo, RunningInfo
+from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse
+from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.logger import logger
 from turbocrawler.queues.crawler_queues import FIFOMemoryQueue

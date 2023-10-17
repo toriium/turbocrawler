@@ -2,7 +2,7 @@ from urllib.parse import urljoin, urlparse
 
 from parsel import Selector
 
-from turbocrawler.engine.models import ExtractRule
+from turbocrawler.engine.data_types.crawler import ExtractRule
 
 
 class UrlExtractor:

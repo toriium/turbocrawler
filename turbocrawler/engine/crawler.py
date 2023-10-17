@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.models import CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
+from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule
+from turbocrawler.engine.data_types.info import ExecutionInfo
 
 
 class Crawler(ABC):

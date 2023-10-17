@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from turbocrawler.engine.models import ExtractRule
+from turbocrawler.engine.data_types.crawler import ExtractRule
 from turbocrawler.logger import logger
 
 
