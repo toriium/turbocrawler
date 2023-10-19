@@ -74,7 +74,9 @@ class CrawlerRunner:
         crawler_response = self.crawler.crawler_first_request()
         if crawler_response is not None:
             self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
-            self.crawler.parse_crawler_response(crawler_response=crawler_response)
+            self.crawler.parse_crawler_response(
+                crawler_request=CrawlerRequest(url="crawler_first_request"),
+                crawler_response=crawler_response)
             self._add_urls_to_queue(crawler_response=crawler_response)
 
     def _process_crawler_queue(self):
@@ -97,7 +99,7 @@ class CrawlerRunner:
                 time.sleep(self.crawler.time_between_requests)
                 logger.debug(f'[process_request] URL: {crawler_request.url}')
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
-                self.crawler.parse_crawler_response(crawler_response=crawler_response)
+                self.crawler.parse_crawler_response(crawler_request=crawler_request, crawler_response=crawler_response)
                 self._add_urls_to_queue(crawler_response=crawler_response)
                 self._requests_info['Made'] += 1
                 break

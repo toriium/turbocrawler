@@ -67,7 +67,8 @@ class ThreadCrawlerRunner(CrawlerRunner):
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
                 self._add_urls_to_queue(crawler_response=crawler_response)
 
-                self.parse_queue_manager.queue.put({"crawler_response": crawler_response})
+                self.parse_queue_manager.queue.put({"crawler_request": crawler_request,
+                                                    "crawler_response": crawler_response})
                 self._requests_info['Made'] += 1
                 break
             except ReMakeRequest as error:

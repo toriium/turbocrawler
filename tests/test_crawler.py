@@ -35,7 +35,7 @@ class QuotesToScrapeCrawler(Crawler):
                                status_code=response.status_code)
 
     @classmethod
-    def parse_crawler_response(cls, crawler_response: CrawlerResponse) -> None:
+    def parse_crawler_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         selector = Selector(crawler_response.site_body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:
