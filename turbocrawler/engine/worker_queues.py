@@ -4,7 +4,7 @@ from queue import Empty, Queue
 from threading import Thread
 from typing import Callable
 
-from turbocrawler.engine.data_types.info import WorkerQueueInfo, WorkerQueueManagerInfo
+from turbocrawler.engine.data_types.info import WorkerQueueInfo, WorkerQueueManagerInfo, WorkersStateInfo
 from turbocrawler.logger import logger
 
 
@@ -52,15 +52,13 @@ class WorkerQueueManager:
         self.queue = WorkerQueue()
         self.must_stop_workers = False
 
-    def __get_workers_state(self) -> dict[WorkerState, int]:
-        sum_stats = {}
+    def __get_workers_state(self) -> WorkersStateInfo:
+        workers_state = WorkersStateInfo(WAITING=0, EXECUTING=0, STOPPED=0)
         for worker in self.workers:
             state = worker.worker_state.value
-            if state in sum_stats.keys():
-                sum_stats[state] += 1
-            else:
-                sum_stats[state] = 1
-        return sum_stats
+            workers_state[state] += 1
+
+        return workers_state
 
     def workers_executing(self) -> bool:
         states = self.__get_workers_state()

@@ -8,10 +8,16 @@ class WorkerQueueInfo(TypedDict):
     len: int
 
 
+class WorkersStateInfo(TypedDict):
+    WAITING: int
+    EXECUTING: int
+    STOPPED: int
+
+
 class WorkerQueueManagerInfo(TypedDict):
     queue_name: str
     queue_info: WorkerQueueInfo
-    workers_state: dict
+    workers_state: WorkersStateInfo
 
 
 class RunningInfo(TypedDict):
