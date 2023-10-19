@@ -23,17 +23,17 @@ class QuotesToScrapeCrawler(Crawler):
         url = "https://quotes.toscrape.com/page/1/"
         response = self.session.get(url=url)
         return CrawlerResponse(url=response.url,
-                               site_body=response.text,
+                               body=response.text,
                                status_code=response.status_code)
 
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
         response = self.session.get(crawler_request.url)
         return CrawlerResponse(url=response.url,
-                               site_body=response.text,
+                               body=response.text,
                                status_code=response.status_code)
 
     def parse_crawler_response(self, crawler_response: CrawlerResponse) -> None:
-        selector = Selector(crawler_response.site_body)
+        selector = Selector(crawler_response.body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:
             data = {"quote": quote.css('span:nth-child(1)::text').get()[1:-1],

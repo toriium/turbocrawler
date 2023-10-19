@@ -13,7 +13,7 @@ class CrawlerRequest:
 @dataclass(slots=True)
 class CrawlerResponse:
     url: str
-    site_body: str
+    body: str
     status_code: int = 200
     headers: dict = None
     cookies: dict = None
