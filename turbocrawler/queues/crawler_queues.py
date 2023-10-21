@@ -1,5 +1,5 @@
 from collections import deque
-from queue import Queue
+from queue import Queue, Empty
 
 from turbocrawler.engine import CrawledQueueABC, CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest
@@ -15,10 +15,10 @@ class FIFOMemoryQueue(CrawlerQueueABC):
     def __len__(self):
         return len(self.__crawler_queue)
 
-    def _insert_queue(self, crawler_request: CrawlerRequest):
+    def _insert_queue(self, crawler_request: CrawlerRequest) -> None:
         self.__crawler_queue.append(crawler_request)
 
-    def _get_and_remove_request_from_queue(self) -> CrawlerRequest:
+    def _get_and_remove_request_from_queue(self) -> CrawlerRequest | None:
         return self.__crawler_queue.popleft()
 
     def _is_queue_empty(self) -> bool:
@@ -35,13 +35,13 @@ class ThreadQueue(CrawlerQueueABC):
     def __len__(self):
         return self.__crawler_queue.qsize()
 
-    def _insert_queue(self, crawler_request: CrawlerRequest):
+    def _insert_queue(self, crawler_request: CrawlerRequest) -> None:
         self.__crawler_queue.put(crawler_request)
 
-    def _get_and_remove_request_from_queue(self) -> CrawlerRequest:
+    def _get_and_remove_request_from_queue(self) -> CrawlerRequest | None:
         try:
             return self.__crawler_queue.get(block=False)
-        except:
+        except Empty:
             return None
 
     def _is_queue_empty(self) -> bool:
