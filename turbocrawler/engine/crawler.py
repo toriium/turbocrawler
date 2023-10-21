@@ -21,7 +21,7 @@ class Crawler(ABC):
 
     @classmethod
     @abstractmethod
-    def crawler_first_request(cls) -> CrawlerResponse:
+    def crawler_first_request(cls) -> CrawlerResponse | None:
         ...
 
     @classmethod
