@@ -5,7 +5,7 @@ from parsel import Selector
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo, ExtractRule
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
-from turbocrawler.queues.crawler_queues import FIFOMemoryQueue
+from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 
 
 class QuotesToScrapeCrawler(Crawler):
@@ -51,5 +51,5 @@ class QuotesToScrapeCrawler(Crawler):
 
 crawled_queue = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,
                                    load_crawled_queue=False)
-crawler_queue = FIFOMemoryQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=crawled_queue)
+crawler_queue = FIFOMemoryCrawlerQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=crawled_queue)
 CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=crawler_queue).run()

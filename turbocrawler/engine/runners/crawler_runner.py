@@ -10,7 +10,7 @@ from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerRespon
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.logger import logger
-from turbocrawler.queues.crawler_queues import FIFOMemoryQueue
+from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 from turbocrawler.utils import get_running_id
 
 
@@ -21,7 +21,7 @@ class CrawlerRunner:
         self._last_info_log_time = datetime.now()
         self.crawler = crawler
         if crawler_queue is None:
-            crawler_queue = FIFOMemoryQueue(crawler_name=crawler.crawler_name)
+            crawler_queue = FIFOMemoryCrawlerQueue(crawler_name=crawler.crawler_name)
         self.crawler_queue = crawler_queue
         self._compile_regex()
         self._requests_info = {
