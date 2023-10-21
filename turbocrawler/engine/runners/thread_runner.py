@@ -36,7 +36,7 @@ class ThreadCrawlerRunner(CrawlerRunner):
         # get requests from crawler queue
         while True:
             self._log_info()
-            next_crawler_request = self.crawler_queue.get_request_from_queue()
+            next_crawler_request = self.crawler_queue.get()
             if next_crawler_request:
                 # self._make_request(crawler_request=next_crawler_request)
                 self.request_queue_manager.queue.put({"crawler_request": next_crawler_request})

@@ -85,7 +85,7 @@ class CrawlerRunner:
         # get requests from crawler queue
         while True:
             self._log_info()
-            next_crawler_request = self.crawler_queue.get_request_from_queue()
+            next_crawler_request = self.crawler_queue.get()
             if next_crawler_request:
                 self._make_request(crawler_request=next_crawler_request)
             else:
@@ -136,7 +136,7 @@ class CrawlerRunner:
                                              headers=crawler_response.headers,
                                              cookies=crawler_response.cookies,
                                              kwargs=crawler_response.kwargs)
-            self.crawler_queue.add_request_to_queue(crawler_request=crawler_request)
+            self.crawler_queue.add(crawler_request=crawler_request)
 
     def _compile_regex(self):
         for i, extract_rule in enumerate(self.crawler.regex_extract_rules):

@@ -13,24 +13,24 @@ class CrawlerQueueABC(ABC):
         if crawled_queue is None:
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
-        self.__crawled_queue_control = set()
+        self.__urls_scheduled = set()
         self.scheduled_requests = 0
 
     @abstractmethod
     def __len__(self):
         pass
 
-    def get_request_from_queue(self) -> CrawlerRequest | None:
+    def get(self) -> CrawlerRequest | None:
         if self._is_queue_empty():
             return None
 
         crawler_request = self._get_and_remove_request_from_queue()
-        self.__crawled_queue_control.remove(crawler_request.url)
+        self.__urls_scheduled.remove(crawler_request.url)
 
         self.__add_url_to_crawled_queue(url=crawler_request.url)
         return crawler_request
 
-    def add_request_to_queue(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
+    def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
         if not verify_crawled:
             self.scheduled_requests += 1
             self._insert_queue(crawler_request)
@@ -44,7 +44,7 @@ class CrawlerQueueABC(ABC):
         if not self.__page_already_crawled(url=url):
             self.scheduled_requests += 1
             self._insert_queue(crawler_request)
-            self.__crawled_queue_control.add(url)
+            self.__urls_scheduled.add(url)
         else:
             logger.debug(f'[{self.__class__.__name__}] {url} already_crawled')
 
@@ -57,7 +57,7 @@ class CrawlerQueueABC(ABC):
         pass
 
     def _is_url_in_queue(self, url) -> bool:
-        return url in self.__crawled_queue_control
+        return url in self.__urls_scheduled
 
     @abstractmethod
     def _is_queue_empty(self) -> bool:
