@@ -21,6 +21,7 @@ class QuotesToScrapeCrawler(Crawler):
 
     @classmethod
     def crawler_first_request(cls) -> CrawlerResponse | None:
+        cls.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
         response = cls.session.get(url="https://quotes.toscrape.com/page/1/")
         return CrawlerResponse(url=response.url,
                                body=response.text,

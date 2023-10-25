@@ -3,9 +3,8 @@
 # What it is?
 
 It is a Micro-Framework that you can use to build your crawlers easily, focused in being fast, extremely
-customizable, extensible and easy to use, giving you the power to control the crawler behavior. Provide ways to schedule
-requests,
-parse your data asynchronously, extract redirect links from an HTML page.
+customizable, extensible and easy to use, giving you the power to control the crawler behavior. 
+Provide ways to schedule requests, parse your data asynchronously, extract redirect links from an HTML page.
 
 # Install
 
@@ -35,6 +34,7 @@ class QuotesToScrapeCrawler(Crawler):
 
     @classmethod
     def crawler_first_request(cls) -> CrawlerResponse | None:
+        cls.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
         response = cls.session.get(url="https://quotes.toscrape.com/page/1/")
         return CrawlerResponse(url=response.url,
                                body=response.text,
@@ -68,8 +68,8 @@ CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
 ### Attributes
 - `crawler_name` the name of your crawler, this info will be used by `CrawledQueue`
 - `allowed_domains` list containing all domains that the crawler may add to `CrawlerQueue`
-- `regex_extract_rules` list containing `ExtractRule` objects, the regex passed here will be
-  used to extract all redirect links from an HTML page, EX: 'href="/users"', that you return in `CrawlerResponse.body`.
+- `regex_extract_rules` list containing `ExtractRule` objects, the regex passed here will be  
+  used to extract all redirect links from an HTML page, EX: 'href="/users"', that you return in `CrawlerResponse.body`  
   If you let this list empty will not enable the automatic population of `CrawlerQueue` for every `CrawlerResponse.body`
 - `time_between_requests` Time that each request will have to wait before being executed
 
@@ -99,7 +99,7 @@ Isn't mandatory to implement this method
 
 #### `parse`
 This method receives all `CrawlerResponse` from
-`crawler_first_request`, `process_request` or `process_respose`
+`crawler_first_request`, `process_request` or `process_respose`  
 Here you can parse your response,
 getting the targets fields from HTML and dump the data, in a database for example.
 
