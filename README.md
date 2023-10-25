@@ -61,8 +61,6 @@ class QuotesToScrapeCrawler(Crawler):
 CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
 ```
 
-
-
 ## Understanding the Crawler
 ### Attributes
 - `crawler_name` the name of your crawler, this info will be used by `CrawledQueue`
@@ -80,16 +78,30 @@ Should be used to start a session, webdriver, etc...
 Should be used to make the first request in a site normally the login,
 Here could also be used to schedule the first pages to crawl.  
 2 possible Returns:  
-return `CrawlerResponse` the response will be sent to `parse` method and apply follow rule OBS-1  
+return `CrawlerResponse` the response will be sent to `parse` method and apply follow rule **OBS-1  
 return `None` the response will not be sent to `parse` method
 
 #### `process_request`
+This method receives all scheduled requests in the `CrawlerQueue.add`
+being added through manual `CrawlerQueue.add` or by automatic schedule with regex_extract_rules.  
+Here you must implement all your request logic, cookies, headers, proxy, retries, etc...  
+The method receives a `CrawlerRequest` and must return a `CrawlerResponse`.  
+Apply follow rule **OBS-1.
 
-
+#### `process_respose`
+This method receives all requests made by `process_request`  
+Here you can implement any logic, like, scheduling requests, 
+validating response, remake the requests, etc... 
+Isn't mandatory to implement this method 
 
 #### `parse`
-#### `stop_crawler`
+This method receives all `CrawlerResponse` from 
+`crawler_first_request`, `process_request` or `process_respose`
+Here you can parse your response, 
+getting the targets fields from HTML and dump the data, in a database for example. 
 
+#### `stop_crawler`
+Should be used to close a session, webdriver, etc...
 
 OBS:
 1. If filled `regex_extract_rules` the redicts specified in the rules will schedule 
