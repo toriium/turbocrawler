@@ -21,8 +21,7 @@ class QuotesToScrapeCrawler(Crawler):
 
     @classmethod
     def crawler_first_request(cls) -> CrawlerResponse | None:
-        url = "https://quotes.toscrape.com/page/1/"
-        response = cls.session.get(url=url)
+        response = cls.session.get(url="https://quotes.toscrape.com/page/1/")
         return CrawlerResponse(url=response.url,
                                body=response.text,
                                status_code=response.status_code)
@@ -35,7 +34,7 @@ class QuotesToScrapeCrawler(Crawler):
                                status_code=response.status_code)
 
     @classmethod
-    def parse_crawler_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+    def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         selector = Selector(crawler_response.body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:

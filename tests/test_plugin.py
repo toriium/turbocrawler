@@ -17,6 +17,11 @@ class TestPlugin(Plugin):
 
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | CrawlerRequest | None:
         print("[Plugin] process_request")
+        return None
+
+    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
+        print("[Plugin] process_response")
+        return crawler_response
 
     def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         print("[Plugin] process_request")
@@ -35,8 +40,7 @@ class QuotesToScrapeCrawler(Crawler):
 
     @classmethod
     def crawler_first_request(cls) -> CrawlerResponse | None:
-        url = "https://quotes.toscrape.com/page/1/"
-        response = cls.session.get(url=url)
+        response = cls.session.get(url="https://quotes.toscrape.com/page/1/")
         return CrawlerResponse(url=response.url,
                                body=response.text,
                                status_code=response.status_code)
