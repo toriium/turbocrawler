@@ -30,8 +30,12 @@ class Crawler(ABC):
         ...
 
     @classmethod
+    def process_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
+        return crawler_response
+
+    @classmethod
     @abstractmethod
-    def parse_crawler_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
+    def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
         ...
 
     @classmethod

@@ -21,9 +21,9 @@ class Plugin(ABC):
     def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | CrawlerRequest | None:
         ...
 
-    # @abstractmethod
-    # def parse_crawler_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
-    #     ...
+    @abstractmethod
+    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
+        return crawler_response
 
     @abstractmethod
     def stop_crawler(self, execution_info: ExecutionInfo) -> None:
