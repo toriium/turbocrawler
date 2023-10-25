@@ -25,7 +25,7 @@ class CrawlerRunner:
             crawler_queue = FIFOMemoryCrawlerQueue(crawler_name=crawler.crawler_name)
         self.crawler_queue = crawler_queue
         self._compile_regex()
-        self._plugins: list[Plugin] = self._initialize_plugins(crawler,plugins)
+        self._plugins: list[Plugin] = self._initialize_plugins(crawler, plugins)
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
 
     def run(self):
@@ -39,7 +39,7 @@ class CrawlerRunner:
 
             self._call_crawler_first_request()
 
-            self._process_crawler_queue()
+            self._start_crawler_queue_loop()
 
             self._call_all_stop_crawler()
         except StopCrawler as error:
@@ -78,15 +78,12 @@ class CrawlerRunner:
         crawler_response = self.crawler.crawler_first_request()
         if crawler_response is not None:
             self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
-            self.crawler.parse_crawler_response(
-                crawler_request=CrawlerRequest(url="crawler_first_request"),
-                crawler_response=crawler_response)
+            self.crawler.parse(crawler_request=CrawlerRequest(url="crawler_first_request"),
+                               crawler_response=crawler_response)
             self._add_urls_to_queue(crawler_response=crawler_response)
 
-    def _process_crawler_queue(self):
+    def _start_crawler_queue_loop(self):
         logger.info('Processing crawler queue')
-
-        # get requests from crawler queue
         while True:
             self._log_info()
             next_crawler_request = self.crawler_queue.get()
@@ -103,27 +100,32 @@ class CrawlerRunner:
             try:
                 time.sleep(self.crawler.time_between_requests)
                 crawler_response = None
+
+                # call all process_request
                 for plugin in self._plugins:
                     plugin_return = plugin.process_request(crawler_request=crawler_request)
-                    if plugin_return is None:
-                        continue
                     if isinstance(plugin_return, CrawlerRequest):
                         crawler_request = plugin_return
                     if isinstance(plugin_return, CrawlerResponse):
                         crawler_response = plugin_return
-
                 if crawler_response is None:
                     crawler_response = self.crawler.process_request(crawler_request=crawler_request)
 
-                self.crawler.parse_crawler_response(crawler_request=crawler_request, crawler_response=crawler_response)
+                # call all process_response
+                for plugin in self._plugins:
+                    plugin_return = plugin.process_response(crawler_request, crawler_response)
+                    if isinstance(plugin_return, CrawlerResponse):
+                        crawler_response = plugin_return
+
+                self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
                 self._add_urls_to_queue(crawler_response=crawler_response)
                 self._requests_info['Made'] += 1
                 break
             except ReMakeRequest as error:
                 self._requests_info['ReMakeRequest'] += 1
                 request_retries += 1
-                error_retries = error.retries
-                if request_retries >= error_retries:
+                max_retries = error.retries
+                if request_retries >= max_retries:
                     logger.warn(f'Exceed retry tentatives for url {crawler_request.url}')
                     break
             except SkipRequest as error:
