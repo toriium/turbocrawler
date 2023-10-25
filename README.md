@@ -73,6 +73,34 @@ If you let this list empty will not enable the automatic population of `CrawlerQ
 - `time_between_requests` Time that each request will have to wait before being executed
 
 ### Methods
+#### `start_crawler`
+Should be used to start a session, webdriver, etc...
+
+#### `crawler_first_request` 
+Should be used to make the first request in a site normally the login,
+Here could also be used to schedule the first pages to crawl.  
+2 possible Returns:  
+return `CrawlerResponse` the response will be sent to `parse` method and apply follow rule OBS-1  
+return `None` the response will not be sent to `parse` method
+
+#### `process_request`
+
+
+
+#### `parse`
+#### `stop_crawler`
+
+
+OBS:
+1. If filled `regex_extract_rules` the redicts specified in the rules will schedule 
+in the `CrawlerQueue`, if not filled `regex_extract_rules` will not schedule any request.
+
+### Order of calls
+1. `start_crawler`
+2. `crawler_first_request`
+3. Start loop executing the methods sequentially `process_request` -> `process_response` -> `parse` -> loop forever.  
+The loop only stops when `CrawlerQueue` is empty.
+4. `stop_crawler`
 
 ## Creating your crawler
 1. Create a class that inherits from `Crawler` class and implement all required methods
