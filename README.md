@@ -1,9 +1,15 @@
 # TurboCrawler
 
-# What it is?
+## What it is?
 It is a Micro-Framework that you can use to build your crawlers easily, focused in being fast, extremely
 customizable and easy to use, giving you the power to control the crawler behavior. Provide ways to schedule requests,
 parse your data asynchronously, extract redirect links from an HTML page.
+
+
+## Install
+```sh
+pip install turbocrawler
+```
 
 ## Code Example
 ```python
@@ -54,3 +60,19 @@ class QuotesToScrapeCrawler(Crawler):
 
 CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
 ```
+
+
+
+## Understanding the Crawler
+### Attributes
+- `crawler_name` the name of your crawler, this info will be used by `CrawledQueue`
+- `allowed_domains` list containing all domains that the crawler may add to `CrawlerQueue`
+- `regex_extract_rules` list containing `ExtractRule` objects, the regex passed here will be 
+used to extract all redirect links from an HTML page, EX: 'href="/users"', that you return in `CrawlerResponse.body`.
+If you let this list empty will not enable the automatic population of `CrawlerQueue` for every `CrawlerResponse.body` 
+- `time_between_requests` Time that each request will have to wait before being executed
+
+### Methods
+
+## Creating your crawler
+1. Create a class that inherits from `Crawler` class and implement all required methods
