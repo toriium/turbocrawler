@@ -1,17 +1,20 @@
 # TurboCrawler
 
 ## What it is?
+
 It is a Micro-Framework that you can use to build your crawlers easily, focused in being fast, extremely
-customizable and easy to use, giving you the power to control the crawler behavior. Provide ways to schedule requests,
+customizable, extensible and easy to use, giving you the power to control the crawler behavior. Provide ways to schedule
+requests,
 parse your data asynchronously, extract redirect links from an HTML page.
 
-
 ## Install
+
 ```sh
 pip install turbocrawler
 ```
 
 ## Code Example
+
 ```python
 from pprint import pprint
 import requests
@@ -62,19 +65,24 @@ CrawlerRunner(crawler=QuotesToScrapeCrawler).run()
 ```
 
 ## Understanding the Crawler
+
 ### Attributes
+
 - `crawler_name` the name of your crawler, this info will be used by `CrawledQueue`
 - `allowed_domains` list containing all domains that the crawler may add to `CrawlerQueue`
-- `regex_extract_rules` list containing `ExtractRule` objects, the regex passed here will be 
-used to extract all redirect links from an HTML page, EX: 'href="/users"', that you return in `CrawlerResponse.body`.
-If you let this list empty will not enable the automatic population of `CrawlerQueue` for every `CrawlerResponse.body` 
+- `regex_extract_rules` list containing `ExtractRule` objects, the regex passed here will be
+  used to extract all redirect links from an HTML page, EX: 'href="/users"', that you return in `CrawlerResponse.body`.
+  If you let this list empty will not enable the automatic population of `CrawlerQueue` for every `CrawlerResponse.body`
 - `time_between_requests` Time that each request will have to wait before being executed
 
 ### Methods
+
 #### `start_crawler`
+
 Should be used to start a session, webdriver, etc...
 
-#### `crawler_first_request` 
+#### `crawler_first_request`
+
 Should be used to make the first request in a site normally the login,
 Here could also be used to schedule the first pages to crawl.  
 2 possible Returns:  
@@ -82,6 +90,7 @@ return `CrawlerResponse` the response will be sent to `parse` method and apply f
 return `None` the response will not be sent to `parse` method
 
 #### `process_request`
+
 This method receives all scheduled requests in the `CrawlerQueue.add`
 being added through manual `CrawlerQueue.add` or by automatic schedule with regex_extract_rules.  
 Here you must implement all your request logic, cookies, headers, proxy, retries, etc...  
@@ -89,30 +98,49 @@ The method receives a `CrawlerRequest` and must return a `CrawlerResponse`.
 Apply follow rule **OBS-1.
 
 #### `process_respose`
+
 This method receives all requests made by `process_request`  
-Here you can implement any logic, like, scheduling requests, 
-validating response, remake the requests, etc... 
-Isn't mandatory to implement this method 
+Here you can implement any logic, like, scheduling requests,
+validating response, remake the requests, etc...
+Isn't mandatory to implement this method
 
 #### `parse`
-This method receives all `CrawlerResponse` from 
+
+This method receives all `CrawlerResponse` from
 `crawler_first_request`, `process_request` or `process_respose`
-Here you can parse your response, 
-getting the targets fields from HTML and dump the data, in a database for example. 
+Here you can parse your response,
+getting the targets fields from HTML and dump the data, in a database for example.
 
 #### `stop_crawler`
+
 Should be used to close a session, webdriver, etc...
 
 OBS:
-1. If filled `regex_extract_rules` the redicts specified in the rules will schedule 
-in the `CrawlerQueue`, if not filled `regex_extract_rules` will not schedule any request.
+
+1. If filled `regex_extract_rules` the redicts specified in the rules will schedule
+   in the `CrawlerQueue`, if not filled `regex_extract_rules` will not schedule any request.
 
 ### Order of calls
+
 1. `start_crawler`
 2. `crawler_first_request`
 3. Start loop executing the methods sequentially `process_request` -> `process_response` -> `parse` -> loop forever.  
-The loop only stops when `CrawlerQueue` is empty.
+   The loop only stops when `CrawlerQueue` is empty.
 4. `stop_crawler`
 
+## Understanding the CrawlerRunner
+
+Is the responsible to run the Crawler, calling the methods in order,
+responsible to automatic schedule your requests, and handle the queues.  
+It uses by default:
+- `FIFOMemoryCrawlerQueue` for `CrawlerQueue`  
+- `MemoryCrawledQueue` for `CrawledQueue`  
+
+But you can change it using the built-ins queues
+in `turbocrawler.queues` or creating your own queues
+
+## Understanding the CrawlerRunner
+
 ## Creating your crawler
+
 1. Create a class that inherits from `Crawler` class and implement all required methods
