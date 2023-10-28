@@ -1,5 +1,5 @@
 from collections import deque
-from queue import Queue, Empty
+from queue import Empty, Queue
 
 from turbocrawler.engine import CrawledQueueABC, CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest

@@ -28,13 +28,12 @@ class CrawlerQueueInfo(TypedDict):
 
 class CrawledQueueInfo(TypedDict):
     add: int
-    get: int
     length: int
 
 
 class RunningInfo(TypedDict):
     crawler_queue: CrawlerQueueInfo
-    crawled_queue: int
+    crawled_queue: CrawledQueueInfo
     requests_made: int
     requests_remade: int
     requests_skipped: int

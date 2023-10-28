@@ -57,7 +57,7 @@ class QuotesToScrapeCrawler(Crawler):
         selector = Selector(crawler_response.body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:
-            data = {"quote": quote.css('span:nth-child(1)::text').get()[1:-1],
+            {"quote": quote.css('span:nth-child(1)::text').get()[1:-1],
                     "author": quote.css('span:nth-child(2)>small::text').get(),
                     "tags_list": quote.css('div[class="tags"]>a::text').getall()}
 

@@ -1,8 +1,8 @@
 import time
+from collections.abc import Callable
 from enum import Enum
 from queue import Empty, Queue
 from threading import Thread
-from typing import Callable
 
 from turbocrawler.engine.data_types.info import WorkerQueueInfo, WorkerQueueManagerInfo, WorkersStateInfo
 from turbocrawler.logger import logger

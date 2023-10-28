@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from turbocrawler.engine.data_types.crawler import ExtractRule
+from turbocrawler.engine.data_types.info import CrawledQueueInfo
 from turbocrawler.logger import logger
 
 
@@ -14,6 +15,10 @@ class CrawledQueueABC(ABC):
         self.crawler_name = crawler_name
         self.must_save_crawled_queue = must_save_crawled_queue
         self.must_load_crawled_queue = must_load_crawled_queue
+        self.__info = CrawledQueueInfo(add=0, length=0)
+
+    def get_info(self) -> CrawledQueueInfo:
+        return CrawledQueueInfo(add=self.__info['add'], length=len(self))
 
     def start_crawler(self):
         if self.must_load_crawled_queue:
@@ -31,6 +36,10 @@ class CrawledQueueABC(ABC):
     @abstractmethod
     def __len__(self):
         pass
+
+    def add(self, url: str) -> None:
+        self.__info['add'] += 1
+        self.add_url_to_crawled_queue(url)
 
     @abstractmethod
     def add_url_to_crawled_queue(self, url: str) -> None:
