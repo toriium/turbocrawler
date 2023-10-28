@@ -3,7 +3,7 @@ import os
 
 from turbocrawler.utils import create_file_path
 
-formatter = logging.Formatter('%(asctime)s|%(levelname)s| %(message)s', datefmt='%m-%d-%Y %H:%M:%S')
+formatter = logging.Formatter('%(asctime)s|%(levelname)s| %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class LOG(logging.Logger):
@@ -12,8 +12,8 @@ class LOG(logging.Logger):
         console_handler.setFormatter(formatter)
         self.addHandler(console_handler)
 
-    def create_file_handler(self, filename):
-        path = f'{os.getcwd()}/crawler_logs/{filename}.txt'
+    def create_file_handler(self, dir: str, filename: str):
+        path = f'{os.getcwd()}/crawler_logs/{dir}/{filename}.txt'
         create_file_path(path)
         file_handler = logging.FileHandler(path, mode='w')
         file_handler.setFormatter(formatter)

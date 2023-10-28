@@ -29,6 +29,7 @@ class CrawlerRunner:
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
 
     def run(self):
+        logger.create_file_handler(dir=self.crawler.crawler_name, filename=self._running_id)
         # self.crawler = self.crawler.__init__()
         self.crawler.crawler_queue = self.crawler_queue
 
