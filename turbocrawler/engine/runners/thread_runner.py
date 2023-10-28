@@ -15,22 +15,16 @@ class ThreadCrawlerRunner(CrawlerRunner):
     def __init__(self,
                  crawler: type[Crawler],
                  crawler_queue: CrawlerQueueABC = None,
-                 qtd_parse: int = 2,
                  qtd_request: int = 2):
         super().__init__(crawler=crawler, crawler_queue=crawler_queue)
 
-        self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
-                                                                          class_object=self.crawler,
-                                                                          target=self.crawler.parse_crawler_response,
-                                                                          qtd_workers=qtd_parse)
-        self.parse_queue_manager.start_workers()
         self.request_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='request_queue',
                                                                             class_object=self.crawler,
                                                                             target=self._make_request,
                                                                             qtd_workers=qtd_request)
-        self.request_queue_manager.start_workers()
 
     def _process_crawler_queue(self):
+        self.request_queue_manager.start_workers()
         logger.info('Processing crawler queue')
 
         # get requests from crawler queue
@@ -86,13 +80,12 @@ class ThreadCrawlerRunner(CrawlerRunner):
     def _get_running_info(self) -> RunningInfo:
         running_time = datetime.now() - self._start_process_time
         return RunningInfo(
-            crawler_queue=len(self.crawler_queue),
-            crawled_queue=len(self.crawler_queue.crawled_queue),
-            scheduled_requests=self.crawler_queue.scheduled_requests,
+            crawler_queue=self.crawler_queue.get_info(),
+            crawled_queue=self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
             requests_remade=self._requests_info["ReMakeRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
-            parse_queue=self.parse_queue_manager.get_info(),
-            running_time=running_time,
+            parse_queue=None,
+            running_time=str(running_time),
             running_id=self._running_id
         )

@@ -10,13 +10,20 @@ from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerRespon
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.plugin import Plugin
 from turbocrawler.engine.url_extractor import UrlExtractor
+from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
 from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 from turbocrawler.utils import get_running_id
 
 
 class CrawlerRunner:
-    def __init__(self, crawler: type[Crawler], plugins: list[type[Plugin]] = (), crawler_queue: CrawlerQueueABC = None):
+    def __init__(
+            self,
+            crawler: type[Crawler],
+            plugins: list[type[Plugin]] = (),
+            crawler_queue: CrawlerQueueABC = None,
+            qtd_parse: int = 2
+    ):
         self._running_id = get_running_id()
         self._start_process_time = datetime.now()
         self._last_info_log_time = datetime.now()
@@ -28,10 +35,16 @@ class CrawlerRunner:
         self._plugins: list[Plugin] = self._initialize_plugins(crawler, plugins)
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
 
+        self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
+                                                                          class_object=self.crawler,
+                                                                          target=self.crawler.parse,
+                                                                          qtd_workers=qtd_parse)
+
     def run(self):
         logger.create_file_handler(dir=self.crawler.crawler_name, filename=self._running_id)
-        # self.crawler = self.crawler.__init__()
+        self.parse_queue_manager.start_workers()
         self.crawler.crawler_queue = self.crawler_queue
+        # self.crawler = self.crawler.__init__()
 
         try:
             self._call_all_start_crawler()
@@ -92,6 +105,7 @@ class CrawlerRunner:
                 self._make_request(crawler_request=next_crawler_request)
             else:
                 logger.info('Crawler queue is empty, all crawler_requests made')
+                self.parse_queue_manager.stop_workers()
                 return True
 
     def _make_request(self, crawler_request: CrawlerRequest):
@@ -178,15 +192,14 @@ class CrawlerRunner:
 
     def _get_running_info(self) -> RunningInfo:
         running_time = datetime.now() - self._start_process_time
-        running_time = str(running_time)
         return RunningInfo(
             crawler_queue=self.crawler_queue.get_info(),
             crawled_queue=self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
             requests_remade=self._requests_info["ReMakeRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
-            parse_queue=None,
-            running_time=running_time,
+            parse_queue=self.parse_queue_manager.get_info(),
+            running_time=str(running_time),
             running_id=self._running_id
         )
 

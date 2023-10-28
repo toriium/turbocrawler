@@ -48,7 +48,7 @@ class WorkerQueueManager:
         self.class_object = class_object
         self.target = target
         self.qtd_workers = qtd_workers
-        self.workers: list[ConsumerQueueWorker]
+        self.workers: list[ConsumerQueueWorker] = []
         self.queue = WorkerQueue()
         self.must_stop_workers = False
 
