@@ -1,9 +1,15 @@
 import logging
+import os
+
+formatter = logging.Formatter('%(asctime)s|%(levelname)s| %(message)s', datefmt='%m-%d-%Y %H:%M:%S')
 
 logger = logging.getLogger('turbocrawler')
 logger.setLevel(logging.INFO)
 
-ch = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s|%(levelname)s| %(message)s', datefmt='%m-%d-%Y %H:%M:%S')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+file_handler = logging.FileHandler(f'{os.getcwd()}/log.txt')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
