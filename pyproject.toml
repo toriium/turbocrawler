@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "turbocrawler"
-version = "0.0.1-rc2"
+version = "0.0.1"
 license = "MIT"
-description = "this is not a awesome description"
-authors = ["jorgepvasconcelos"]
+description = "Scraping and Crawling Micro-Framework"
+authors = ["toriium"]
 keywords = ["crawler", "crawler framework", "scraping", "turbocrawler"]
 readme = "README.md"
 packages = [{ include = "turbocrawler" }]
-homepage = "https://github.com/jorgepvasconcelos/turbocrawler"
-repository = "https://github.com/jorgepvasconcelos/turbocrawler"
+homepage = "https://github.com/toriium/turbocrawler"
+repository = "https://github.com/toriium/turbocrawler"
 
 [tool.poetry.dependencies]
 python = "^3.11"
