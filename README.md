@@ -116,7 +116,9 @@ OBS:
 3. Start loop executing the methods sequentially `process_request` -> `process_response` -> `parse` -> loop forever.  
    The loop only stops when `CrawlerQueue` is empty.
 4. `stop_crawler`
+
 ---
+
 ## CrawlerRunner
 Is the responsible to run the Crawler, calling the methods in order,
 responsible to automatic schedule your requests, and handle the queues.  
@@ -126,11 +128,15 @@ It uses by default:
 
 But you can change it using the built-ins queues
 in `turbocrawler.queues` or creating your own queues
+
 ---
+
 ## CrawlerQueue
 CrawlerQueue is where yours `CrawlerRequest` are stored
 and then will be removed to be processed at `process_request`
+
 ---
+
 ## CrawledQueue
 CrawledQueue is where all urls from the processed `CrawlerRequest` are stored
 It prevents to remake a request to the same url, but this behavior can be changed.
