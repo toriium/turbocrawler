@@ -177,6 +177,7 @@ class CrawlerRunner:
 
     def _get_running_info(self) -> RunningInfo:
         running_time = datetime.now() - self._start_process_time
+        running_time = str(running_time)
         return RunningInfo(
             crawler_queue=self.crawler_queue.get_info(),
             crawled_queue=self.crawler_queue.crawled_queue.get_info(),

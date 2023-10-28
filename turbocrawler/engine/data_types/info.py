@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import TypedDict
 
 
@@ -38,7 +37,7 @@ class RunningInfo(TypedDict):
     requests_remade: int
     requests_skipped: int
     parse_queue: WorkerQueueManagerInfo | None
-    running_time: timedelta
+    running_time: str
     running_id: str
 
 
