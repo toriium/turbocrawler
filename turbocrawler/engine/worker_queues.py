@@ -17,13 +17,13 @@ class WorkerState(Enum):
 class WorkerQueue:
     def __init__(self):
         self.__queue = Queue()
-        self.info = {"get": 0, "put": 0, 'len': 0}
+        self.info = WorkerQueueInfo(add=0, get=0, length=0)
 
     def get_info(self) -> WorkerQueueInfo:
-        return WorkerQueueInfo(put=self.info["put"], get=self.info["get"], len=self.__queue.qsize())
+        return WorkerQueueInfo(add=self.info["add"], get=self.info["get"], length=self.__queue.qsize())
 
     def put(self, data):
-        self.info["put"] += 1
+        self.info["add"] += 1
         self.__queue.put(data)
 
     def get(self):

@@ -3,9 +3,9 @@ from typing import TypedDict
 
 
 class WorkerQueueInfo(TypedDict):
-    put: int
+    add: int
     get: int
-    len: int
+    length: int
 
 
 class WorkersStateInfo(TypedDict):
@@ -20,10 +20,21 @@ class WorkerQueueManagerInfo(TypedDict):
     workers_state: WorkersStateInfo
 
 
+class CrawlerQueueInfo(TypedDict):
+    add: int
+    get: int
+    length: int
+
+
+class CrawledQueueInfo(TypedDict):
+    add: int
+    get: int
+    length: int
+
+
 class RunningInfo(TypedDict):
-    crawler_queue: int
+    crawler_queue: CrawlerQueueInfo
     crawled_queue: int
-    scheduled_requests: int
     requests_made: int
     requests_remade: int
     requests_skipped: int

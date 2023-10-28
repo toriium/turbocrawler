@@ -178,9 +178,8 @@ class CrawlerRunner:
     def _get_running_info(self) -> RunningInfo:
         running_time = datetime.now() - self._start_process_time
         return RunningInfo(
-            crawler_queue=len(self.crawler_queue),
+            crawler_queue=self.crawler_queue.get_info(),
             crawled_queue=len(self.crawler_queue.crawled_queue),
-            scheduled_requests=self.crawler_queue.scheduled_requests,
             requests_made=self._requests_info["Made"],
             requests_remade=self._requests_info["ReMakeRequest"],
             requests_skipped=self._requests_info["SkipRequest"],

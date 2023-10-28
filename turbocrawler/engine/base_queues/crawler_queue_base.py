@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest
+from turbocrawler.engine.data_types.info import CrawlerQueueInfo
 from turbocrawler.logger import logger
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
@@ -14,11 +15,14 @@ class CrawlerQueueABC(ABC):
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
         self.__urls_scheduled = set()
-        self.scheduled_requests = 0
+        self.__info = CrawlerQueueInfo(add=0, get=0, length=0)
 
     @abstractmethod
     def __len__(self):
         pass
+
+    def get_info(self) -> CrawlerQueueInfo:
+        return CrawlerQueueInfo(add=self.__info['add'], get=self.__info['get'], length=len(self))
 
     def get(self) -> CrawlerRequest | None:
         if self._is_queue_empty():
@@ -30,11 +34,12 @@ class CrawlerQueueABC(ABC):
         self.__urls_scheduled.remove(crawler_request.url)
 
         self.__add_url_to_crawled_queue(url=crawler_request.url)
+        self.__info['get'] += 1
         return crawler_request
 
     def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
         if not verify_crawled:
-            self.scheduled_requests += 1
+            self.__info['add'] += 1
             self._insert_queue(crawler_request)
             return
 
@@ -44,7 +49,7 @@ class CrawlerQueueABC(ABC):
             return
 
         if not self.__page_already_crawled(url=url):
-            self.scheduled_requests += 1
+            self.__info['add'] += 1
             self._insert_queue(crawler_request)
             self.__urls_scheduled.add(url)
         else:
