@@ -35,8 +35,9 @@ class UrlExtractor:
     def validate_urls_with_allowed_domains(urls: set[str], allowed_domains: list[str]):
         valid_urls = []
         for url in urls:
-            for domain in allowed_domains:
-                if domain in url:
+            url_domain = urlparse(url).netloc
+            for allowed_domain in allowed_domains:
+                if allowed_domain == url_domain:
                     valid_urls.append(url)
         return valid_urls
 
