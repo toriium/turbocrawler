@@ -22,7 +22,7 @@ from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
 
 class QuotesToScrapeCrawler(Crawler):
     crawler_name = "QuotesToScrape"
-    allowed_domains = ['quotes.toscrape']
+    allowed_domains = ['quotes.toscrape.com']
     regex_extract_rules = [ExtractRule(r'https://quotes.toscrape.com/page/[0-9]')]
     time_between_requests = 1
     session: requests.Session
@@ -79,7 +79,7 @@ Should be used to start a session, webdriver, etc...
 
 #### `crawler_first_request`
 Should be used to make the first request in a site normally the login,
-Here could also be used to schedule the first pages to crawl.  
+Can also be used to schedule the first pages to crawl.  
 2 possible Returns:
 - return `CrawlerResponse` the response will be sent to `parse` method and apply follow rule **OBS-1  
 - return `None` the response will not be sent to `parse` method
@@ -91,17 +91,17 @@ Here you must implement all your request logic, cookies, headers, proxy, retries
 The method receives a `CrawlerRequest` and must return a `CrawlerResponse`.  
 Apply follow rule **OBS-1.
 
-#### `process_respose`
+#### `process_response`
 This method receives all requests made by `process_request`  
 Here you can implement any logic, like, scheduling requests,
-validating response, remake the requests, etc...
+validating response, retrying logic, etc...
 Isn't mandatory to implement this method
 
 #### `parse`
 This method receives all `CrawlerResponse` from
 `crawler_first_request`, `process_request` or `process_respose`  
 Here you can parse your response,
-getting the targets fields from HTML and dump the data, in a database for example.
+getting the targets' fields from HTML and dump the data, in a database for example.
 
 #### `stop_crawler`
 Should be used to close a session, webdriver, etc...
@@ -139,4 +139,4 @@ and then will be removed to be processed at `process_request`
 
 ## CrawledQueue
 CrawledQueue is where all urls from the processed `CrawlerRequest` are stored
-It prevents to remake a request to the same url, but this behavior can be changed.
+It prevents dispatching a request to an already crawled url, but this behavior can be changed.
