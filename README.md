@@ -22,7 +22,7 @@ from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner
 
 class QuotesToScrapeCrawler(Crawler):
     crawler_name = "QuotesToScrape"
-    allowed_domains = ['quotes.toscrape']
+    allowed_domains = ['quotes.toscrape.com']
     regex_extract_rules = [ExtractRule(r'https://quotes.toscrape.com/page/[0-9]')]
     time_between_requests = 1
     session: requests.Session
