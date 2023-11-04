@@ -1,7 +1,7 @@
 from pprint import pprint
 
 import requests
-from parsel import Selector
+from selectolax.lexbor import LexborHTMLParser
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo, ExtractRule
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
@@ -36,12 +36,12 @@ class QuotesToScrapeCrawler(Crawler):
 
     @classmethod
     def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
-        selector = Selector(crawler_response.body)
+        selector = LexborHTMLParser(crawler_response.body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:
-            data = {"quote": quote.css('span:nth-child(1)::text').get()[1:-1],
-                    "author": quote.css('span:nth-child(2)>small::text').get(),
-                    "tags_list": quote.css('div[class="tags"]>a::text').getall()}
+            data = {"quote": quote.css_first('span:nth-child(1)').text()[1:-1],
+                    "author": quote.css_first('span:nth-child(2)>small').text(),
+                    "tag_list": [tag.text() for tag in quote.css('div[class="tags"]>a') if tag]}
             pprint(data)
 
     @classmethod
