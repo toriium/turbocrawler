@@ -1,6 +1,6 @@
 from urllib.parse import urljoin, urlparse
 
-from parsel import Selector
+from selectolax.lexbor import LexborHTMLParser
 
 from turbocrawler.engine.data_types.crawler import ExtractRule
 
@@ -42,7 +42,7 @@ class UrlExtractor:
         return valid_urls
 
     @staticmethod
-    def transform_hrefs(site_current_domain: str, hrefs: list[str]) -> set[str]:
+    def transform_hrefs(site_current_domain: str, hrefs: set[str]) -> set[str]:
         transformed_urls = set()
         for href in hrefs:
             if href.startswith(("https://", "http://")):
@@ -53,9 +53,12 @@ class UrlExtractor:
         return transformed_urls
 
     @staticmethod
-    def extract_hrefs_from_html(html_body: str) -> list[str] | None:
-        selector = Selector(html_body)
-        hrefs_in_html = selector.css(query='a[href]::attr(href)').getall()
+    def extract_hrefs_from_html(html_body: str) -> set[str] | None:
+        hrefs_in_html = set()
+        selector = LexborHTMLParser(html_body)
+        hrefs_elements = selector.css('a[href]')
+        for href_el in hrefs_elements:
+            hrefs_in_html.add(href_el.attributes['href'])
         return hrefs_in_html
 
     @staticmethod

@@ -12,7 +12,7 @@ repository = "https://github.com/toriium/turbocrawler"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-parsel = "*"
+selectolax = "*"
 
 
 [tool.poetry.group.dev.dependencies]
