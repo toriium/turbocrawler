@@ -30,12 +30,17 @@ class CrawlerRunner:
 
         self._compile_regex()
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
-        self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
-                                                                          class_object=self.crawler,
-                                                                          target=self.crawler.parse,
-                                                                          qtd_workers=config.qtd_parse)
+        self.parse_queue_manager: WorkerQueueManager
 
     def _initialize_runner_dependencies(self):
+        if self.config is None:
+            self.config = CrawlerRunnerConfig()
+
+        self.parse_queue_manager = WorkerQueueManager(queue_name='parse_queue',
+                                                      class_object=self.crawler,
+                                                      target=self.crawler.parse,
+                                                      qtd_workers=self.config.qtd_parse)
+
         if self.config.crawler_queue_params is None:
             self.config.crawler_queue_params = dict()
         if self.config.crawled_queue_params is None:
