@@ -12,39 +12,54 @@ from turbocrawler.engine.plugin import Plugin
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
-from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 from turbocrawler.utils import get_running_id
+from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 
 
 class CrawlerRunner:
-    def __init__(
-            self,
-            crawler: type[Crawler],
-            plugins: list[type[Plugin]] = (),
-            crawler_queue: CrawlerQueueABC = None,
-            qtd_parse: int = 2
-    ):
+    def __init__(self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None):
         self._running_id = get_running_id()
         self._start_process_time = datetime.now()
         self._last_info_log_time = datetime.now()
-        self.crawler = crawler
-        if crawler_queue is None:
-            crawler_queue = FIFOMemoryCrawlerQueue(crawler_name=crawler.crawler_name)
-        self.crawler_queue = crawler_queue
-        self._compile_regex()
-        self._plugins: list[Plugin] = self._initialize_plugins(crawler, plugins)
-        self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
 
+        self.crawler = crawler
+        self.config = config
+        self.crawler_queue: CrawlerQueueABC
+        self.plugins: list[Plugin]
+        self.use_plugins = False
+
+        self._compile_regex()
+        self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
         self.parse_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='parse_queue',
                                                                           class_object=self.crawler,
                                                                           target=self.crawler.parse,
-                                                                          qtd_workers=qtd_parse)
+                                                                          qtd_workers=config.qtd_parse)
+
+    def _initialize_runner_dependencies(self):
+        if self.config.crawler_queue_params is None:
+            self.config.crawler_queue_params = dict()
+        if self.config.crawled_queue_params is None:
+            self.config.crawled_queue_params = dict()
+
+        if 'crawler_name' not in self.config.crawler_queue_params.keys():
+            self.config.crawler_queue_params['crawler_name'] = self.crawler.crawler_name
+        if 'crawler_name' not in self.config.crawled_queue_params.keys():
+            self.config.crawled_queue_params['crawler_name'] = self.crawler.crawler_name
+
+        crawled_queue = self.config.crawled_queue(**self.config.crawled_queue_params)
+        self.config.crawler_queue_params['crawled_queue'] = crawled_queue
+        self.crawler_queue = self.config.crawler_queue(**self.config.crawler_queue_params)
+
+        if self.config.plugins:
+            self.use_plugins = True
+            self.plugins = self._initialize_plugins(self.crawler, self.config.plugins)
 
     def run(self):
+        self._initialize_runner_dependencies()
+
         logger.create_file_handler(dir=self.crawler.crawler_name, filename=self._running_id)
         self.parse_queue_manager.start_workers()
         self.crawler.crawler_queue = self.crawler_queue
-        # self.crawler = self.crawler.__init__()
 
         try:
             self._call_all_start_crawler()
@@ -61,8 +76,9 @@ class CrawlerRunner:
 
     def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
-        for plugin in self._plugins:
-            plugin.start_crawler()
+        if self.use_plugins:
+            for plugin in self.plugins:
+                plugin.start_crawler()
         self.crawler.start_crawler()
         self.crawler_queue.crawled_queue.start_crawler()
 
@@ -78,17 +94,19 @@ class CrawlerRunner:
         execution_info = ExecutionInfo(**self._get_running_info(),
                                        forced_stop=forced_stop, reason=reason)
 
+        if self.use_plugins:
+            for plugin in self.plugins:
+                plugin.stop_crawler(execution_info=execution_info)
         self.crawler_queue.crawled_queue.stop_crawler()
-        for plugin in self._plugins:
-            plugin.stop_crawler(execution_info=execution_info)
         self.crawler.stop_crawler(execution_info=execution_info)
         formatted_info = pformat(execution_info, sort_dicts=False)
         logger.info(f'Execution info\n{formatted_info}')
 
     def _call_crawler_first_request(self):
         logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')
-        for plugin in self._plugins:
-            plugin.crawler_first_request()
+        if self.use_plugins:
+            for plugin in self.plugins:
+                plugin.crawler_first_request()
         crawler_response = self.crawler.crawler_first_request()
         if crawler_response is not None:
             self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
@@ -117,20 +135,22 @@ class CrawlerRunner:
                 crawler_response = None
 
                 # call all process_request
-                for plugin in self._plugins:
-                    plugin_return = plugin.process_request(crawler_request=crawler_request)
-                    if isinstance(plugin_return, CrawlerRequest):
-                        crawler_request = plugin_return
-                    if isinstance(plugin_return, CrawlerResponse):
-                        crawler_response = plugin_return
+                if self.use_plugins:
+                    for plugin in self.plugins:
+                        plugin_return = plugin.process_request(crawler_request=crawler_request)
+                        if isinstance(plugin_return, CrawlerRequest):
+                            crawler_request = plugin_return
+                        if isinstance(plugin_return, CrawlerResponse):
+                            crawler_response = plugin_return
                 if crawler_response is None:
                     crawler_response = self.crawler.process_request(crawler_request=crawler_request)
 
                 # call all process_response
-                for plugin in self._plugins:
-                    plugin_return = plugin.process_response(crawler_request, crawler_response)
-                    if isinstance(plugin_return, CrawlerResponse):
-                        crawler_response = plugin_return
+                if self.use_plugins:
+                    for plugin in self.plugins:
+                        plugin_return = plugin.process_response(crawler_request, crawler_response)
+                        if isinstance(plugin_return, CrawlerResponse):
+                            crawler_response = plugin_return
 
                 self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
                 self._add_urls_to_queue(crawler_response=crawler_response)

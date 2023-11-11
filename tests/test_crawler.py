@@ -6,6 +6,7 @@ from selectolax.lexbor import LexborHTMLParser
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo, ExtractRule
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
+from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 
 
 class QuotesToScrapeCrawler(Crawler):
@@ -49,7 +50,9 @@ class QuotesToScrapeCrawler(Crawler):
         cls.session.close()
 
 
-crawled_queue = MemoryCrawledQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, save_crawled_queue=True,
-                                   load_crawled_queue=False)
-crawler_queue = FIFOMemoryCrawlerQueue(crawler_name=QuotesToScrapeCrawler.crawler_name, crawled_queue=crawled_queue)
-CrawlerRunner(crawler=QuotesToScrapeCrawler, crawler_queue=crawler_queue).run()
+config = CrawlerRunnerConfig(crawler_queue=FIFOMemoryCrawlerQueue,
+                             crawler_queue_params=None,
+                             crawled_queue=MemoryCrawledQueue,
+                             crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=False),
+                             plugins=None, qtd_parse=2)
+CrawlerRunner(crawler=QuotesToScrapeCrawler, config=config).run()

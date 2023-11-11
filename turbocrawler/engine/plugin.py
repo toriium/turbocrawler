@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 
-from turbocrawler import Crawler
+
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse
 from turbocrawler.engine.data_types.info import ExecutionInfo
 
 
 class Plugin(ABC):
-    def __init__(self, crawler: type[Crawler]):
+    def __init__(self, crawler):
         self.crawler = crawler
 
     @abstractmethod
