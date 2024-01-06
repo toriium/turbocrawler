@@ -58,6 +58,7 @@ class CrawlerRunner:
         if self.config.plugins:
             self.use_plugins = True
             self.plugins = self._initialize_plugins(self.crawler, self.config.plugins)
+            logger.create_plugins_handlers(plugins=self.plugins, running_id=self._running_id)
 
     def run(self):
         self._initialize_runner_dependencies()
@@ -105,7 +106,7 @@ class CrawlerRunner:
         self.crawler_queue.crawled_queue.stop_crawler()
         self.crawler.stop_crawler(execution_info=execution_info)
         formatted_info = pformat(execution_info, sort_dicts=False)
-        logger.info(f'Execution info\n{formatted_info}')
+        logger.info(f'Execution info\n{formatted_info}', extra={'json': execution_info})
 
     def _call_crawler_first_request(self):
         logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')

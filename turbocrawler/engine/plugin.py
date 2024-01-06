@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from logging import Handler
 
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse
 from turbocrawler.engine.data_types.info import ExecutionInfo
@@ -28,3 +28,6 @@ class Plugin(ABC):
     @abstractmethod
     def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         ...
+
+    def log_handler(self, running_id: str) -> Handler | None:
+        return None
