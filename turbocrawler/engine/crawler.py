@@ -4,6 +4,7 @@ from typing import Any
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule
 from turbocrawler.engine.data_types.info import ExecutionInfo
+from turbocrawler.logger import LOG
 
 
 class Crawler(ABC):
@@ -13,6 +14,7 @@ class Crawler(ABC):
     time_between_requests: int | float = 0
 
     crawler_queue: CrawlerQueueABC
+    logger: LOG
 
     @classmethod
     @abstractmethod
