@@ -7,9 +7,9 @@ formatter = logging.Formatter('%(asctime)s|%(levelname)s| %(message)s', datefmt=
 
 
 class LOG(logging.Logger):
-    def create_plugins_handlers(self, plugins: list, running_id: str):
+    def create_plugins_handlers(self, plugins: list, crawler, running_id: str):
         for plugin in plugins:
-            plugin_handler = plugin.log_handler(running_id)
+            plugin_handler = plugin.log_handler(crawler=crawler, running_id=running_id)
             if plugin_handler is not None:
                 plugin_handler.setFormatter(formatter)
                 self.addHandler(plugin_handler)

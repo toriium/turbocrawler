@@ -58,7 +58,7 @@ class CrawlerRunner:
         if self.config.plugins:
             self.use_plugins = True
             self.plugins = self._initialize_plugins(self.crawler, self.config.plugins)
-            logger.create_plugins_handlers(plugins=self.plugins, running_id=self._running_id)
+            logger.create_plugins_handlers(plugins=self.plugins, crawler=self.crawler, running_id=self._running_id)
 
     def run(self):
         self._initialize_runner_dependencies()
