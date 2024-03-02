@@ -77,9 +77,9 @@ class CrawlerRunner:
 
             self._start_crawler_queue_loop()
 
-            self._call_all_stop_crawler()
-        except StopCrawler as error:
-            self._call_all_stop_crawler(error)
+            return self._call_all_stop_crawler()
+        except StopCrawler as stop:
+            return self._call_all_stop_crawler(stop)
 
     def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
@@ -89,7 +89,7 @@ class CrawlerRunner:
         self.crawler.start_crawler()
         self.crawler_queue.crawled_queue.start_crawler()
 
-    def _call_all_stop_crawler(self, stop: StopCrawler = None):
+    def _call_all_stop_crawler(self, stop: StopCrawler = None) -> ExecutionInfo:
         forced_stop = False
         reason = ""
         if stop:
@@ -108,6 +108,7 @@ class CrawlerRunner:
         self.crawler.stop_crawler(execution_info=execution_info)
         formatted_info = pformat(execution_info, sort_dicts=False)
         logger.info(f'Execution info\n{formatted_info}', extra={'json': execution_info})
+        return execution_info
 
     def _call_crawler_first_request(self):
         logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')
