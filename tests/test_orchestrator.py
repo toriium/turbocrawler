@@ -1,6 +1,6 @@
+from tests.test_crawler import QuotesToScrapeCrawler
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.orchestrator.orchestrator import CrawlersOrchestrator
-from tests.test_crawler import QuotesToScrapeCrawler
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 

@@ -1,6 +1,7 @@
-from turbocrawler import CrawlerRunner, Crawler
-from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 import argparse
+
+from turbocrawler import Crawler, CrawlerRunner
+from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 
 
 class CrawlersOrchestrator:

@@ -7,13 +7,13 @@ from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse
+from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.plugin import Plugin
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
 from turbocrawler.utils import get_running_id
-from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 
 
 class CrawlerRunner:

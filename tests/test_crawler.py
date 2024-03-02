@@ -1,8 +1,8 @@
 from tests.test_crawlers.quotes_crawler import QuotesToScrapeCrawler
 from turbocrawler import CrawlerRunner
+from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
-from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 
 if __name__ == '__main__':
     config = CrawlerRunnerConfig(crawler_queue=FIFOMemoryCrawlerQueue,
