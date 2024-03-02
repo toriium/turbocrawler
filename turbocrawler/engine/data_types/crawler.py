@@ -1,5 +1,10 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Settings:
+    automatic_schedule: bool = True
 
 
 @dataclass(slots=True)
@@ -10,7 +15,7 @@ class CrawlerRequest:
     kwargs: dict = None
 
 
-@dataclass(slots=True)
+@dataclass
 class CrawlerResponse:
     url: str
     body: str
@@ -18,6 +23,7 @@ class CrawlerResponse:
     headers: dict = None
     cookies: dict = None
     kwargs: dict = None
+    settings: Settings = field(default_factory=Settings)
 
 
 @dataclass(slots=True)
