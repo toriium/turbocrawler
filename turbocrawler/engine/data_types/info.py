@@ -42,5 +42,7 @@ class RunningInfo(TypedDict):
 
 
 class ExecutionInfo(RunningInfo):
+    exception: Exception | None
     forced_stop: bool
+    error: bool
     reason: str

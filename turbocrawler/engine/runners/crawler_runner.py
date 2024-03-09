@@ -78,8 +78,10 @@ class CrawlerRunner:
             self._start_crawler_queue_loop()
 
             return self._call_all_stop_crawler()
-        except StopCrawler as stop:
-            return self._call_all_stop_crawler(stop)
+        except StopCrawler as stop_crawler:
+            return self._call_all_stop_crawler(stop_crawler)
+        except Exception as e:
+            return self._call_all_stop_crawler(exception=e)
 
     def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
@@ -89,23 +91,36 @@ class CrawlerRunner:
         self.crawler.start_crawler()
         self.crawler_queue.crawled_queue.start_crawler()
 
-    def _call_all_stop_crawler(self, stop: StopCrawler = None) -> ExecutionInfo:
+    def _call_all_stop_crawler(self, stop_crawler: StopCrawler = None, exception: Exception = None) -> ExecutionInfo:
         forced_stop = False
+        error = False
         reason = ""
-        if stop:
+
+        if exception:
             forced_stop = True
-            reason = stop.reason
+            error = True
+            reason = str(exception)
+            logger.error(f'An exception happened in the execution, stopping the crawler.\nException:\n{exception}')
+
+        if stop_crawler:
+            forced_stop = True
+            error = stop_crawler.error
+            reason = stop_crawler.reason
             logger.info(f'StopCrawler raised reason {reason}')
         logger.info(f'Calling {self.crawler.crawler_name}.stop_crawler')
 
         execution_info = ExecutionInfo(**self._get_running_info(),
-                                       forced_stop=forced_stop, reason=reason)
+                                       exception=exception,
+                                       error=error,
+                                       forced_stop=forced_stop,
+                                       reason=reason)
 
         if self.use_plugins:
             for plugin in self.plugins:
                 plugin.stop_crawler(execution_info=execution_info)
         self.crawler_queue.crawled_queue.stop_crawler()
         self.crawler.stop_crawler(execution_info=execution_info)
+
         formatted_info = pformat(execution_info, sort_dicts=False)
         logger.info(f'Execution info\n{formatted_info}', extra={'json': execution_info})
         return execution_info
