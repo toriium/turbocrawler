@@ -9,5 +9,6 @@ class SkipRequest(Exception):
 
 
 class StopCrawler(Exception):
-    def __init__(self, reason: str = None):
+    def __init__(self, reason: str = None, error: bool = True):
+        self.error = error
         self.reason = reason
