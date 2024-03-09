@@ -3,6 +3,7 @@ import os
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.data_types.crawler import ExtractRule
 from turbocrawler.utils import create_file_path
+from turbocrawler.logger import logger
 
 
 class TextCrawledQueue(CrawledQueueABC):
@@ -91,8 +92,9 @@ class MemoryCrawledQueue(CrawledQueueABC):
 
     def load_crawled_queue(self) -> None:
         if not os.path.exists(self.__crawler_queue_file_path):
-            raise FileNotFoundError(f'Unable to find path {self.__crawler_queue_file_path}'
-                                    f' to execute load_crawled_queue')
+            logger.info(f'Unable to find path: {self.__crawler_queue_file_path} to execute load_crawled_queue')
+            return None
+        logger.info(f'Adding to crawled_queue urls in path: {self.__crawler_queue_file_path}')
         with open(self.__crawler_queue_file_path, 'r') as file:
             for url in file:
                 self.crawled_queue.add(url.strip())

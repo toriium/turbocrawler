@@ -8,7 +8,7 @@ if __name__ == '__main__':
     config = CrawlerRunnerConfig(crawler_queue=FIFOMemoryCrawlerQueue,
                                  crawler_queue_params=None,
                                  crawled_queue=MemoryCrawledQueue,
-                                 crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=False),
+                                 crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=True),
                                  plugins=None, qtd_parse=2)
     result = CrawlerRunner(crawler=QuotesToScrapeCrawler, config=config).run()
     print(result)
