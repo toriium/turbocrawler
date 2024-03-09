@@ -175,9 +175,11 @@ class CrawlerRunner:
                         if isinstance(plugin_return, CrawlerResponse):
                             crawler_response = plugin_return
 
-                self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
+                if crawler_response.settings.parse_response:
+                    self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
                 if crawler_response.settings.automatic_schedule:
                     self._add_urls_to_queue(crawler_response=crawler_response)
+
                 self._requests_info['Made'] += 1
                 break
             except ReMakeRequest as error:

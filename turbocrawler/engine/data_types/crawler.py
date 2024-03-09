@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Settings:
     automatic_schedule: bool = True
+    parse_response: bool = True
 
 
 @dataclass(slots=True)
