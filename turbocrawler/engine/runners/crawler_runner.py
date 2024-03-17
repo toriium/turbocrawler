@@ -25,8 +25,7 @@ class CrawlerRunner:
         self.crawler = crawler
         self.config = config
         self.crawler_queue: CrawlerQueueABC
-        self.plugins: list[Plugin]
-        self.use_plugins = False
+        self.plugins: list[Plugin] = []
 
         self._compile_regex()
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
@@ -56,7 +55,6 @@ class CrawlerRunner:
         self.crawler_queue = self.config.crawler_queue(**self.config.crawler_queue_params)
 
         if self.config.plugins:
-            self.use_plugins = True
             self.plugins = self._initialize_plugins(self.crawler, self.config.plugins)
             logger.create_plugins_handlers(plugins=self.plugins, crawler=self.crawler, running_id=self._running_id)
 
@@ -85,11 +83,10 @@ class CrawlerRunner:
 
     def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
-        if self.use_plugins:
-            for plugin in self.plugins:
-                plugin.start_crawler()
-        self.crawler.start_crawler()
-        self.crawler_queue.crawled_queue.start_crawler()
+        
+        start_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue.crawled_queue]
+        for obj in start_crawler_objs:
+            obj.start_crawler()
 
     def _call_all_stop_crawler(self, stop_crawler: StopCrawler = None, exception: Exception = None) -> ExecutionInfo:
         forced_stop = False
@@ -115,21 +112,18 @@ class CrawlerRunner:
                                        forced_stop=forced_stop,
                                        reason=reason)
 
-        if self.use_plugins:
-            for plugin in self.plugins:
-                plugin.stop_crawler(execution_info=execution_info)
-        self.crawler_queue.crawled_queue.stop_crawler()
-        self.crawler.stop_crawler(execution_info=execution_info)
-
+        stop_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue ,self.crawler_queue.crawled_queue]
+        for obj in stop_crawler_objs:
+            obj.stop_crawler(execution_info=execution_info)
+    
         formatted_info = pformat(execution_info, sort_dicts=False)
         logger.info(f'Execution info\n{formatted_info}', extra={'json': execution_info})
         return execution_info
 
     def _call_crawler_first_request(self):
         logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')
-        if self.use_plugins:
-            for plugin in self.plugins:
-                plugin.crawler_first_request()
+        for plugin in self.plugins:
+            plugin.crawler_first_request()
         crawler_response = self.crawler.crawler_first_request()
         if crawler_response is not None:
             self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
@@ -158,22 +152,19 @@ class CrawlerRunner:
                 crawler_response = None
 
                 # call all process_request
-                if self.use_plugins:
-                    for plugin in self.plugins:
-                        plugin_return = plugin.process_request(crawler_request=crawler_request)
-                        if isinstance(plugin_return, CrawlerRequest):
-                            crawler_request = plugin_return
-                        if isinstance(plugin_return, CrawlerResponse):
-                            crawler_response = plugin_return
-                if crawler_response is None:
-                    crawler_response = self.crawler.process_request(crawler_request=crawler_request)
+                process_request_objs = [*self.plugins, self.crawler]
+                for plugin in process_request_objs:
+                    func_return = plugin.process_request(crawler_request=crawler_request)
+                    if isinstance(func_return, CrawlerResponse):
+                        crawler_response = func_return
+                        break
+                else:
+                    raise StopCrawler(f'Inside Crawler or Plugin process_request function must return a CrawlerResponse')
 
                 # call all process_response
-                if self.use_plugins:
-                    for plugin in self.plugins:
-                        plugin_return = plugin.process_response(crawler_request, crawler_response)
-                        if isinstance(plugin_return, CrawlerResponse):
-                            crawler_response = plugin_return
+                process_response_objs = [*self.plugins, self.crawler]
+                for obj in process_response_objs:
+                    obj.process_response(crawler_request, crawler_response)
 
                 if crawler_response.settings.parse_response:
                     self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)

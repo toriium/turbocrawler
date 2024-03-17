@@ -14,9 +14,9 @@ class TestPlugin(Plugin):
     def crawler_first_request(self) -> None:
         print("[Plugin] crawler_first_request")
 
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | CrawlerRequest | None:
+    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
         print("[Plugin] process_request")
-        return None
+        crawler_request.kwargs = {"test": 5}
 
     def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
         print("[Plugin] process_response")

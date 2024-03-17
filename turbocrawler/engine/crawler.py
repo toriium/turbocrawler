@@ -28,12 +28,12 @@ class Crawler(ABC):
 
     @classmethod
     @abstractmethod
-    def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse:
+    def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
         ...
 
     @classmethod
-    def process_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
-        return crawler_response
+    def process_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+        return None
 
     @classmethod
     @abstractmethod

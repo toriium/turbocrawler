@@ -16,7 +16,7 @@ class CrawlerRequest:
     kwargs: dict = None
 
 
-@dataclass
+@dataclass(slots=True)
 class CrawlerResponse:
     url: str
     body: str

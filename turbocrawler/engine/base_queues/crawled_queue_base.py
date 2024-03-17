@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from turbocrawler.engine.data_types.crawler import ExtractRule
-from turbocrawler.engine.data_types.info import CrawledQueueInfo
+from turbocrawler.engine.data_types.info import CrawledQueueInfo, ExecutionInfo
 from turbocrawler.logger import logger
 
 
@@ -65,7 +65,7 @@ class CrawledQueueABC(ABC):
     def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
         pass
 
-    def stop_crawler(self):
+    def stop_crawler(self, execution_info: ExecutionInfo):
         if self.must_save_crawled_queue:
             logger.info(f'Calling {self.__class__.__name__}.save_crawled_queue')
             self.save_crawled_queue()

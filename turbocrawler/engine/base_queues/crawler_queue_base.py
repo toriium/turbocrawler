@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest
-from turbocrawler.engine.data_types.info import CrawlerQueueInfo
+from turbocrawler.engine.data_types.info import CrawlerQueueInfo, ExecutionInfo
 from turbocrawler.logger import logger
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
@@ -75,3 +75,6 @@ class CrawlerQueueABC(ABC):
 
     def __add_url_to_crawled_queue(self, url: str) -> None:
         self.crawled_queue.add(url=url)
+    
+    def stop_crawler(self, execution_info: ExecutionInfo):
+        ...

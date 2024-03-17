@@ -19,11 +19,11 @@ class Plugin(ABC):
         ...
 
     @abstractmethod
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | CrawlerRequest | None:
+    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
         ...
 
     @abstractmethod
-    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
+    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         return crawler_response
 
     @abstractmethod
