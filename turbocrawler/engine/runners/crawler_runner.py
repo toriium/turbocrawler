@@ -22,23 +22,20 @@ class CrawlerRunner:
         self._start_process_time = datetime.now()
         self._last_info_log_time = datetime.now()
 
-        self.crawler = crawler
+        self._crawler_type = crawler
+        self.crawler: Crawler
         self.config = config
         self.crawler_queue: CrawlerQueueABC
         self.plugins: list[Plugin] = []
 
-        self._compile_regex()
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
         self.parse_queue_manager: WorkerQueueManager
 
     def _initialize_runner_dependencies(self):
+        logger.create_file_handler(dir=self._crawler_type.crawler_name, filename=self._running_id)
+
         if self.config is None:
             self.config = CrawlerRunnerConfig()
-
-        self.parse_queue_manager = WorkerQueueManager(queue_name='parse_queue',
-                                                      class_object=self.crawler,
-                                                      target=self.crawler.parse,
-                                                      qtd_workers=self.config.qtd_parse)
 
         if self.config.crawler_queue_params is None:
             self.config.crawler_queue_params = dict()
@@ -46,26 +43,31 @@ class CrawlerRunner:
             self.config.crawled_queue_params = dict()
 
         if 'crawler_name' not in self.config.crawler_queue_params.keys():
-            self.config.crawler_queue_params['crawler_name'] = self.crawler.crawler_name
+            self.config.crawler_queue_params['crawler_name'] = self._crawler_type.crawler_name
         if 'crawler_name' not in self.config.crawled_queue_params.keys():
-            self.config.crawled_queue_params['crawler_name'] = self.crawler.crawler_name
+            self.config.crawled_queue_params['crawler_name'] = self._crawler_type.crawler_name
 
         crawled_queue = self.config.crawled_queue(**self.config.crawled_queue_params)
         self.config.crawler_queue_params['crawled_queue'] = crawled_queue
         self.crawler_queue = self.config.crawler_queue(**self.config.crawler_queue_params)
 
         if self.config.plugins:
-            self.plugins = self._initialize_plugins(self.crawler, self.config.plugins)
-            logger.create_plugins_handlers(plugins=self.plugins, crawler=self.crawler, running_id=self._running_id)
+            self.plugins = self._initialize_plugins(self._crawler_type, self.config.plugins)
+            logger.create_plugins_handlers(plugins=self.plugins, crawler=self._crawler_type,
+                                           running_id=self._running_id)
+
+        self.crawler = self._crawler_type(crawler_queue=self.crawler_queue, plugins=self.plugins, logger=logger)
+        self._compile_regex()
+
+        self.parse_queue_manager = WorkerQueueManager(queue_name='parse_queue',
+                                                      class_object=self.crawler,
+                                                      target=self.crawler.parse,
+                                                      qtd_workers=self.config.qtd_parse)
 
     def run(self):
         self._initialize_runner_dependencies()
 
-        logger.create_file_handler(dir=self.crawler.crawler_name, filename=self._running_id)
         self.parse_queue_manager.start_workers()
-        self.crawler.crawler_queue = self.crawler_queue
-        self.crawler.plugins = self.plugins
-        self.crawler.logger = logger
 
         try:
             self._call_all_start_crawler()
@@ -84,7 +86,7 @@ class CrawlerRunner:
 
     def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
-        
+
         start_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue.crawled_queue]
         for obj in start_crawler_objs:
             obj.start_crawler()
@@ -113,10 +115,10 @@ class CrawlerRunner:
                                        forced_stop=forced_stop,
                                        reason=reason)
 
-        stop_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue ,self.crawler_queue.crawled_queue]
+        stop_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue, self.crawler_queue.crawled_queue]
         for obj in stop_crawler_objs:
             obj.stop_crawler(execution_info=execution_info)
-    
+
         formatted_info = pformat(execution_info, sort_dicts=False)
         logger.info(f'Execution info\n{formatted_info}', extra={'json': execution_info})
         return execution_info
@@ -160,7 +162,8 @@ class CrawlerRunner:
                         crawler_response = func_return
                         break
                 else:
-                    raise StopCrawler(f'Inside Crawler or Plugin process_request function must return a CrawlerResponse')
+                    raise StopCrawler(
+                        f'Inside Crawler or Plugin process_request function must return a CrawlerResponse')
 
                 # call all process_response
                 process_response_objs = [*self.plugins, self.crawler]

@@ -18,38 +18,36 @@ class Crawler(ABC):
     plugins: list[Plugin]
     logger: LOG
 
-    @classmethod
+    def __init__(self, crawler_queue: CrawlerQueueABC, plugins: list[Plugin], logger: LOG):
+        self.crawler_queue = crawler_queue
+        self.plugins = plugins
+        self.logger = logger
+
     @abstractmethod
-    def start_crawler(cls) -> None:
+    def start_crawler(self) -> None:
         ...
 
-    @classmethod
     @abstractmethod
-    def crawler_first_request(cls) -> CrawlerResponse | None:
+    def crawler_first_request(self) -> CrawlerResponse | None:
         ...
 
-    @classmethod
     @abstractmethod
-    def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
+    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
         ...
 
-    @classmethod
-    def process_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         return None
 
-    @classmethod
     @abstractmethod
-    def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
+    def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
         ...
 
-    @classmethod
     @abstractmethod
-    def stop_crawler(cls, execution_info: ExecutionInfo) -> None:
+    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         ...
 
-    @classmethod
-    def get_plugin(cls, plugin_name) -> Plugin | None:
-        target_plugin = [plugin for plugin in cls.plugins if plugin.__class__.__name__ == plugin_name]
+    def get_plugin(self, plugin_name) -> Plugin | None:
+        target_plugin = [plugin for plugin in self.plugins if plugin.__class__.__name__ == plugin_name]
         if not target_plugin:
             return None
 
