@@ -4,6 +4,7 @@ from typing import Any
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule
 from turbocrawler.engine.data_types.info import ExecutionInfo
+from turbocrawler.engine.plugin import Plugin
 from turbocrawler.logger import LOG
 
 
@@ -14,6 +15,7 @@ class Crawler(ABC):
     time_between_requests: int | float = 0
 
     crawler_queue: CrawlerQueueABC
+    plugins: list[Plugin]
     logger: LOG
 
     @classmethod
@@ -44,3 +46,11 @@ class Crawler(ABC):
     @abstractmethod
     def stop_crawler(cls, execution_info: ExecutionInfo) -> None:
         ...
+
+    @classmethod
+    def get_plugin(cls, plugin_name):
+        target_plugin = [plugin for plugin in cls.plugins if plugin.__class__.__name__ == name]
+        if not target_plugin:
+            raise ValueError(f"Plugin with name: {plugin_name} doesn't exist ")
+
+        return target_plugin[0]

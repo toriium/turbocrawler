@@ -64,6 +64,7 @@ class CrawlerRunner:
         logger.create_file_handler(dir=self.crawler.crawler_name, filename=self._running_id)
         self.parse_queue_manager.start_workers()
         self.crawler.crawler_queue = self.crawler_queue
+        self.crawler.plugins = self.plugins
         self.crawler.logger = logger
 
         try:
