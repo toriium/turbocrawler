@@ -11,9 +11,9 @@ class Settings:
 @dataclass(slots=True)
 class CrawlerRequest:
     url: str
-    headers: dict = None
-    cookies: dict = None
-    kwargs: dict = None
+    headers: dict = field(default_factory=dict)
+    cookies: dict = field(default_factory=dict)
+    kwargs: dict = field(default_factory=dict)
 
 
 @dataclass(slots=True)
@@ -21,9 +21,9 @@ class CrawlerResponse:
     url: str
     body: str
     status_code: int = 200
-    headers: dict = None
-    cookies: dict = None
-    kwargs: dict = None
+    headers: dict = field(default_factory=dict)
+    cookies: dict = field(default_factory=dict)
+    kwargs: dict = field(default_factory=dict)
     settings: Settings = field(default_factory=Settings)
 
 

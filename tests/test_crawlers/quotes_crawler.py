@@ -19,6 +19,7 @@ class QuotesToScrapeCrawler(Crawler):
 
     @classmethod
     def crawler_first_request(cls) -> CrawlerResponse | None:
+        plugin = cls.get_plugin("TestPlugin")
         cls.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
         response = cls.session.get(url="https://quotes.toscrape.com/page/1/")
         return CrawlerResponse(url=response.url,
@@ -31,6 +32,10 @@ class QuotesToScrapeCrawler(Crawler):
         return CrawlerResponse(url=response.url,
                                body=response.text,
                                status_code=response.status_code)
+
+    @classmethod
+    def process_response(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+        crawler_response.kwargs['success'] = True
 
     @classmethod
     def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:

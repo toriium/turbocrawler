@@ -48,9 +48,9 @@ class Crawler(ABC):
         ...
 
     @classmethod
-    def get_plugin(cls, plugin_name):
-        target_plugin = [plugin for plugin in cls.plugins if plugin.__class__.__name__ == name]
+    def get_plugin(cls, plugin_name) -> Plugin | None:
+        target_plugin = [plugin for plugin in cls.plugins if plugin.__class__.__name__ == plugin_name]
         if not target_plugin:
-            raise ValueError(f"Plugin with name: {plugin_name} doesn't exist ")
+            return None
 
         return target_plugin[0]
