@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pprint import pformat
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.control import ReMakeRequest, SkipRequest, StopCrawler
+from turbocrawler.engine.control import PauseCrawler, ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
@@ -195,6 +195,10 @@ class CrawlerRunner:
             except SkipRequest as error:
                 self._requests_info['SkipRequest'] += 1
                 logger.info(f'Skipping request for url {crawler_request.url} reason: {error.reason}')
+                break
+            except PauseCrawler as pause_crawler:
+                logger.info(f'Pausing crawler for {pause_crawler.time} seconds as requested.')
+                await asyncio.sleep(pause_crawler.time)
                 break
 
     async def _add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
