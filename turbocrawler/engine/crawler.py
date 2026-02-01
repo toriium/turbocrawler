@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from numbers import Number
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
@@ -12,7 +13,7 @@ class Crawler(ABC):
     crawler_name: str
     allowed_domains: list[str]
     regex_extract_rules: list[ExtractRule] = []
-    time_between_requests: int | float = 0
+    time_between_requests: Number | tuple[Number] = 0
 
     crawler_queue: CrawlerQueueABC
     plugins: list[Plugin]
@@ -22,6 +23,11 @@ class Crawler(ABC):
         self.crawler_queue = crawler_queue
         self.plugins = plugins
         self.logger = logger
+        if isinstance(self.time_between_requests, tuple):
+            assert len(self.time_between_requests) == 2, "time_between_requests tuple must have exactly two elements"
+            self.time_between_requests = (self.time_between_requests[0], self.time_between_requests[1])
+        else:
+            self.time_between_requests = (self.time_between_requests, self.time_between_requests)
 
     @abstractmethod
     def start_crawler(self) -> None:

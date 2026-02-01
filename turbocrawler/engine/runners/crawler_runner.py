@@ -1,3 +1,4 @@
+import random
 import re
 import time
 from datetime import datetime, timedelta
@@ -151,7 +152,8 @@ class CrawlerRunner:
         request_retries = 0
         while True:
             try:
-                time.sleep(self.crawler.time_between_requests)
+                wait_time = random.uniform(*self.crawler.time_between_requests)
+                time.sleep(wait_time)
                 crawler_response: CrawlerResponse = None
 
                 # call all process_request
