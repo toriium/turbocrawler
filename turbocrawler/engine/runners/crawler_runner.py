@@ -152,7 +152,7 @@ class CrawlerRunner:
         while True:
             try:
                 time.sleep(self.crawler.time_between_requests)
-                crawler_response = None
+                crawler_response: CrawlerResponse = None
 
                 # call all process_request
                 process_request_objs = [*self.plugins, self.crawler]
