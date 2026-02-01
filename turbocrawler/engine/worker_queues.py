@@ -51,6 +51,7 @@ class WorkerQueueManager:
         self.workers: list[ConsumerQueueWorker] = []
         self.queue = WorkerQueue()
         self.must_stop_workers = False
+        self.stopped = False
 
     def __get_workers_state(self) -> WorkersStateInfo:
         workers_state = WorkersStateInfo(WAITING=0, EXECUTING=0, STOPPED=0)
@@ -82,6 +83,7 @@ class WorkerQueueManager:
     def stop_workers(self):
         self.must_stop_workers = True
         [w.join() for w in self.workers]
+        self.stopped = True
 
 
 class ConsumerQueueWorker(Thread):

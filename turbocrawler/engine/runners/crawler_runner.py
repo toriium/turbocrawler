@@ -85,6 +85,10 @@ class CrawlerRunner:
         except Exception as e:
             return await self._call_all_stop_crawler(exception=e)
 
+    async def _stop_workers(self):
+        if not self.parse_queue_manager.stopped:
+            self.parse_queue_manager.stop_workers()
+
     async def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
 
@@ -96,6 +100,8 @@ class CrawlerRunner:
         forced_stop = False
         error = False
         reason = ""
+
+        await self._stop_workers()
 
         if exception:
             forced_stop = True
@@ -144,7 +150,7 @@ class CrawlerRunner:
                 await self._make_request(crawler_request=next_crawler_request)
             else:
                 logger.info('Crawler queue is empty, all crawler_requests made')
-                self.parse_queue_manager.stop_workers()
+                await self._stop_workers()
                 return True
 
     async def _make_request(self, crawler_request: CrawlerRequest):
@@ -184,7 +190,7 @@ class CrawlerRunner:
                 request_retries += 1
                 max_retries = error.retries
                 if request_retries >= max_retries:
-                    logger.warn(f'Exceed retry tentatives for url {crawler_request.url}')
+                    logger.warning(f'Exceed retry tentatives for url {crawler_request.url}')
                     break
             except SkipRequest as error:
                 self._requests_info['SkipRequest'] += 1
