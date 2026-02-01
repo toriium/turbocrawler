@@ -1,24 +1,25 @@
+import asyncio
 from pprint import pprint
 
 import requests
 from selectolax.lexbor import LexborHTMLParser
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
+from turbocrawler.engine.control import ReMakeRequest
+from turbocrawler.engine.runners.crawler_runner import CrawlerRunner
 
 
 class QuotesToScrapeCrawler(Crawler):
     crawler_name = "QuotesToScrape"
     allowed_domains = ['quotes.toscrape.com']
     regex_extract_rules = [ExtractRule(r'https://quotes.toscrape.com/page/[0-9]')]
-    time_between_requests = 1
+    time_between_requests = (0.5, 1)
     session: requests.Session
 
     async def start_crawler(self) -> None:
         self.session = requests.session()
-        self.aaaa= 4
 
     async def crawler_first_request(self) -> CrawlerResponse | None:
-        plugin = await self.get_plugin("TestPlugin")
         await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
         response = self.session.get(url="https://quotes.toscrape.com/page/1/")
         return CrawlerResponse(url=response.url,
@@ -32,6 +33,10 @@ class QuotesToScrapeCrawler(Crawler):
                                status_code=response.status_code)
 
     async def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+        selector = LexborHTMLParser(crawler_response.body)
+        quote_list = selector.css('div[class="quote"]')
+        if not quote_list:
+            raise ReMakeRequest(retries=2)
         crawler_response.kwargs['success'] = True
 
     async def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
@@ -41,8 +46,10 @@ class QuotesToScrapeCrawler(Crawler):
             data = {"quote": quote.css_first('span:nth-child(1)').text()[1:-1],
                     "author": quote.css_first('span:nth-child(2)>small').text(),
                     "tag_list": [tag.text() for tag in quote.css('div[class="tags"]>a') if tag]}
-            # pprint(data)
+            pprint(data)
 
     async def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         self.session.close()
 
+if __name__ == '__main__':
+    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler).run())
