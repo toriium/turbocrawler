@@ -10,24 +10,20 @@ class Plugin(ABC):
         self.crawler = crawler
 
     @abstractmethod
-    def start_crawler(self) -> None:
-        ...
+    async def start_crawler(self) -> None: ...
 
     @abstractmethod
-    def crawler_first_request(self) -> None:
-        ...
+    async def crawler_first_request(self) -> None: ...
 
     @abstractmethod
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
-        ...
+    async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None: ...
 
     @abstractmethod
-    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+    async def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         return None
 
     @abstractmethod
-    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
-        ...
+    async def stop_crawler(self, execution_info: ExecutionInfo) -> None: ...
 
     def log_handler(self, crawler, running_id: str) -> Handler | None:
         return None

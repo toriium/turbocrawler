@@ -13,23 +13,23 @@ class CrawlerWithException(Crawler):
     session: requests.Session
 
     @classmethod
-    def start_crawler(cls) -> None:
+    async def start_crawler(cls) -> None:
         raise ValueError("Mock error")
 
     @classmethod
-    def crawler_first_request(cls) -> CrawlerResponse | None:
+    async def crawler_first_request(cls) -> CrawlerResponse | None:
         return None
 
     @classmethod
-    def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse:
+    async def process_request(cls, crawler_request: CrawlerRequest) -> CrawlerResponse:
         ...
 
     @classmethod
-    def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+    async def parse(cls, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         ...
 
     @classmethod
-    def stop_crawler(cls, execution_info: ExecutionInfo) -> None:
+    async def stop_crawler(cls, execution_info: ExecutionInfo) -> None:
         ...
 
 

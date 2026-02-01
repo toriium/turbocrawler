@@ -21,60 +21,60 @@ class CrawlerQueueABC(ABC):
     def __len__(self):
         pass
 
-    def get_info(self) -> CrawlerQueueInfo:
+    async def get_info(self) -> CrawlerQueueInfo:
         return CrawlerQueueInfo(add=self.__info['add'], get=self.__info['get'], length=len(self))
 
-    def get(self) -> CrawlerRequest | None:
-        if self._is_queue_empty():
+    async def get(self) -> CrawlerRequest | None:
+        if await self._is_queue_empty():
             return None
 
-        crawler_request = self._get_and_remove_request_from_queue()
+        crawler_request = await self._get_and_remove_request_from_queue()
         if crawler_request is None:
             return None
         self.__urls_scheduled.remove(crawler_request.url)
 
-        self.__add_url_to_crawled_queue(url=crawler_request.url)
+        await self.__add_url_to_crawled_queue(url=crawler_request.url)
         self.__info['get'] += 1
         return crawler_request
 
-    def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
+    async def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
         if not verify_crawled:
             self.__info['add'] += 1
-            self._insert_queue(crawler_request)
+            await self._insert_queue(crawler_request)
             return
 
         url = crawler_request.url
-        if self._is_url_in_queue(url=url):
+        if await self._is_url_in_queue(url=url):
             logger.debug(f'[{self.__class__.__name__}] {url} is on the __crawler_queue')
             return
 
-        if not self.__page_already_crawled(url=url):
+        if not await self.__page_already_crawled(url=url):
             self.__info['add'] += 1
-            self._insert_queue(crawler_request)
+            await self._insert_queue(crawler_request)
             self.__urls_scheduled.add(url)
         else:
             logger.debug(f'[{self.__class__.__name__}] {url} already_crawled')
 
     @abstractmethod
-    def _insert_queue(self, crawler_request: CrawlerRequest) -> None:
+    async def _insert_queue(self, crawler_request: CrawlerRequest) -> None:
         pass
 
     @abstractmethod
-    def _get_and_remove_request_from_queue(self) -> CrawlerRequest | None:
+    async def _get_and_remove_request_from_queue(self) -> CrawlerRequest | None:
         pass
 
-    def _is_url_in_queue(self, url) -> bool:
+    async def _is_url_in_queue(self, url) -> bool:
         return url in self.__urls_scheduled
 
     @abstractmethod
-    def _is_queue_empty(self) -> bool:
+    async def _is_queue_empty(self) -> bool:
         pass
 
-    def __page_already_crawled(self, url: str) -> bool:
-        return self.crawled_queue.is_url_in_crawled_queue(url=url)
+    async def __page_already_crawled(self, url: str) -> bool:
+        return await self.crawled_queue.is_url_in_crawled_queue(url=url)
 
-    def __add_url_to_crawled_queue(self, url: str) -> None:
-        self.crawled_queue.add(url=url)
+    async def __add_url_to_crawled_queue(self, url: str) -> None:
+        await self.crawled_queue.add(url=url)
     
-    def stop_crawler(self, execution_info: ExecutionInfo):
+    async def stop_crawler(self, execution_info: ExecutionInfo):
         ...

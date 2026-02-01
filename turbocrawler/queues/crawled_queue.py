@@ -30,28 +30,28 @@ class TextCrawledQueue(CrawledQueueABC):
                 pass
         return line_number
 
-    def add_url_to_crawled_queue(self, url: str) -> None:
+    async def add_url_to_crawled_queue(self, url: str) -> None:
         with open(self.__crawler_queue_file_path, 'a') as file:
             file.write(f"{url}\n")
 
-    def is_url_in_crawled_queue(self, url: str) -> bool:
+    async def is_url_in_crawled_queue(self, url: str) -> bool:
         with open(self.__crawler_queue_file_path, 'r') as file:
             for line_value in file:
                 if url == line_value.strip():
                     return True
         return False
 
-    def load_crawled_queue(self) -> None:
+    async def load_crawled_queue(self) -> None:
         pass
 
-    def delete_crawled_queue(self):
+    async def delete_crawled_queue(self):
         if os.path.exists(self.__crawler_queue_file_path):
             os.remove(self.__crawler_queue_file_path)
 
-    def save_crawled_queue(self) -> None:
+    async def save_crawled_queue(self) -> None:
         pass
 
-    def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
+    async def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
         temp_file_path = f"{self.__crawler_queue_file_path}_temp_file"
         with open(self.__crawler_queue_file_path, 'r') as original_file:
             with open(temp_file_path, 'w') as temp_file:
@@ -84,13 +84,13 @@ class MemoryCrawledQueue(CrawledQueueABC):
     def __len__(self):
         return len(self.crawled_queue)
 
-    def add_url_to_crawled_queue(self, url: str) -> None:
+    async def add_url_to_crawled_queue(self, url: str) -> None:
         self.crawled_queue.add(url)
 
-    def is_url_in_crawled_queue(self, url: str) -> bool:
+    async def is_url_in_crawled_queue(self, url: str) -> bool:
         return url in self.crawled_queue
 
-    def load_crawled_queue(self) -> None:
+    async def load_crawled_queue(self) -> None:
         if not os.path.exists(self.__crawler_queue_file_path):
             logger.info(f'Unable to find path: {self.__crawler_queue_file_path} to execute load_crawled_queue')
             return None
@@ -99,15 +99,15 @@ class MemoryCrawledQueue(CrawledQueueABC):
             for url in file:
                 self.crawled_queue.add(url.strip())
 
-    def delete_crawled_queue(self) -> None:
+    async def delete_crawled_queue(self) -> None:
         del self.crawled_queue
 
-    def save_crawled_queue(self) -> None:
+    async def save_crawled_queue(self) -> None:
         create_file_path(self.__crawler_queue_file_path)
         with open(self.__crawler_queue_file_path, 'w') as file:
             [file.writelines(f'{url}\n') for url in self.crawled_queue]
 
-    def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
+    async def remove_urls_with_remove_crawled(self, extract_rules_remove_crawled: list[ExtractRule]) -> None:
         urls_to_remove = []
         for url in self.crawled_queue:
             if self._match_with_regex(url=url, extract_rules=extract_rules_remove_crawled):

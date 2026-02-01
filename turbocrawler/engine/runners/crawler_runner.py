@@ -1,6 +1,6 @@
+import asyncio
 import random
 import re
-import time
 from datetime import datetime, timedelta
 from pprint import pformat
 
@@ -32,7 +32,7 @@ class CrawlerRunner:
         self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
         self.parse_queue_manager: WorkerQueueManager
 
-    def _initialize_runner_dependencies(self):
+    async def _initialize_runner_dependencies(self):
         logger.create_file_handler(dir=self._crawler_type.crawler_name, filename=self._running_id)
 
         if self.config is None:
@@ -61,38 +61,38 @@ class CrawlerRunner:
         self._compile_regex()
 
         self.parse_queue_manager = WorkerQueueManager(queue_name='parse_queue',
-                                                      class_object=self.crawler,
-                                                      target=self.crawler.parse,
-                                                      qtd_workers=self.config.qtd_parse)
+                                  class_object=self.crawler,
+                                  target=self.crawler.parse,
+                                  qtd_workers=self.config.qtd_parse)
 
-    def run(self):
-        self._initialize_runner_dependencies()
+    async def run(self):
+        await self._initialize_runner_dependencies()
 
         self.parse_queue_manager.start_workers()
 
         try:
-            self._call_all_start_crawler()
+            await self._call_all_start_crawler()
 
-            self._remove_crawled()
+            await self._remove_crawled()
 
-            self._call_crawler_first_request()
+            await self._call_crawler_first_request()
 
-            self._start_crawler_queue_loop()
+            await self._start_crawler_queue_loop()
 
-            return self._call_all_stop_crawler()
+            return await self._call_all_stop_crawler()
         except StopCrawler as stop_crawler:
-            return self._call_all_stop_crawler(stop_crawler)
+            return await self._call_all_stop_crawler(stop_crawler)
         except Exception as e:
-            return self._call_all_stop_crawler(exception=e)
+            return await self._call_all_stop_crawler(exception=e)
 
-    def _call_all_start_crawler(self):
+    async def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
 
         start_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue.crawled_queue]
         for obj in start_crawler_objs:
-            obj.start_crawler()
+            await obj.start_crawler()
 
-    def _call_all_stop_crawler(self, stop_crawler: StopCrawler = None, exception: Exception = None) -> ExecutionInfo:
+    async def _call_all_stop_crawler(self, stop_crawler: StopCrawler = None, exception: Exception = None) -> ExecutionInfo:
         forced_stop = False
         error = False
         reason = ""
@@ -110,7 +110,7 @@ class CrawlerRunner:
             logger.info(f'StopCrawler raised reason {reason}')
         logger.info(f'Calling {self.crawler.crawler_name}.stop_crawler')
 
-        execution_info = ExecutionInfo(**self._get_running_info(),
+        execution_info = ExecutionInfo(**await self._get_running_info(),
                                        exception=exception,
                                        error=error,
                                        forced_stop=forced_stop,
@@ -118,48 +118,48 @@ class CrawlerRunner:
 
         stop_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue, self.crawler_queue.crawled_queue]
         for obj in stop_crawler_objs:
-            obj.stop_crawler(execution_info=execution_info)
+            await obj.stop_crawler(execution_info=execution_info)
 
         formatted_info = pformat(execution_info, sort_dicts=False)
         logger.info(f'Execution info\n{formatted_info}', extra={'json': execution_info})
         return execution_info
 
-    def _call_crawler_first_request(self):
+    async def _call_crawler_first_request(self):
         logger.info(f'Calling {self.crawler.crawler_name}.crawler_first_request')
         for plugin in self.plugins:
-            plugin.crawler_first_request()
-        crawler_response = self.crawler.crawler_first_request()
+            await plugin.crawler_first_request()
+        crawler_response = await self.crawler.crawler_first_request()
         if crawler_response is not None:
-            self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
-            self.crawler.parse(crawler_request=CrawlerRequest(url="crawler_first_request"),
+            await self.crawler_queue.crawled_queue.add_url_to_crawled_queue(crawler_response.url)
+            await self.crawler.parse(crawler_request=CrawlerRequest(url="crawler_first_request"),
                                crawler_response=crawler_response)
-            self._add_urls_to_queue(crawler_response=crawler_response)
+            await self._add_urls_to_queue(crawler_response=crawler_response)
 
-    def _start_crawler_queue_loop(self):
+    async def _start_crawler_queue_loop(self):
         logger.info('Processing crawler queue')
         while True:
-            self._log_info()
-            next_crawler_request = self.crawler_queue.get()
+            await self._log_info()
+            next_crawler_request = await self.crawler_queue.get()
             if next_crawler_request:
-                self._make_request(crawler_request=next_crawler_request)
+                await self._make_request(crawler_request=next_crawler_request)
             else:
                 logger.info('Crawler queue is empty, all crawler_requests made')
                 self.parse_queue_manager.stop_workers()
                 return True
 
-    def _make_request(self, crawler_request: CrawlerRequest):
+    async def _make_request(self, crawler_request: CrawlerRequest):
         logger.debug(f'[process_request] URL: {crawler_request.url}')
         request_retries = 0
         while True:
             try:
                 wait_time = random.uniform(*self.crawler.time_between_requests)
-                time.sleep(wait_time)
+                await asyncio.sleep(wait_time)
                 crawler_response: CrawlerResponse = None
 
                 # call all process_request
                 process_request_objs = [*self.plugins, self.crawler]
                 for plugin in process_request_objs:
-                    func_return = plugin.process_request(crawler_request=crawler_request)
+                    func_return = await plugin.process_request(crawler_request=crawler_request)
                     if isinstance(func_return, CrawlerResponse):
                         crawler_response = func_return
                         break
@@ -170,12 +170,12 @@ class CrawlerRunner:
                 # call all process_response
                 process_response_objs = [*self.plugins, self.crawler]
                 for obj in process_response_objs:
-                    obj.process_response(crawler_request, crawler_response)
+                    await obj.process_response(crawler_request, crawler_response)
 
                 if crawler_response.settings.parse_response:
-                    self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
+                    await self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
                 if crawler_response.settings.automatic_schedule:
-                    self._add_urls_to_queue(crawler_response=crawler_response)
+                    await self._add_urls_to_queue(crawler_response=crawler_response)
 
                 self._requests_info['Made'] += 1
                 break
@@ -191,7 +191,7 @@ class CrawlerRunner:
                 logger.info(f'Skipping request for url {crawler_request.url} reason: {error.reason}')
                 break
 
-    def _add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
+    async def _add_urls_to_queue(self, crawler_response: CrawlerResponse) -> None:
         if not self.crawler.regex_extract_rules:
             return None
 
@@ -212,7 +212,7 @@ class CrawlerRunner:
                                              headers=crawler_response.headers,
                                              cookies=crawler_response.cookies,
                                              kwargs=crawler_response.kwargs)
-            self.crawler_queue.add(crawler_request=crawler_request)
+            await self.crawler_queue.add(crawler_request=crawler_request)
 
     def _compile_regex(self):
         for i, extract_rule in enumerate(self.crawler.regex_extract_rules):
@@ -227,17 +227,17 @@ class CrawlerRunner:
             initialized.append(plugin(crawler=crawler))
         return initialized
 
-    def _remove_crawled(self):
+    async def _remove_crawled(self):
         extract_rules_remove_crawled = [extract_rule for extract_rule in self.crawler.regex_extract_rules
                                         if extract_rule.remove_crawled]
-        self.crawler_queue.crawled_queue.remove_urls_with_remove_crawled(
+        await self.crawler_queue.crawled_queue.remove_urls_with_remove_crawled(
             extract_rules_remove_crawled=extract_rules_remove_crawled)
 
-    def _get_running_info(self) -> RunningInfo:
+    async def _get_running_info(self) -> RunningInfo:
         running_time = datetime.now() - self._start_process_time
         return RunningInfo(
-            crawler_queue=self.crawler_queue.get_info(),
-            crawled_queue=self.crawler_queue.crawled_queue.get_info(),
+            crawler_queue=await self.crawler_queue.get_info(),
+            crawled_queue=await self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
             requests_remade=self._requests_info["ReMakeRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
@@ -246,10 +246,10 @@ class CrawlerRunner:
             running_id=self._running_id
         )
 
-    def _log_info(self):
+    async def _log_info(self):
         have_passed_time = self._last_info_log_time + timedelta(minutes=1) < datetime.now()
         if have_passed_time:
             self._last_info_log_time = datetime.now()
-            running_info = self._get_running_info()
+            running_info = await self._get_running_info()
             formatted_info = pformat(running_info, sort_dicts=False)
             logger.info(f'\n{formatted_info}')

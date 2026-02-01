@@ -30,29 +30,29 @@ class Crawler(ABC):
             self.time_between_requests = (self.time_between_requests, self.time_between_requests)
 
     @abstractmethod
-    def start_crawler(self) -> None:
+    async def start_crawler(self) -> None:
         ...
 
     @abstractmethod
-    def crawler_first_request(self) -> CrawlerResponse | None:
+    async def crawler_first_request(self) -> CrawlerResponse | None:
         ...
 
     @abstractmethod
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
+    async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
         ...
 
-    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+    async def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         return None
 
     @abstractmethod
-    def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
+    async def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
         ...
 
     @abstractmethod
-    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
+    async def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         ...
 
-    def get_plugin(self, plugin_name) -> Plugin | None:
+    async def get_plugin(self, plugin_name) -> Plugin | None:
         target_plugin = [plugin for plugin in self.plugins if plugin.__class__.__name__ == plugin_name]
         if not target_plugin:
             return None

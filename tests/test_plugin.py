@@ -8,21 +8,21 @@ from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 
 class TestPlugin(Plugin):
 
-    def start_crawler(self) -> None:
+    async def start_crawler(self) -> None:
         print("[Plugin] start_crawler")
 
-    def crawler_first_request(self) -> None:
+    async def crawler_first_request(self) -> None:
         print("[Plugin] crawler_first_request")
 
-    def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
+    async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
         print("[Plugin] process_request")
         crawler_request.kwargs = {"test": 5}
 
-    def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
+    async def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> CrawlerResponse:
         print("[Plugin] process_response")
         return crawler_response
 
-    def stop_crawler(self, execution_info: ExecutionInfo) -> None:
+    async def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         print("[Plugin] process_request")
 
 
