@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timedelta
 from pprint import pformat
 
+from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import PauseCrawler, ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
@@ -75,6 +76,8 @@ class CrawlerRunner:
 
             await self._remove_crawled()
 
+            self.crawler.logged_data = await self._login()
+
             await self._call_crawler_first_request()
 
             await self._start_crawler_queue_loop()
@@ -92,7 +95,7 @@ class CrawlerRunner:
     async def _call_all_start_crawler(self):
         logger.info(f'Calling {self.crawler.crawler_name}.start_crawler')
 
-        start_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue.crawled_queue]
+        start_crawler_objs: list[Plugin | Crawler | CrawledQueueABC] = [*self.plugins, self.crawler, self.crawler_queue.crawled_queue]
         for obj in start_crawler_objs:
             await obj.start_crawler()
 
@@ -122,7 +125,7 @@ class CrawlerRunner:
                                        forced_stop=forced_stop,
                                        reason=reason)
 
-        stop_crawler_objs = [*self.plugins, self.crawler, self.crawler_queue, self.crawler_queue.crawled_queue]
+        stop_crawler_objs: list[Plugin | Crawler | CrawledQueueABC] = [*self.plugins, self.crawler, self.crawler_queue, self.crawler_queue.crawled_queue]
         for obj in stop_crawler_objs:
             await obj.stop_crawler(execution_info=execution_info)
 
@@ -163,7 +166,7 @@ class CrawlerRunner:
                 crawler_response: CrawlerResponse = None
 
                 # call all process_request
-                process_request_objs = [*self.plugins, self.crawler]
+                process_request_objs: list[Plugin | Crawler] = [*self.plugins, self.crawler]
                 for plugin in process_request_objs:
                     func_return = await plugin.process_request(crawler_request=crawler_request)
                     if isinstance(func_return, CrawlerResponse):
@@ -174,7 +177,7 @@ class CrawlerRunner:
                         f'Inside Crawler or Plugin process_request function must return a CrawlerResponse')
 
                 # call all process_response
-                process_response_objs = [*self.plugins, self.crawler]
+                process_response_objs: list[Plugin | Crawler] = [*self.plugins, self.crawler]
                 for obj in process_response_objs:
                     await obj.process_response(crawler_request, crawler_response)
 
@@ -236,6 +239,10 @@ class CrawlerRunner:
         for plugin in plugins:
             initialized.append(plugin(crawler=crawler))
         return initialized
+
+    async def _login(self):
+        logger.info(f'Calling {self.crawler.crawler_name}.login')
+        await self.crawler.login()
 
     async def _remove_crawled(self):
         extract_rules_remove_crawled = [extract_rule for extract_rule in self.crawler.regex_extract_rules

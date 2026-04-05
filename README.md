@@ -114,9 +114,10 @@ OBS:
 
 ### Order of calls
 1. `start_crawler`
-2. `crawler_first_request`
-3. Start a loop executing the methods sequentially: `process_request` -> `process_response` -> `parse` (repeat until the `CrawlerQueue` is empty).
-4. `stop_crawler`
+2. `login`
+3. `crawler_first_request`
+4. Start a loop executing the methods sequentially: `process_request` -> `process_response` -> `parse` (repeat until the `CrawlerQueue` is empty).
+5. `stop_crawler`
 
 ---
 

@@ -6,6 +6,7 @@ from selectolax.lexbor import LexborHTMLParser
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
 from turbocrawler.engine.control import ReMakeRequest
+from turbocrawler.engine.data_types.crawler import loggedData
 from turbocrawler.engine.runners.crawler_runner import CrawlerRunner
 
 
@@ -18,6 +19,16 @@ class QuotesToScrapeCrawler(Crawler):
 
     async def start_crawler(self) -> None:
         self.session = requests.session()
+
+    async def login(self) -> loggedData:
+        response = self.session.post("https://quotes.toscrape.com/login", data={"username": "admin", "password": "admin"}, allow_redirects=True)
+        if response.status_code == 200:
+            self.logger.info("Login successful")
+
+        return loggedData(cookies=self.session.cookies.get_dict(),
+                          headers=self.session.headers,
+                          local_storage={},
+                          ip=None)
 
     async def crawler_first_request(self) -> CrawlerResponse | None:
         await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))

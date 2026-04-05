@@ -3,7 +3,7 @@ from numbers import Number
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule
+from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, loggedData
 from turbocrawler.engine.data_types.info import ExecutionInfo
 from turbocrawler.engine.plugin import Plugin
 from turbocrawler.logger import LOG
@@ -19,6 +19,8 @@ class Crawler(ABC):
     plugins: list[Plugin]
     logger: LOG
 
+    logged_data: loggedData
+
     def __init__(self, crawler_queue: CrawlerQueueABC, plugins: list[Plugin], logger: LOG):
         self.crawler_queue = crawler_queue
         self.plugins = plugins
@@ -30,27 +32,25 @@ class Crawler(ABC):
             self.time_between_requests = (self.time_between_requests, self.time_between_requests)
 
     @abstractmethod
-    async def start_crawler(self) -> None:
-        ...
+    async def start_crawler(self) -> None: ...
+
+    async def login(self) -> loggedData:
+        return loggedData()
 
     @abstractmethod
-    async def crawler_first_request(self) -> CrawlerResponse | None:
-        ...
+    async def crawler_first_request(self) -> CrawlerResponse | None: ...
 
     @abstractmethod
-    async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None:
-        ...
+    async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse | None: ...
 
     async def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         return None
 
     @abstractmethod
-    async def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any:
-        ...
+    async def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any: ...
 
     @abstractmethod
-    async def stop_crawler(self, execution_info: ExecutionInfo) -> None:
-        ...
+    async def stop_crawler(self, execution_info: ExecutionInfo) -> None: ...
 
     async def get_plugin(self, plugin_name) -> Plugin | None:
         target_plugin = [plugin for plugin in self.plugins if plugin.__class__.__name__ == plugin_name]

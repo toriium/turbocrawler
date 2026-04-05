@@ -3,6 +3,15 @@ from dataclasses import dataclass, field
 
 
 @dataclass
+class loggedData:
+    cookies: dict = field(default_factory=dict)
+    headers: dict = field(default_factory=dict)
+    local_storage: dict = field(default_factory=dict)
+    ip: str | None = None
+    extra : dict = field(default_factory=dict)
+
+
+@dataclass
 class Settings:
     automatic_schedule: bool = True
     parse_response: bool = True
