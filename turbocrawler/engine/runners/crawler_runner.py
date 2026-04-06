@@ -8,7 +8,7 @@ from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.control import PauseCrawler, ReMakeRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
-from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse
+from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, LoggedData
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.plugin import Plugin
@@ -79,7 +79,7 @@ class CrawlerRunner:
 
             await self._remove_crawled()
 
-            self.crawler.logged_data = await self._login()
+            await self._login()
 
             await self._call_crawler_first_request()
 
@@ -245,9 +245,9 @@ class CrawlerRunner:
             initialized.append(plugin(crawler=crawler))
         return initialized
 
-    async def _login(self):
+    async def _login(self) -> LoggedData:
         logger.info(f'Calling {self.crawler.crawler_name}.login')
-        await self.crawler.login()
+        self.crawler.logged_data = await self.crawler.login()
 
     async def _save_all(self):
         logger.info(f'Calling {self.crawler.crawler_name}.save_all')

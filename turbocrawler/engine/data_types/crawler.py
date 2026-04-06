@@ -7,7 +7,6 @@ class loggedData:
     cookies: dict = field(default_factory=dict)
     headers: dict = field(default_factory=dict)
     local_storage: dict = field(default_factory=dict)
-    ip: str | None = None
     extra : dict = field(default_factory=dict)
 
 

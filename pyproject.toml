@@ -1,24 +1,24 @@
-[tool.poetry]
+[project]
 name = "turbocrawler"
 version = "0.0.3"
 license = "MIT"
 description = "Scraping and Crawling Micro-Framework"
-authors = ["toriium"]
+authors = [{ name = "toriium" }]
 keywords = ["crawler", "crawler framework", "scraping", "turbocrawler"]
 readme = "README.md"
-packages = [{ include = "turbocrawler" }]
-homepage = "https://github.com/toriium/turbocrawler"
-repository = "https://github.com/toriium/turbocrawler"
+requires-python = ">=3.11"
+dependencies = ["selectolax"]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-selectolax = "*"
+[project.urls]
+Homepage = "https://github.com/toriium/turbocrawler"
+Repository = "https://github.com/toriium/turbocrawler"
 
-
-[tool.poetry.group.dev.dependencies]
-requests = "*"
-ruff = "*"
-pydantic = "*"
+[dependency-groups]
+dev = [
+    "requests",
+    "ruff",
+    "pydantic",
+]
 
 [tool.ruff]
 line-length = 120
@@ -56,9 +56,9 @@ unfixable = []
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
 
-[tool.poetry.scripts]
+[project.scripts]
 turbocrawler = "turbocrawler.cli:main"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

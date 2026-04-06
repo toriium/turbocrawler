@@ -85,6 +85,10 @@ if __name__ == '__main__':
 #### `start_crawler`
 Use this to start a session, webdriver, etc.
 
+#### `login` (Optional)
+Use this to implement the login logic for the crawler.
+The response will be saved at self.logged_data attribute
+
 #### `crawler_first_request`
 Use this to make the first request to a site (normally the login). It can also be used to schedule the first pages to crawl.
 Possible returns:
@@ -106,6 +110,9 @@ This method is optional.
 This method receives all `CrawlerResponse` objects from `crawler_first_request`, `process_request`, or `process_response`.
 Here you can parse your response, extract the target fields from HTML, and dump the data (e.g., to a database).
 
+#### `save_all` (Optional)
+Use this to save all collected data at once before closing the crawler.
+
 #### `stop_crawler`
 Use this to close a session, webdriver, etc.
 
@@ -117,7 +124,8 @@ OBS:
 2. `login`
 3. `crawler_first_request`
 4. Start a loop executing the methods sequentially: `process_request` -> `process_response` -> `parse` (repeat until the `CrawlerQueue` is empty).
-5. `stop_crawler`
+5. `save_all`
+6. `stop_crawler`
 
 ---
 

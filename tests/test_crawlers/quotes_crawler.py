@@ -33,14 +33,14 @@ class QuotesToScrapeCrawler(Crawler):
     async def login(self) -> loggedData:
         username = self.cli_kwargs["username"]
         password = self.cli_kwargs["password"]
-        response = self.session.post("https://quotes.toscrape.com/login", data={"username": username, "password": password}, allow_redirects=True)
-        if response.status_code == 200:
-            self.logger.info("Login successful")
+        login_url = "https://quotes.toscrape.com/login"
+        response = self.session.post(login_url, data={"username": username, "password": password}, allow_redirects=True)
+        if response.status_code != 200:
+            raise Exception("Login Failed")
 
         return loggedData(cookies=self.session.cookies.get_dict(),
                           headers=self.session.headers,
-                          local_storage={},
-                          ip=None)
+                          local_storage={})
 
     async def crawler_first_request(self) -> CrawlerResponse | None:
         await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
@@ -80,4 +80,5 @@ class QuotesToScrapeCrawler(Crawler):
         self.session.close()
 
 if __name__ == '__main__':
-    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler).run())
+    cli_kwargs = {"username": "admin", "password": "123"}
+    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler, cli_kwargs=cli_kwargs).run())
