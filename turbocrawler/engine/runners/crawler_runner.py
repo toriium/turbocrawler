@@ -19,7 +19,7 @@ from turbocrawler.utils import get_running_id
 
 
 class CrawlerRunner:
-    def __init__(self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None):
+    def __init__(self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None, cli_kwargs: dict | None = None):
         self._running_id = get_running_id()
         self._start_process_time = datetime.now()
         self._last_info_log_time = datetime.now()
@@ -27,6 +27,7 @@ class CrawlerRunner:
         self._crawler_type = crawler
         self.crawler: Crawler
         self.config = config
+        self.cli_kwargs = cli_kwargs or {}
         self.crawler_queue: CrawlerQueueABC
         self.plugins: list[Plugin] = []
 
@@ -35,6 +36,8 @@ class CrawlerRunner:
 
     async def _initialize_runner_dependencies(self):
         logger.create_file_handler(dir=self._crawler_type.crawler_name, filename=self._running_id)
+
+        logger.info(f"crawler cli_kwargs: {self.cli_kwargs}")
 
         if self.config is None:
             self.config = CrawlerRunnerConfig()
@@ -58,7 +61,7 @@ class CrawlerRunner:
             logger.create_plugins_handlers(plugins=self.plugins, crawler=self._crawler_type,
                                            running_id=self._running_id)
 
-        self.crawler = self._crawler_type(crawler_queue=self.crawler_queue, plugins=self.plugins, logger=logger)
+        self.crawler = self._crawler_type(crawler_queue=self.crawler_queue, plugins=self.plugins, logger=logger, cli_kwargs=self.cli_kwargs)
         self._compile_regex()
 
         self.parse_queue_manager = WorkerQueueManager(queue_name='parse_queue',

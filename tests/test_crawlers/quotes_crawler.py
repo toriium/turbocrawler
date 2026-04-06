@@ -31,7 +31,9 @@ class QuotesToScrapeCrawler(Crawler):
         self.session = requests.session()
 
     async def login(self) -> loggedData:
-        response = self.session.post("https://quotes.toscrape.com/login", data={"username": "admin", "password": "admin"}, allow_redirects=True)
+        username = self.cli_kwargs["username"]
+        password = self.cli_kwargs["password"]
+        response = self.session.post("https://quotes.toscrape.com/login", data={"username": username, "password": password}, allow_redirects=True)
         if response.status_code == 200:
             self.logger.info("Login successful")
 

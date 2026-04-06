@@ -18,13 +18,15 @@ class Crawler(ABC):
     crawler_queue: CrawlerQueueABC
     plugins: list[Plugin]
     logger: LOG
+    cli_kwargs: dict[str, Any]
 
     logged_data: loggedData
 
-    def __init__(self, crawler_queue: CrawlerQueueABC, plugins: list[Plugin], logger: LOG):
+    def __init__(self, crawler_queue: CrawlerQueueABC, plugins: list[Plugin], logger: LOG, cli_kwargs: dict[str, Any]):
         self.crawler_queue = crawler_queue
         self.plugins = plugins
         self.logger = logger
+        self.cli_kwargs = cli_kwargs
         if isinstance(self.time_between_requests, tuple):
             assert len(self.time_between_requests) == 2, "time_between_requests tuple must have exactly two elements"
             self.time_between_requests = (self.time_between_requests[0], self.time_between_requests[1])
