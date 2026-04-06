@@ -49,6 +49,14 @@ class Crawler(ABC):
     @abstractmethod
     async def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> Any: ...
 
+    async def save_all(self) -> None:
+        """
+        Triggers: after crawler_queue_loop finishes and before stop_crawler()
+        Here you can implemented a logic to save all collected data at once
+        for example, saving all collected data in a database in one transaction.
+        """
+        return None
+
     @abstractmethod
     async def stop_crawler(self, execution_info: ExecutionInfo) -> None: ...
 

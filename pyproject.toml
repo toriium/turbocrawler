@@ -18,6 +18,7 @@ selectolax = "*"
 [tool.poetry.group.dev.dependencies]
 requests = "*"
 ruff = "*"
+pydantic = "*"
 
 [tool.ruff]
 line-length = 120

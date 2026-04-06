@@ -82,6 +82,8 @@ class CrawlerRunner:
 
             await self._start_crawler_queue_loop()
 
+            await self._save_all()
+
             return await self._call_all_stop_crawler()
         except StopCrawler as stop_crawler:
             return await self._call_all_stop_crawler(stop_crawler)
@@ -243,6 +245,10 @@ class CrawlerRunner:
     async def _login(self):
         logger.info(f'Calling {self.crawler.crawler_name}.login')
         await self.crawler.login()
+
+    async def _save_all(self):
+        logger.info(f'Calling {self.crawler.crawler_name}.save_all')
+        await self.crawler.save_all()
 
     async def _remove_crawled(self):
         extract_rules_remove_crawled = [extract_rule for extract_rule in self.crawler.regex_extract_rules

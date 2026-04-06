@@ -1,7 +1,8 @@
 import asyncio
-from pprint import pprint
+import json
 
 import requests
+from pydantic import BaseModel
 from selectolax.lexbor import LexborHTMLParser
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
@@ -10,12 +11,21 @@ from turbocrawler.engine.data_types.crawler import loggedData
 from turbocrawler.engine.runners.crawler_runner import CrawlerRunner
 
 
+class Quote(BaseModel):
+    author: str
+    quote: str
+
 class QuotesToScrapeCrawler(Crawler):
+    # Lib Attributes
     crawler_name = "QuotesToScrape"
     allowed_domains = ['quotes.toscrape.com']
     regex_extract_rules = [ExtractRule(r'https://quotes.toscrape.com/page/[0-9]')]
     time_between_requests = (0.5, 1)
+
+    # Personal Attributes
     session: requests.Session
+    quote_list: list[Quote] = []
+
 
     async def start_crawler(self) -> None:
         self.session = requests.session()
@@ -57,7 +67,12 @@ class QuotesToScrapeCrawler(Crawler):
             data = {"quote": quote.css_first('span:nth-child(1)').text()[1:-1],
                     "author": quote.css_first('span:nth-child(2)>small').text(),
                     "tag_list": [tag.text() for tag in quote.css('div[class="tags"]>a') if tag]}
-            pprint(data)
+            self.quote_list.append(Quote(**data))
+
+    async def save_all(self) -> None:
+        self.logger.info("All data parsed, saving to quotes.json")
+        with open("quotes.json", "w") as f:
+            json.dump([quote.model_dump() for quote in self.quote_list], f, indent=4)
 
     async def stop_crawler(self, execution_info: ExecutionInfo) -> None:
         self.session.close()
