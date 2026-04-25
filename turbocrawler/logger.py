@@ -19,8 +19,8 @@ class LOG(logging.Logger):
         console_handler.setFormatter(formatter)
         self.addHandler(console_handler)
 
-    def create_file_handler(self, dir: str, filename: str):
-        path = f'{os.getcwd()}/crawler_logs/{dir}/{filename}.txt'
+    def create_file_handler(self, directory: str, filename: str):
+        path = f'{os.getcwd()}/turbocrawler_logs/{directory}/{filename}.txt'
         create_file_path(path)
         file_handler = logging.FileHandler(path, mode='w')
         file_handler.setFormatter(formatter)

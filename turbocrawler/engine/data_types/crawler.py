@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class loggedData:
+class LoggedData:
     cookies: dict = field(default_factory=dict)
     headers: dict = field(default_factory=dict)
     local_storage: dict = field(default_factory=dict)

@@ -3,7 +3,7 @@ from numbers import Number
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, loggedData
+from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, LoggedData
 from turbocrawler.engine.data_types.info import ExecutionInfo
 from turbocrawler.engine.plugin import Plugin
 from turbocrawler.logger import LOG
@@ -20,7 +20,7 @@ class Crawler(ABC):
     logger: LOG
     cli_kwargs: dict[str, Any]
 
-    logged_data: loggedData
+    logged_data: LoggedData
 
     def __init__(self, crawler_queue: CrawlerQueueABC, plugins: list[Plugin], logger: LOG, cli_kwargs: dict[str, Any]):
         self.crawler_queue = crawler_queue
@@ -36,8 +36,8 @@ class Crawler(ABC):
     @abstractmethod
     async def start_crawler(self) -> None: ...
 
-    async def login(self) -> loggedData:
-        return loggedData()
+    async def login(self) -> LoggedData:
+        return LoggedData()
 
     @abstractmethod
     async def crawler_first_request(self) -> CrawlerResponse | None: ...

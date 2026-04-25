@@ -11,7 +11,4 @@ def create_file_path(file_path: str):
             ...
 
 
-def get_running_id() -> str:
-    now = datetime.now()
-    f_date = now.strftime("%Y%m%d_%H%M%S")
-    return f"{f_date}_{uuid4().hex[-5:]}"
+

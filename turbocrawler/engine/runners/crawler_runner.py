@@ -11,20 +11,22 @@ from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, LoggedData
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
+from turbocrawler.engine.job import JobBase
 from turbocrawler.engine.plugin import Plugin
 from turbocrawler.engine.url_extractor import UrlExtractor
 from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
-from turbocrawler.utils import get_running_id
 
 
-class CrawlerRunner:
+class CrawlerRunner(JobBase):
+    name: str = "CrawlerRunner"
+
     def __init__(self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None, cli_kwargs: dict | None = None):
-        self._running_id = get_running_id()
-        self._start_process_time = datetime.now()
+        self._crawler_type = crawler
+        super().__init__()
+
         self._last_info_log_time = datetime.now()
 
-        self._crawler_type = crawler
         self.crawler: Crawler
         self.config = config
         self.cli_kwargs = cli_kwargs or {}
@@ -35,7 +37,7 @@ class CrawlerRunner:
         self.parse_queue_manager: WorkerQueueManager
 
     async def _initialize_runner_dependencies(self):
-        logger.create_file_handler(dir=self._crawler_type.crawler_name, filename=self._running_id)
+        logger.create_file_handler(directory=self._crawler_type.crawler_name, filename=self._running_id)
 
         logger.info(f"crawler cli_kwargs: {self.cli_kwargs}")
 
@@ -260,7 +262,7 @@ class CrawlerRunner:
             extract_rules_remove_crawled=extract_rules_remove_crawled)
 
     async def _get_running_info(self) -> RunningInfo:
-        running_time = datetime.now() - self._start_process_time
+        running_time = self.running_time()
         return RunningInfo(
             crawler_queue=await self.crawler_queue.get_info(),
             crawled_queue=await self.crawler_queue.crawled_queue.get_info(),
