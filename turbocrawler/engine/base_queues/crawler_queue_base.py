@@ -8,7 +8,6 @@ from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
 
 class CrawlerQueueABC(ABC):
-
     def __init__(self, crawler_name: str, crawled_queue: CrawledQueueABC = None):
         self.crawler_name = crawler_name
         if crawled_queue is None:
@@ -22,7 +21,7 @@ class CrawlerQueueABC(ABC):
         pass
 
     async def get_info(self) -> CrawlerQueueInfo:
-        return CrawlerQueueInfo(add=self.__info['add'], get=self.__info['get'], length=len(self))
+        return CrawlerQueueInfo(add=self.__info["add"], get=self.__info["get"], length=len(self))
 
     async def get(self) -> CrawlerRequest | None:
         if await self._is_queue_empty():
@@ -34,26 +33,26 @@ class CrawlerQueueABC(ABC):
         self.__urls_scheduled.remove(crawler_request.url)
 
         await self.__add_url_to_crawled_queue(url=crawler_request.url)
-        self.__info['get'] += 1
+        self.__info["get"] += 1
         return crawler_request
 
     async def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
         if not verify_crawled:
-            self.__info['add'] += 1
+            self.__info["add"] += 1
             await self._insert_queue(crawler_request)
             return
 
         url = crawler_request.url
         if await self._is_url_in_queue(url=url):
-            logger.debug(f'[{self.__class__.__name__}] {url} is on the __crawler_queue')
+            logger.debug(f"[{self.__class__.__name__}] {url} is on the __crawler_queue")
             return
 
         if not await self.__page_already_crawled(url=url):
-            self.__info['add'] += 1
+            self.__info["add"] += 1
             await self._insert_queue(crawler_request)
             self.__urls_scheduled.add(url)
         else:
-            logger.debug(f'[{self.__class__.__name__}] {url} already_crawled')
+            logger.debug(f"[{self.__class__.__name__}] {url} already_crawled")
 
     @abstractmethod
     async def _insert_queue(self, crawler_request: CrawlerRequest) -> None:
@@ -75,6 +74,5 @@ class CrawlerQueueABC(ABC):
 
     async def __add_url_to_crawled_queue(self, url: str) -> None:
         await self.crawled_queue.add(url=url)
-    
-    async def stop_crawler(self, execution_info: ExecutionInfo):
-        ...
+
+    async def stop_crawler(self, execution_info: ExecutionInfo): ...

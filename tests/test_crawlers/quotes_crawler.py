@@ -42,12 +42,9 @@ class QuotesToScrapeCrawler(Crawler):
                           headers=self.session.headers,
                           local_storage={})
 
-    async def crawler_first_request(self) -> CrawlerResponse | None:
-        await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
-        response = self.session.get(url="https://quotes.toscrape.com/page/1/")
-        return CrawlerResponse(url=response.url,
-                               body=response.text,
-                               status_code=response.status_code)
+    async def schedule_requests(self) -> None:
+        await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/1/"))
+
 
     async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
         response = self.session.get(crawler_request.url)

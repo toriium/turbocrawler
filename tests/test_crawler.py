@@ -8,13 +8,17 @@ from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 
 
 async def main():
-    config = CrawlerRunnerConfig(crawler_queue=FIFOMemoryCrawlerQueue,
-                                crawler_queue_params=None,
-                                crawled_queue=MemoryCrawledQueue,
-                                crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=False),
-                                plugins=None, qtd_parse=2)
+    config = CrawlerRunnerConfig(
+        crawler_queue=FIFOMemoryCrawlerQueue,
+        crawler_queue_params=None,
+        crawled_queue=MemoryCrawledQueue,
+        crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=False),
+        plugins=None,
+        qtd_parse=2,
+    )
     result = await CrawlerRunner(crawler=QuotesToScrapeCrawler, config=config).run()
     print(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())

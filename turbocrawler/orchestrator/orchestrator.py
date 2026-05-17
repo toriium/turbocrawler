@@ -13,9 +13,7 @@ class CrawlersOrchestrator:
 
     def start(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('-c',
-                            '--crawler',
-                            help='The target crawler name. Example --crawler crawlerLaptop')
+        parser.add_argument("-c", "--crawler", help="The target crawler name. Example --crawler crawlerLaptop")
         args = parser.parse_args()
         crawler_name = args.crawler
 

@@ -12,20 +12,16 @@ from turbocrawler.logger import logger
 
 
 class ThreadCrawlerRunner(CrawlerRunner):
-    def __init__(self,
-                 crawler: type[Crawler],
-                 crawler_queue: CrawlerQueueABC = None,
-                 qtd_request: int = 2):
+    def __init__(self, crawler: type[Crawler], crawler_queue: CrawlerQueueABC = None, qtd_request: int = 2):
         super().__init__(crawler=crawler, crawler_queue=crawler_queue)
 
-        self.request_queue_manager: WorkerQueueManager = WorkerQueueManager(queue_name='request_queue',
-                                                                            class_object=self.crawler,
-                                                                            target=self._make_request,
-                                                                            qtd_workers=qtd_request)
+        self.request_queue_manager: WorkerQueueManager = WorkerQueueManager(
+            queue_name="request_queue", class_object=self.crawler, target=self._make_request, qtd_workers=qtd_request
+        )
 
     def _process_crawler_queue(self):
         self.request_queue_manager.start_workers()
-        logger.info('Processing crawler queue')
+        logger.info("Processing crawler queue")
 
         # get requests from crawler queue
         while True:
@@ -45,11 +41,11 @@ class ThreadCrawlerRunner(CrawlerRunner):
                 if self.crawler_queue:
                     continue
 
-                logger.info('Crawler queue is empty, all crawler_requests made')
+                logger.info("Crawler queue is empty, all crawler_requests made")
                 # Wait until parse_queue is empty
                 self.parse_queue_manager.stop_workers()
                 self.request_queue_manager.stop_workers()
-                logger.info('Parse queue is empty, all parse_crawler_response made')
+                logger.info("Parse queue is empty, all parse_crawler_response made")
                 return True
 
     def _make_request(self, crawler_request: CrawlerRequest):
@@ -57,24 +53,25 @@ class ThreadCrawlerRunner(CrawlerRunner):
         while True:
             try:
                 time.sleep(self.crawler.time_between_requests)
-                logger.debug(f'[process_request] URL: {crawler_request.url}')
+                logger.debug(f"[process_request] URL: {crawler_request.url}")
                 crawler_response = self.crawler.process_request(crawler_request=crawler_request)
                 self._add_urls_to_queue(crawler_response=crawler_response)
 
-                self.parse_queue_manager.queue.put({"crawler_request": crawler_request,
-                                                    "crawler_response": crawler_response})
-                self._requests_info['Made'] += 1
+                self.parse_queue_manager.queue.put(
+                    {"crawler_request": crawler_request, "crawler_response": crawler_response}
+                )
+                self._requests_info["Made"] += 1
                 break
             except ReMakeRequest as error:
-                self._requests_info['ReMakeRequest'] += 1
+                self._requests_info["ReMakeRequest"] += 1
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
-                    logger.warn(f'Exceed retry tentatives for url {crawler_request.url}')
+                    logger.warn(f"Exceed retry tentatives for url {crawler_request.url}")
                     break
             except SkipRequest as error:
-                self._requests_info['SkipRequest'] += 1
-                logger.info(f'Skipping request for url {crawler_request.url} reason: {error.reason}')
+                self._requests_info["SkipRequest"] += 1
+                logger.info(f"Skipping request for url {crawler_request.url} reason: {error.reason}")
                 break
 
     def _get_running_info(self) -> RunningInfo:
@@ -87,5 +84,5 @@ class ThreadCrawlerRunner(CrawlerRunner):
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=None,
             running_time=str(running_time),
-            running_id=self._running_id
+            running_id=self._running_id,
         )

@@ -70,14 +70,14 @@ class WorkerQueueManager:
 
     def get_info(self) -> WorkerQueueManagerInfo:
         workers_state = self.__get_workers_state()
-        return WorkerQueueManagerInfo(queue_name=self.queue_name,
-                                      queue_info=self.queue.get_info(),
-                                      workers_state=workers_state)
+        return WorkerQueueManagerInfo(
+            queue_name=self.queue_name, queue_info=self.queue.get_info(), workers_state=workers_state
+        )
 
     def start_workers(self):
         self.workers = [
-            ConsumerQueueWorker(worker_name=f'Worker[{c}]', worker_queue_manager=self)
-            for c in range(self.qtd_workers)]
+            ConsumerQueueWorker(worker_name=f"Worker[{c}]", worker_queue_manager=self) for c in range(self.qtd_workers)
+        ]
         [w.start() for w in self.workers]
 
     def stop_workers(self):
@@ -95,13 +95,13 @@ class ConsumerQueueWorker(Thread):
         self.queue = worker_queue_manager.queue
         self.target = worker_queue_manager.target
         self.worker_state = WorkerState.WAITING
-        logger.debug(f'{self.queue_name}|{self.worker_name}| CREATED')
+        logger.debug(f"{self.queue_name}|{self.worker_name}| CREATED")
 
     def run(self):
         while True:
             if self.queue.is_empty():
                 if self.worker_queue_manager.must_stop_workers:
-                    logger.debug(f'{self.queue_name}|{self.worker_name}| STOPPING')
+                    logger.debug(f"{self.queue_name}|{self.worker_name}| STOPPING")
                     self.worker_state = WorkerState.STOPPED
                     break
                 time.sleep(1)
@@ -114,11 +114,11 @@ class ConsumerQueueWorker(Thread):
 
             self.worker_state = WorkerState.EXECUTING
             try:
-                logger.debug(f'[{self.target.__name__}] URL: {self.__get_url(next_call)}')
+                logger.debug(f"[{self.target.__name__}] URL: {self.__get_url(next_call)}")
                 # self.target(self.worker_queue_manager.class_object, **next_call)
                 self.target(**next_call)
             except Exception as error:
-                logger.exception(f'{self.queue_name}|{self.worker_name}\n{error}')
+                logger.exception(f"{self.queue_name}|{self.worker_name}\n{error}")
 
     @staticmethod
     def __get_url(next_call):

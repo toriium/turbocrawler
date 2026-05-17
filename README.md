@@ -25,7 +25,7 @@ from selectolax.lexbor import LexborHTMLParser
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
 from turbocrawler.engine.control import ReMakeRequest
-from turbocrawler.engine.data_types.crawler import loggedData
+from turbocrawler.engine.data_types.crawler import LoggedData
 from turbocrawler.engine.runners.crawler_runner import CrawlerRunner
 
 
@@ -48,7 +48,7 @@ class QuotesToScrapeCrawler(Crawler):
     async def start_crawler(self) -> None:
         self.session = requests.session()
 
-    async def login(self) -> loggedData:
+    async def login(self) -> LoggedData:
         username = self.cli_kwargs["username"]
         password = self.cli_kwargs["password"]
         login_url = "https://quotes.toscrape.com/login"
@@ -56,16 +56,13 @@ class QuotesToScrapeCrawler(Crawler):
         if response.status_code != 200:
             raise Exception("Login Failed")
 
-        return loggedData(cookies=self.session.cookies.get_dict(),
+        return LoggedData(cookies=self.session.cookies.get_dict(),
                           headers=self.session.headers,
                           local_storage={})
 
-    async def crawler_first_request(self) -> CrawlerResponse | None:
-        await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/9/"))
-        response = self.session.get(url="https://quotes.toscrape.com/page/1/")
-        return CrawlerResponse(url=response.url,
-                               body=response.text,
-                               status_code=response.status_code)
+    async def schedule_requests(self) -> None:
+        await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/1/"))
+
 
     async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
         response = self.session.get(crawler_request.url)
@@ -99,7 +96,7 @@ class QuotesToScrapeCrawler(Crawler):
 
 if __name__ == '__main__':
     cli_kwargs = {"username": "admin", "password": "123"}
-    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler, cli_kwargs=cli_kwargs).run())
+    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler, cli_kwargs=cli_kwargs).start())
 ```
 
 # How to run
