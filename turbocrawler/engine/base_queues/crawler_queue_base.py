@@ -13,7 +13,7 @@ class CrawlerQueueABC(ABC):
         if crawled_queue is None:
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
-        self.__urls_scheduled = set()
+        self.__urls_scheduled = set() # Prevents scheduling the same URL again before it's crawled
         self.__info = CrawlerQueueInfo(add=0, get=0, length=0)
 
     @abstractmethod
@@ -37,12 +37,14 @@ class CrawlerQueueABC(ABC):
         return crawler_request
 
     async def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
+        url = crawler_request.url
+
         if not verify_crawled:
             self.__info["add"] += 1
             await self._insert_queue(crawler_request)
+            self.__urls_scheduled.add(url)
             return
 
-        url = crawler_request.url
         if await self._is_url_in_queue(url=url):
             logger.debug(f"[{self.__class__.__name__}] {url} is on the __crawler_queue")
             return
@@ -53,6 +55,9 @@ class CrawlerQueueABC(ABC):
             self.__urls_scheduled.add(url)
         else:
             logger.debug(f"[{self.__class__.__name__}] {url} already_crawled")
+
+    def urls_scheduled(self) -> set:
+        return self.__urls_scheduled
 
     @abstractmethod
     async def _insert_queue(self, crawler_request: CrawlerRequest) -> None:

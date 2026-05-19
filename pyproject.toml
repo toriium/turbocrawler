@@ -18,6 +18,8 @@ dev = [
     "requests",
     "ruff",
     "pydantic",
+    "pytest>=9.0.3",
+    "anyio>=4.13.0",
 ]
 
 [tool.ruff]
@@ -58,6 +60,9 @@ unfixable = []
 
 [project.scripts]
 turbocrawler = "turbocrawler.cli:main"
+
+[tool.pytest.ini_options]
+anyio_mode = "auto"
 
 [build-system]
 requires = ["hatchling"]

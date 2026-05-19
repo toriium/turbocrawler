@@ -6,7 +6,7 @@ from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 
 
-class TestPlugin(Plugin):
+class FakePlugin(Plugin):
     async def start_crawler(self) -> None:
         print("[Plugin] start_crawler")
 
