@@ -130,7 +130,8 @@ class CrawlerRunner(JobBase):
             forced_stop = True
             error = True
             reason = str(exception)
-            logger.error(f"An exception happened in the execution, stopping the crawler.\nException:\n{exception}")
+            logger.error("An exception happened in the execution, stopping the crawler.")
+            logger.exception("Exception traceback:")
 
         if stop_crawler:
             forced_stop = True

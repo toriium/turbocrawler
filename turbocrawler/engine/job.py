@@ -1,8 +1,8 @@
+import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
-import logging
-import traceback
 from uuid import uuid4
+
 from turbocrawler.logger import logger
 
 
@@ -36,10 +36,9 @@ class JobBase(ABC):
 
     def job_error(self, exception: Exception):
         logger.error(f"{self.name} --- Error ---")
-        exception_reason = traceback.format_exception_only(exception)
-        tracestack = traceback.format_exception(exception)
-        error_message = f"{exception_reason}\n{tracestack}"
-        logger.error(error_message)
+        exception_reason = traceback.format_exception_only(exception)[-1].strip()
+        logger.error(f"REASON: {exception_reason}")
+        logger.exception("Error tracestack")
 
     def running_time(self) -> datetime:
         now = datetime.now()
