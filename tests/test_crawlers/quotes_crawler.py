@@ -5,10 +5,8 @@ import requests
 from pydantic import BaseModel
 from selectolax.lexbor import LexborHTMLParser
 
-from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, ExecutionInfo, ExtractRule
-from turbocrawler.engine.control import ReMakeRequest
-from turbocrawler.engine.data_types.crawler import LoggedData
-from turbocrawler.engine.runners.crawler_runner import CrawlerRunner
+from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo, ExtractRule, LoggedData
+from turbocrawler.engine.control import RetryRequest
 
 
 class Quote(BaseModel):
@@ -48,18 +46,24 @@ class QuotesToScrapeCrawler(Crawler):
 
     async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
         response = self.session.get(crawler_request.url)
-        return CrawlerResponse(url=response.url,
-                               body=response.text,
-                               status_code=response.status_code)
+        return CrawlerResponse(
+            url=response.url,
+            body=response.text,
+            json={},
+            status_code=response.status_code
+        )
 
     async def process_response(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
         selector = LexborHTMLParser(crawler_response.body)
         quote_list = selector.css('div[class="quote"]')
         if not quote_list:
-            raise ReMakeRequest(retries=2)
+            raise RetryRequest(reason="No quotes found", retries=2)
         crawler_response.kwargs['success'] = True
 
     async def parse(self, crawler_request: CrawlerRequest, crawler_response: CrawlerResponse) -> None:
+        # Get values from previous process
+        assert crawler_response.kwargs['success'] is True 
+
         selector = LexborHTMLParser(crawler_response.body)
         quote_list = selector.css('div[class="quote"]')
         for quote in quote_list:

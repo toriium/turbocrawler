@@ -34,7 +34,7 @@ class RunningInfo(TypedDict):
     crawler_queue: CrawlerQueueInfo
     crawled_queue: CrawledQueueInfo
     requests_made: int
-    requests_remade: int
+    requests_retried: int
     requests_skipped: int
     parse_queue: WorkerQueueManagerInfo | None
     running_time: str

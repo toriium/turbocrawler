@@ -6,7 +6,7 @@ from pprint import pformat
 
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.control import PauseCrawler, ReMakeRequest, SkipRequest, StopCrawler
+from turbocrawler.engine.control import PauseCrawler, RetryRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, LoggedData
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
@@ -35,7 +35,7 @@ class CrawlerRunner(JobBase):
         self.crawler_queue: CrawlerQueueABC
         self.plugins: list[Plugin] = []
 
-        self._requests_info = {"Made": 0, "ReMakeRequest": 0, "SkipRequest": 0}
+        self._requests_info = {"Made": 0, "RetryRequest": 0, "SkipRequest": 0}
         self.parse_queue_manager: WorkerQueueManager
 
     async def _initialize_runner_dependencies(self):
@@ -78,7 +78,7 @@ class CrawlerRunner(JobBase):
             qtd_workers=self.config.qtd_parse,
         )
 
-    async def run(self):
+    async def run(self) -> ExecutionInfo:
         await self._initialize_runner_dependencies()
 
         self.parse_queue_manager.start_workers()
@@ -193,7 +193,8 @@ class CrawlerRunner(JobBase):
                         break
                 else:
                     raise StopCrawler(
-                        f"Inside Crawler or Plugin process_request function must return a CrawlerResponse"
+                        reason=f"Inside Crawler or Plugin process_request function must return a CrawlerResponse",
+                        error=True
                     )
 
                 # call all process_response
@@ -208,19 +209,22 @@ class CrawlerRunner(JobBase):
 
                 self._requests_info["Made"] += 1
                 break
-            except ReMakeRequest as error:
-                self._requests_info["ReMakeRequest"] += 1
+            except RetryRequest as error:
+                self._requests_info["RetryRequest"] += 1
                 request_retries += 1
                 max_retries = error.retries
                 if request_retries >= max_retries:
-                    logger.warning(f"Exceed retry tentatives for url {crawler_request.url}")
+                    msg = f"Exceed retries for url {crawler_request.url}|Reason: {error.reason}"
+                    logger.error(msg)
+                    if error.stop_crawler:
+                        raise StopCrawler(reason=msg, error=True)
                     break
             except SkipRequest as error:
                 self._requests_info["SkipRequest"] += 1
-                logger.info(f"Skipping request for url {crawler_request.url} reason: {error.reason}")
+                logger.info(f"Skipping request for url {crawler_request.url}|Reason: {error.reason}")
                 break
             except PauseCrawler as pause_crawler:
-                logger.info(f"Pausing crawler for {pause_crawler.time} seconds as requested.")
+                logger.info(f"Pausing crawler for {pause_crawler.time} seconds|Reason: {pause_crawler.reason}")
                 await asyncio.sleep(pause_crawler.time)
                 break
 
@@ -286,7 +290,7 @@ class CrawlerRunner(JobBase):
             crawler_queue=await self.crawler_queue.get_info(),
             crawled_queue=await self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
-            requests_remade=self._requests_info["ReMakeRequest"],
+            requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=self.parse_queue_manager.get_info(),
             running_time=str(running_time),

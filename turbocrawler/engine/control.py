@@ -1,23 +1,39 @@
-class ReMakeRequest(Exception):
-    def __init__(self, retries):
+class BaseControl(Exception):
+    def __init__(self, reason):
+        self.reason = reason
+
+class RetryRequest(BaseControl):
+    """
+    Raises to remake the current request
+    """
+    def __init__(self, reason: str, retries: int = 0, stop_crawler: bool = True):
+        super().__init__(reason)
         self.retries = retries
+        self.stop_crawler = stop_crawler
 
 
-class SkipRequest(Exception):
-    def __init__(self, reason: str = None):
-        self.reason = reason
+
+class SkipRequest(BaseControl):
+    """
+    Raises to skip the current request and move on to the next one
+    """
+    ...
 
 
-class StopCrawler(Exception):
-    def __init__(self, reason: str = None, error: bool = True):
+class StopCrawler(BaseControl):
+    """
+    Raises to stop the crawler process immediately
+    """
+    def __init__(self, reason: str, error: bool = True):
+        super().__init__(reason)
         self.error = error
-        self.reason = reason
 
 
-class PauseCrawler(Exception):
+class PauseCrawler(BaseControl):
     """
     Raises to stop the crawler process for some time
     """
 
-    def __init__(self, time: int):
+    def __init__(self, reason: str, time: int):
+        super().__init__(reason)
         self.time = time

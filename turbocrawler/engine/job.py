@@ -24,12 +24,14 @@ class JobBase(ABC):
         logger.info(f"{self.name} --- Start ---")
         try:
             logger.info(f"Calling {self.name}.run")
-            await self.run()
+            response = await self.run()
             self.job_success()
         except Exception as e:
             self.job_error(exception=e)
+            response = None
 
         logger.info(f"{self.name} --- END took:{self.running_time()} ---")
+        return response
 
     def job_success(self):
         logger.info(f"{self.name} --- Success ---")

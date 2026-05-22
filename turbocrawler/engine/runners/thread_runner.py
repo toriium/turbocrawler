@@ -3,7 +3,7 @@ from datetime import datetime
 
 from turbocrawler import CrawlerRunner
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
-from turbocrawler.engine.control import ReMakeRequest, SkipRequest
+from turbocrawler.engine.control import RetryRequest, SkipRequest
 from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest
 from turbocrawler.engine.data_types.info import RunningInfo
@@ -62,8 +62,8 @@ class ThreadCrawlerRunner(CrawlerRunner):
                 )
                 self._requests_info["Made"] += 1
                 break
-            except ReMakeRequest as error:
-                self._requests_info["ReMakeRequest"] += 1
+            except RetryRequest as error:
+                self._requests_info["RetryRequest"] += 1
                 request_retries += 1
                 error_retries = error.retries
                 if request_retries >= error_retries:
@@ -80,7 +80,7 @@ class ThreadCrawlerRunner(CrawlerRunner):
             crawler_queue=self.crawler_queue.get_info(),
             crawled_queue=self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
-            requests_remade=self._requests_info["ReMakeRequest"],
+            requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=None,
             running_time=str(running_time),
