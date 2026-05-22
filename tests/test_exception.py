@@ -7,7 +7,7 @@ class CrawlerWithException(Crawler):
     crawler_name = "CrawlerWithException"
 
     async def start_crawler(self) -> None:
-        self.fake_method() # Will raise an exception
+        self.fake_method()  # Will raise an exception
 
     async def schedule_requests(self) -> None:
         return None
@@ -21,4 +21,3 @@ class CrawlerWithException(Crawler):
 
 if __name__ == "__main__":
     asyncio.run(CrawlerRunner(crawler=CrawlerWithException, cli_kwargs={}).start())
-    

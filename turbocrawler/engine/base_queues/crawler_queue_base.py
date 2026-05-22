@@ -13,7 +13,7 @@ class CrawlerQueueABC(ABC):
         if crawled_queue is None:
             crawled_queue = MemoryCrawledQueue(crawler_name=self.crawler_name)
         self.crawled_queue = crawled_queue
-        self.__urls_scheduled: list[str] = [] # Prevents scheduling the same URL again before it's crawled
+        self.__urls_scheduled: list[str] = []  # Prevents scheduling the same URL again before it's crawled
         self.__info = CrawlerQueueInfo(add=0, get=0, length=0)
 
     @abstractmethod
@@ -107,7 +107,7 @@ class CrawlerQueueABC(ABC):
     async def stop_crawler(self, execution_info: ExecutionInfo):
         """
         Triggers when the stop crawler process is executed
-        
+
         Parameters:
             execution_info (ExecutionInfo): The execution info of the crawler
         Returns:

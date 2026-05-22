@@ -8,6 +8,7 @@ from turbocrawler.queues.crawler_queues import FIFOMemoryCrawlerQueue
 def crawler_queue() -> FIFOMemoryCrawlerQueue:
     return FIFOMemoryCrawlerQueue(crawler_name="TestCrawler")
 
+
 async def test_queue_add_different_urls(crawler_queue):
     urls = [f"http://example.com/{i}" for i in range(2)]
 
@@ -17,6 +18,7 @@ async def test_queue_add_different_urls(crawler_queue):
     # Assert queue state
     assert len(crawler_queue) == len(urls)
     assert crawler_queue.urls_scheduled() == urls
+
 
 async def test_queue_add_same_url(crawler_queue):
     url = "http://example.com"
@@ -28,6 +30,7 @@ async def test_queue_add_same_url(crawler_queue):
     assert len(crawler_queue) == 1
     assert crawler_queue.urls_scheduled() == [url]
 
+
 async def test_queue_add_different_urls_verify_crawled_false(crawler_queue):
     urls = [f"http://example.com/{i}" for i in range(2)]
 
@@ -37,6 +40,7 @@ async def test_queue_add_different_urls_verify_crawled_false(crawler_queue):
     # Assert queue state
     assert len(crawler_queue) == len(urls)
     assert crawler_queue.urls_scheduled() == urls
+
 
 async def test_queue_add_same_url_verify_crawled_false(crawler_queue):
     url = "http://example.com"
@@ -48,9 +52,11 @@ async def test_queue_add_same_url_verify_crawled_false(crawler_queue):
     assert len(crawler_queue) == 5
     assert crawler_queue.urls_scheduled() == [url] * 5
 
+
 async def test_queue_get_empty(crawler_queue):
     result = await crawler_queue.get()
     assert result is None
+
 
 async def test_queue_get(crawler_queue):
     url = "http://example.com"
@@ -62,6 +68,7 @@ async def test_queue_get(crawler_queue):
     # Assert queue state
     assert len(crawler_queue) == 0
     assert crawler_queue.urls_scheduled() == []
+
 
 async def test_queue_get_different_urls(crawler_queue):
     urls = [f"http://example.com/{i}" for i in range(3)]
@@ -76,6 +83,7 @@ async def test_queue_get_different_urls(crawler_queue):
     # Assert queue state
     assert len(crawler_queue) == 0
     assert crawler_queue.urls_scheduled() == []
+
 
 async def test_queue_get_same_url(crawler_queue):
     url = "http://example.com"
@@ -93,6 +101,7 @@ async def test_queue_get_same_url(crawler_queue):
     # Assert queue state
     assert len(crawler_queue) == 0
     assert crawler_queue.urls_scheduled() == []
+
 
 async def test_queue_get_same_url_verify_crawled_false(crawler_queue):
     url = "http://example.com"
