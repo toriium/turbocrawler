@@ -28,6 +28,7 @@ class CrawlerRequest:
 class CrawlerResponse:
     url: str
     body: str
+    json: dict | None = None
     status_code: int = 200
     headers: dict = field(default_factory=dict)
     cookies: dict = field(default_factory=dict)
