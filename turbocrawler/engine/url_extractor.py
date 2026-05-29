@@ -8,11 +8,11 @@ from turbocrawler.engine.data_types.crawler import ExtractRule
 class UrlExtractor:
     @classmethod
     def get_urls(
-        cls, site_current_url: str, html_body: str, allowed_domains: list[str], extract_rules: list[ExtractRule] = None
+        cls, site_current_url: str, html_text: str, allowed_domains: list[str], extract_rules: list[ExtractRule] = None
     ):
         site_current_domain = cls.get_url_domain(site_current_url)
 
-        hrefs_in_html = cls.extract_hrefs_from_html(html_body=html_body)
+        hrefs_in_html = cls.extract_hrefs_from_html(html_text=html_text)
         urls = cls.transform_hrefs(site_current_domain=site_current_domain, hrefs=hrefs_in_html)
         urls = cls.validate_urls_with_allowed_domains(urls=urls, allowed_domains=allowed_domains)
 
@@ -54,9 +54,9 @@ class UrlExtractor:
         return transformed_urls
 
     @staticmethod
-    def extract_hrefs_from_html(html_body: str) -> set[str] | None:
+    def extract_hrefs_from_html(html_text: str) -> set[str] | None:
         hrefs_in_html = set()
-        selector = LexborHTMLParser(html_body)
+        selector = LexborHTMLParser(html_text)
         hrefs_elements = selector.css("a[href]")
         for href_el in hrefs_elements:
             hrefs_in_html.add(href_el.attributes["href"])

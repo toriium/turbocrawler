@@ -15,11 +15,11 @@ Repository = "https://github.com/toriium/turbocrawler"
 
 [dependency-groups]
 dev = [
-    "requests",
     "ruff",
     "pydantic",
     "pytest>=9.0.3",
     "anyio>=4.13.0",
+    "httpx>=0.28.1",
 ]
 
 [tool.ruff]

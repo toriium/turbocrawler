@@ -1,3 +1,4 @@
+import json
 import re
 from dataclasses import dataclass, field
 
@@ -27,13 +28,18 @@ class CrawlerRequest:
 @dataclass(slots=True)
 class CrawlerResponse:
     url: str
-    body: str
-    json: dict | None = None
+    text: str
     status_code: int = 200
     headers: dict = field(default_factory=dict)
     cookies: dict = field(default_factory=dict)
     kwargs: dict = field(default_factory=dict)
     settings: Settings = field(default_factory=Settings)
+
+    def json(self, **kwargs) -> dict | list | None:
+        try:
+            return json.loads(self.text, **kwargs)
+        except json.decoder.JSONDecodeError:
+            return None
 
 
 @dataclass(slots=True)

@@ -235,13 +235,13 @@ class CrawlerRunner(JobBase):
         if self.crawler.regex_extract_rules[0] == "*":
             urls_to_extract = UrlExtractor.get_urls(
                 site_current_url=crawler_response.url,
-                html_body=crawler_response.body,
+                html_text=crawler_response.text,
                 allowed_domains=self.crawler.allowed_domains,
             )
         else:
             urls_to_extract = UrlExtractor.get_urls(
                 site_current_url=crawler_response.url,
-                html_body=crawler_response.body,
+                html_text=crawler_response.text,
                 extract_rules=self.crawler.regex_extract_rules,
                 allowed_domains=self.crawler.allowed_domains,
             )
