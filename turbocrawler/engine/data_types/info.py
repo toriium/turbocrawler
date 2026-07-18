@@ -31,6 +31,7 @@ class CrawledQueueInfo(TypedDict):
 
 
 class RunningInfo(TypedDict):
+    crawler_name: str
     crawler_queue: CrawlerQueueInfo
     crawled_queue: CrawledQueueInfo
     requests_made: int

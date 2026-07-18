@@ -287,6 +287,7 @@ class CrawlerRunner(JobBase):
     async def _get_running_info(self) -> RunningInfo:
         running_time = self.running_time()
         return RunningInfo(
+            crawler_name=self.crawler.crawler_name,
             crawler_queue=await self.crawler_queue.get_info(),
             crawled_queue=await self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
