@@ -1,6 +1,4 @@
 import os
-from datetime import datetime
-from uuid import uuid4
 
 
 def create_file_path(file_path: str):

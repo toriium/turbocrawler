@@ -38,7 +38,7 @@ class CrawlerRunner(JobBase):
         self._requests_info = {"Made": 0, "RetryRequest": 0, "SkipRequest": 0}
         self.parse_queue_manager: WorkerQueueManager
 
-    async def _initialize_runner_dependencies(self):
+    async def _initialize_runner_dependencies(self) -> None:
         logger.create_file_handler(directory=self._crawler_type.crawler_name, filename=self._running_id)
 
         logger.info(f"crawler cli_kwargs: {self.cli_kwargs}")
@@ -102,11 +102,11 @@ class CrawlerRunner(JobBase):
         except Exception as e:
             return await self._call_all_stop_crawler(exception=e)
 
-    async def _stop_workers(self):
+    async def _stop_workers(self) -> None:
         if not self.parse_queue_manager.stopped:
             self.parse_queue_manager.stop_workers()
 
-    async def _call_all_start_crawler(self):
+    async def _call_all_start_crawler(self) -> None:
         logger.info(f"Calling {self.crawler.crawler_name}.start_crawler")
 
         start_crawler_objs: list[Plugin | Crawler | CrawledQueueABC] = [
@@ -157,13 +157,13 @@ class CrawlerRunner(JobBase):
         logger.info(f"Execution info\n{formatted_info}", extra={"json": execution_info})
         return execution_info
 
-    async def _call_schedule_requests(self):
+    async def _call_schedule_requests(self) -> None:
         logger.info(f"Calling {self.crawler.crawler_name}.schedule_requests")
         for plugin in self.plugins:
             await plugin.schedule_requests()
         await self.crawler.schedule_requests()
 
-    async def _start_crawler_queue_loop(self):
+    async def _start_crawler_queue_loop(self) -> bool:
         logger.info("Processing crawler queue")
         while True:
             await self._log_info()
@@ -173,37 +173,49 @@ class CrawlerRunner(JobBase):
             else:
                 logger.info("Crawler queue is empty, all crawler_requests made")
                 await self._stop_workers()
-                return True
+                break
+        return True
 
-    async def _make_request(self, crawler_request: CrawlerRequest):
+    async def _make_request(self, crawler_request: CrawlerRequest) -> None:
         logger.debug(f"[process_request] URL: {crawler_request.url}")
         request_retries = 0
         while True:
             try:
                 wait_time = random.uniform(*self.crawler.time_between_requests)
                 await asyncio.sleep(wait_time)
-                crawler_response: CrawlerResponse = None
+                crawler_response: CrawlerResponse
 
                 # call all process_request
                 process_request_objs: list[Plugin | Crawler] = [*self.plugins, self.crawler]
-                for plugin in process_request_objs:
-                    func_return = await plugin.process_request(crawler_request=crawler_request)
+                for obj in process_request_objs:
+                    if isinstance(obj, Crawler):
+                        process_request_function = getattr(self.crawler, crawler_request.process_request_function)
+                    else:
+                        process_request_function = obj.process_request
+
+                    func_return = await process_request_function(crawler_request=crawler_request)
                     if isinstance(func_return, CrawlerResponse):
                         crawler_response = func_return
                         break
                 else:
                     raise StopCrawler(
-                        reason=f"Inside Crawler or Plugin process_request function must return a CrawlerResponse",
-                        error=True
+                        reason="Inside Crawler or Plugin process_request function must return a CrawlerResponse",
+                        error=True,
                     )
 
                 # call all process_response
                 process_response_objs: list[Plugin | Crawler] = [*self.plugins, self.crawler]
                 for obj in process_response_objs:
-                    await obj.process_response(crawler_request, crawler_response)
+                    if isinstance(obj, Crawler):
+                        process_response_function = getattr(self.crawler, crawler_request.process_response_function)
+                    else:
+                        process_response_function = obj.process_response
+                    await process_response_function(crawler_request=crawler_request, crawler_response=crawler_response)
 
+                # Call parse function
                 if crawler_response.settings.parse_response:
-                    await self.crawler.parse(crawler_request=crawler_request, crawler_response=crawler_response)
+                    parse_function = getattr(self.crawler, crawler_request.parse_function)
+                    await parse_function(crawler_request=crawler_request, crawler_response=crawler_response)
                 if crawler_response.settings.automatic_schedule:
                     await self._add_urls_to_queue(crawler_response=crawler_response)
 
@@ -255,7 +267,7 @@ class CrawlerRunner(JobBase):
             )
             await self.crawler_queue.add(crawler_request=crawler_request)
 
-    def _compile_regex(self):
+    def _compile_regex(self) -> None:
         for i, extract_rule in enumerate(self.crawler.regex_extract_rules):
             raw_regex = extract_rule.regex
             if not isinstance(raw_regex, re.Pattern):
@@ -271,12 +283,13 @@ class CrawlerRunner(JobBase):
     async def _login(self) -> LoggedData:
         logger.info(f"Calling {self.crawler.crawler_name}.login")
         self.crawler.logged_data = await self.crawler.login()
+        return self.crawler.logged_data
 
-    async def _save_all(self):
+    async def _save_all(self) -> None:
         logger.info(f"Calling {self.crawler.crawler_name}.save_all")
         await self.crawler.save_all()
 
-    async def _remove_crawled(self):
+    async def _remove_crawled(self) -> None:
         extract_rules_remove_crawled = [
             extract_rule for extract_rule in self.crawler.regex_extract_rules if extract_rule.remove_crawled
         ]
@@ -298,7 +311,7 @@ class CrawlerRunner(JobBase):
             running_id=self._running_id,
         )
 
-    async def _log_info(self):
+    async def _log_info(self) -> None:
         have_passed_time = self._last_info_log_time + timedelta(minutes=1) < datetime.now()
         if have_passed_time:
             self._last_info_log_time = datetime.now()

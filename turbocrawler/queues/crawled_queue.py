@@ -2,8 +2,8 @@ import os
 
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.data_types.crawler import ExtractRule
-from turbocrawler.utils import create_file_path
 from turbocrawler.logger import logger
+from turbocrawler.utils import create_file_path
 
 
 class TextCrawledQueue(CrawledQueueABC):

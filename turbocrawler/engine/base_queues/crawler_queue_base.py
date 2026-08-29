@@ -27,6 +27,7 @@ class CrawlerQueueABC(ABC):
     async def get(self) -> CrawlerRequest | None:
         """
         Retrieves a crawler request from the queue.
+        Removes the URL from the scheduled list and adds it to the crawled queue.
 
         Returns:
             CrawlerRequest | None: The crawler request or None if the queue is empty.

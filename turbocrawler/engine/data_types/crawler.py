@@ -23,6 +23,9 @@ class CrawlerRequest:
     headers: dict = field(default_factory=dict)
     cookies: dict = field(default_factory=dict)
     kwargs: dict = field(default_factory=dict)
+    process_request_function: str = "process_request"
+    process_response_function: str = "process_response"
+    parse_function: str = "parse"
 
 
 @dataclass(slots=True)

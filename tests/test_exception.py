@@ -1,6 +1,6 @@
 import asyncio
 
-from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo, ExtractRule
+from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo
 
 
 class CrawlerWithException(Crawler):
