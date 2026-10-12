@@ -25,5 +25,5 @@ class Plugin(ABC):
     @abstractmethod
     async def stop_crawler(self, execution_info: ExecutionInfo) -> None: ...
 
-    def log_handler(self, crawler, running_id: str) -> Handler | None:
+    def log_handler(self, crawler, run_id: str) -> Handler | None:
         return None

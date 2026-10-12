@@ -6,17 +6,17 @@ from uuid import uuid4
 from turbocrawler.logger import logger
 
 
-def get_running_id() -> str:
+def get_run_id() -> str:
     now = datetime.now()
-    f_date = now.strftime("%Y%m%d_%H%M%S")
-    return f"{f_date}_{uuid4().hex[-5:]}"
+    now_str = now.strftime("%Y%m%dT%H%M%S")
+    return f"{now_str}_{uuid4().hex[:6]}"
 
 
 class JobBase(ABC):
     name: str
 
     def __init__(self):
-        self._running_id = get_running_id()
+        self._run_id = get_run_id()
 
     async def start(self):
         self._start_process_time = datetime.now()

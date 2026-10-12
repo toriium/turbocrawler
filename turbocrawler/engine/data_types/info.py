@@ -39,7 +39,7 @@ class RunningInfo(TypedDict):
     requests_skipped: int
     parse_queue: WorkerQueueManagerInfo | None
     running_time: str
-    running_id: str
+    run_id: str
 
 
 class ExecutionInfo(RunningInfo):

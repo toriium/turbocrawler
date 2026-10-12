@@ -15,6 +15,7 @@ class Crawler(ABC):
     regex_extract_rules: list[ExtractRule] = []
     time_between_requests: Number | tuple[Number] = 0
 
+    run_id: str
     crawler_queue: CrawlerQueueABC
     plugins: list[Plugin]
     logger: LOG
@@ -22,7 +23,15 @@ class Crawler(ABC):
 
     logged_data: LoggedData
 
-    def __init__(self, crawler_queue: CrawlerQueueABC, plugins: list[Plugin], logger: LOG, cli_kwargs: dict[str, Any]):
+    def __init__(
+        self,
+        run_id: str,
+        crawler_queue: CrawlerQueueABC,
+        plugins: list[Plugin],
+        logger: LOG,
+        cli_kwargs: dict[str, Any],
+    ):
+        self.run_id = run_id
         self.crawler_queue = crawler_queue
         self.plugins = plugins
         self.logger = logger

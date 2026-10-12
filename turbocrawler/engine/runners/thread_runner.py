@@ -84,5 +84,5 @@ class ThreadCrawlerRunner(CrawlerRunner):
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=None,
             running_time=str(running_time),
-            running_id=self._running_id,
+            run_id=self._run_id,
         )

@@ -39,7 +39,7 @@ class CrawlerRunner(JobBase):
         self.parse_queue_manager: WorkerQueueManager
 
     async def _initialize_runner_dependencies(self) -> None:
-        logger.create_file_handler(directory=self._crawler_type.crawler_name, filename=self._running_id)
+        logger.create_file_handler(directory=self._crawler_type.crawler_name, filename=self._run_id)
 
         logger.info(f"crawler cli_kwargs: {self.cli_kwargs}")
 
@@ -62,12 +62,14 @@ class CrawlerRunner(JobBase):
 
         if self.config.plugins:
             self.plugins = self._initialize_plugins(self._crawler_type, self.config.plugins)
-            logger.create_plugins_handlers(
-                plugins=self.plugins, crawler=self._crawler_type, running_id=self._running_id
-            )
+            logger.create_plugins_handlers(plugins=self.plugins, crawler=self._crawler_type, run_id=self._run_id)
 
         self.crawler = self._crawler_type(
-            crawler_queue=self.crawler_queue, plugins=self.plugins, logger=logger, cli_kwargs=self.cli_kwargs
+            run_id=self._run_id,
+            crawler_queue=self.crawler_queue,
+            plugins=self.plugins,
+            logger=logger,
+            cli_kwargs=self.cli_kwargs,
         )
         self._compile_regex()
 
@@ -308,7 +310,7 @@ class CrawlerRunner(JobBase):
             requests_skipped=self._requests_info["SkipRequest"],
             parse_queue=self.parse_queue_manager.get_info(),
             running_time=str(running_time),
-            running_id=self._running_id,
+            run_id=self._run_id,
         )
 
     async def _log_info(self) -> None:
