@@ -59,6 +59,8 @@ class CrawlerRunner(JobBase):
 
         self.crawler = self._crawler_type(
             run_id=self._run_id,
+            run_dir=self._run_dir,
+            log_path=self._log_path,
             crawler_queue=self.crawler_queue,
             logger=logger,
             cli_kwargs=self.cli_kwargs,
@@ -267,6 +269,7 @@ class CrawlerRunner(JobBase):
             running_time=self.running_time(),
             start_time=self._start_process_time,
             run_id=self._run_id,
+            run_dir=self._run_dir,
             log_path=self._log_path,
         )
 

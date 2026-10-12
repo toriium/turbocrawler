@@ -50,9 +50,8 @@ class JobBase(ABC):
         return response
 
     def _create_file_handler(self) -> logging.FileHandler:
-        self._log_path = (
-            Path.cwd() / "turbocrawler_logs" / (self.log_dir_name or self.name) / self._run_id / "execution.log"
-        )
+        self._run_dir = Path.cwd() / "turbocrawler_logs" / (self.log_dir_name or self.name) / self._run_id
+        self._log_path = self._run_dir / "execution.log"
         create_file_path(self._log_path)
         file_handler = logging.FileHandler(self._log_path, mode="w")
         file_handler.setFormatter(formatter)

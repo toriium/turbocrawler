@@ -20,6 +20,7 @@ class CrawledQueueInfo:
 class RunningInfo:
     crawler_name: str
     run_id: str
+    run_dir: Path
     log_path: Path
     crawler_queue: CrawlerQueueInfo
     crawled_queue: CrawledQueueInfo

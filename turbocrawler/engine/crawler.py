@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from numbers import Number
+from pathlib import Path
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
@@ -15,6 +16,8 @@ class Crawler(ABC):
     time_between_requests: Number | tuple[Number] = 0
 
     run_id: str
+    run_dir: Path
+    log_path: Path
     crawler_queue: CrawlerQueueABC
     logger: logging.Logger
     cli_kwargs: dict[str, Any]
@@ -24,11 +27,15 @@ class Crawler(ABC):
     def __init__(
         self,
         run_id: str,
+        run_dir: Path,
+        log_path: Path,
         crawler_queue: CrawlerQueueABC,
         logger: logging.Logger,
         cli_kwargs: dict[str, Any],
     ):
         self.run_id = run_id
+        self.run_dir = run_dir
+        self.log_path = log_path
         self.crawler_queue = crawler_queue
         self.logger = logger
         self.cli_kwargs = cli_kwargs
