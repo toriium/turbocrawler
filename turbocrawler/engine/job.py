@@ -17,6 +17,7 @@ class JobBase(ABC):
 
     def __init__(self):
         self._run_id = get_run_id()
+        self.logger = logger
 
     async def start(self):
         self._start_process_time = datetime.now()
