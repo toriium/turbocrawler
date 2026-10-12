@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from turbocrawler.engine.data_types.crawler import ExtractRule
 from turbocrawler.engine.data_types.info import CrawledQueueInfo, ExecutionInfo
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("turbocrawler")
 
 
 class CrawledQueueABC(ABC):

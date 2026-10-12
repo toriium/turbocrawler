@@ -8,7 +8,7 @@ from uuid import uuid4
 from turbocrawler.logger import RunIdFilter, formatter, run_id_var
 from turbocrawler.utils import create_file_path
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("turbocrawler")
 
 
 def get_run_id() -> str:
@@ -29,12 +29,16 @@ class JobBase(ABC):
         self._log_handlers = []
         self.logger = logger
 
-    async def start(self):
-        self._start_process_time = datetime.now()
+    async def start(self, log_level: int = logging.INFO):
+        # Define logging for this job run
+        logging.getLogger("turbocrawler").setLevel(log_level)
         run_id_token = run_id_var.set(self._run_id)
         self._log_handlers.append(self._create_file_handler())
 
         logger.info(f"[Job] {self.name} --- Start ---")
+
+        self._start_process_time = datetime.now()
+        
         response = None
         try:
             logger.info(f"[Job] Calling {self.name}.run")

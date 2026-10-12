@@ -6,7 +6,7 @@ from turbocrawler.engine.data_types.crawler import CrawlerRequest
 from turbocrawler.engine.data_types.info import CrawlerQueueInfo, ExecutionInfo
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("turbocrawler")
 
 
 class CrawlerQueueABC(ABC):

@@ -15,7 +15,7 @@ from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.job import JobBase
 from turbocrawler.engine.url_extractor import UrlExtractor
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("turbocrawler")
 
 
 class CrawlerRunner(JobBase):
