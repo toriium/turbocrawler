@@ -14,7 +14,6 @@ from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.job import JobBase
 from turbocrawler.engine.plugin import Plugin
 from turbocrawler.engine.url_extractor import UrlExtractor
-from turbocrawler.engine.worker_queues import WorkerQueueManager
 from turbocrawler.logger import logger
 
 
@@ -37,7 +36,6 @@ class CrawlerRunner(JobBase):
         self.plugins: list[Plugin] = []
 
         self._requests_info = {"Made": 0, "RetryRequest": 0, "SkipRequest": 0}
-        self.parse_queue_manager: WorkerQueueManager
 
     async def _initialize_runner_dependencies(self) -> None:
         logger.info(f"crawler cli_kwargs: {self.cli_kwargs}")
@@ -74,17 +72,8 @@ class CrawlerRunner(JobBase):
         )
         self._compile_regex()
 
-        self.parse_queue_manager = WorkerQueueManager(
-            queue_name="parse_queue",
-            class_object=self.crawler,
-            target=self.crawler.parse,
-            qtd_workers=self.config.qtd_parse,
-        )
-
     async def run(self) -> ExecutionInfo:
         await self._initialize_runner_dependencies()
-
-        self.parse_queue_manager.start_workers()
 
         try:
             await self._call_all_start_crawler()
@@ -105,10 +94,6 @@ class CrawlerRunner(JobBase):
         except Exception as e:
             return await self._call_all_stop_crawler(exception=e)
 
-    async def _stop_workers(self) -> None:
-        if not self.parse_queue_manager.stopped:
-            self.parse_queue_manager.stop_workers()
-
     async def _call_all_start_crawler(self) -> None:
         logger.info(f"Calling {self.crawler.crawler_name}.start_crawler")
 
@@ -126,8 +111,6 @@ class CrawlerRunner(JobBase):
         forced_stop = False
         error = False
         reason = ""
-
-        await self._stop_workers()
 
         if exception:
             forced_stop = True
@@ -175,7 +158,6 @@ class CrawlerRunner(JobBase):
                 await self._make_request(crawler_request=next_crawler_request)
             else:
                 logger.info("Crawler queue is empty, all crawler_requests made")
-                await self._stop_workers()
                 break
         return True
 
@@ -309,7 +291,7 @@ class CrawlerRunner(JobBase):
             requests_made=self._requests_info["Made"],
             requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
-            parse_queue=self.parse_queue_manager.get_info(),
+            parse_queue=None,
             running_time=str(running_time),
             run_id=self._run_id,
         )
