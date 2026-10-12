@@ -1,38 +1,25 @@
 import logging
-
-from turbocrawler.utils import create_file_path
+from contextvars import ContextVar
 
 formatter = logging.Formatter("%(asctime)s|%(levelname)s| %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
-
-class LOG(logging.Logger):
-    def create_plugins_handlers(self, plugins: list, crawler, run_id: str) -> list[logging.Handler]:
-        handlers = []
-        for plugin in plugins:
-            plugin_handler = plugin.log_handler(crawler=crawler, run_id=run_id)
-            if plugin_handler is not None:
-                plugin_handler.setFormatter(formatter)
-                self.addHandler(plugin_handler)
-                handlers.append(plugin_handler)
-        return handlers
-
-    def create_console_handler(self):
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.addHandler(console_handler)
-
-    def create_file_handler(self, path: str) -> logging.FileHandler:
-        create_file_path(path)
-        file_handler = logging.FileHandler(path, mode="w")
-        file_handler.setFormatter(formatter)
-        self.addHandler(file_handler)
-        return file_handler
-
-    def remove_handler(self, handler: logging.Handler):
-        self.removeHandler(handler)
-        handler.close()
+run_id_var: ContextVar[str | None] = ContextVar("run_id", default=None)
 
 
-logger = LOG("turbocrawler")
-logger.setLevel(logging.INFO)
-logger.create_console_handler()
+class RunIdFilter(logging.Filter):
+    """Only lets through records logged inside the run with this run_id"""
+
+    def __init__(self, run_id: str):
+        super().__init__()
+        self.run_id = run_id
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return run_id_var.get() == self.run_id
+
+
+_console_handler = logging.StreamHandler()
+_console_handler.setFormatter(formatter)
+
+_base_logger = logging.getLogger("turbocrawler")
+_base_logger.setLevel(logging.INFO)
+_base_logger.addHandler(_console_handler)

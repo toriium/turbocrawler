@@ -1,10 +1,14 @@
+import logging
 import os
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
 from uuid import uuid4
 
-from turbocrawler.logger import logger
+from turbocrawler.logger import RunIdFilter, formatter, run_id_var
+from turbocrawler.utils import create_file_path
+
+logger = logging.getLogger(__name__)
 
 
 def get_run_id() -> str:
@@ -24,8 +28,8 @@ class JobBase(ABC):
 
     async def start(self):
         self._start_process_time = datetime.now()
-        log_path = f"{os.getcwd()}/turbocrawler_logs/{self.log_dir_name or self.name}/{self._run_id}/execution.log"
-        self._log_handlers.append(logger.create_file_handler(log_path))
+        run_id_token = run_id_var.set(self._run_id)
+        self._log_handlers.append(self._create_file_handler())
 
         logger.info(f"{self.name} --- Start ---")
         response = None
@@ -38,10 +42,21 @@ class JobBase(ABC):
         finally:
             logger.info(f"{self.name} --- END took:{self.running_time()} ---")
             for handler in self._log_handlers:
-                logger.remove_handler(handler)
+                logging.getLogger("turbocrawler").removeHandler(handler)
+                handler.close()
             self._log_handlers = []
+            run_id_var.reset(run_id_token)
 
         return response
+
+    def _create_file_handler(self) -> logging.FileHandler:
+        log_path = f"{os.getcwd()}/turbocrawler_logs/{self.log_dir_name or self.name}/{self._run_id}/execution.log"
+        create_file_path(log_path)
+        file_handler = logging.FileHandler(log_path, mode="w")
+        file_handler.setFormatter(formatter)
+        file_handler.addFilter(RunIdFilter(self._run_id))
+        logging.getLogger("turbocrawler").addHandler(file_handler)
+        return file_handler
 
     def job_success(self):
         logger.info(f"{self.name} --- Success ---")

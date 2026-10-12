@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from numbers import Number
 from typing import Any
@@ -6,7 +7,6 @@ from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, LoggedData
 from turbocrawler.engine.data_types.info import ExecutionInfo
 from turbocrawler.engine.plugin import Plugin
-from turbocrawler.logger import LOG
 
 
 class Crawler(ABC):
@@ -18,7 +18,7 @@ class Crawler(ABC):
     run_id: str
     crawler_queue: CrawlerQueueABC
     plugins: list[Plugin]
-    logger: LOG
+    logger: logging.Logger
     cli_kwargs: dict[str, Any]
 
     logged_data: LoggedData
@@ -28,7 +28,7 @@ class Crawler(ABC):
         run_id: str,
         crawler_queue: CrawlerQueueABC,
         plugins: list[Plugin],
-        logger: LOG,
+        logger: logging.Logger,
         cli_kwargs: dict[str, Any],
     ):
         self.run_id = run_id

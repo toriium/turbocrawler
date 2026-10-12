@@ -1,7 +1,9 @@
 import re
 import asyncio
+import logging
 from turbocrawler.engine.job import get_run_id, JobBase
-from turbocrawler.logger import logger
+
+logger = logging.getLogger("turbocrawler")
 
 
 def test_get_run_id_format():
@@ -72,3 +74,25 @@ def test_log_dir_name_overrides_name(tmp_path, monkeypatch):
     asyncio.run(job.start())
 
     assert (tmp_path / "turbocrawler_logs" / "custom_dir" / job._run_id / "execution.log").exists()
+
+
+def test_parallel_runs_have_isolated_logs(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    handlers_before = list(logger.handlers)
+    success_job = SuccessJob()
+    error_job = ErrorJob()
+
+    async def run_both():
+        await asyncio.gather(success_job.start(), error_job.start())
+
+    asyncio.run(run_both())
+    assert logger.handlers == handlers_before
+
+    success_log = (tmp_path / "turbocrawler_logs" / "SuccessJob" / success_job._run_id / "execution.log").read_text()
+    error_log = (tmp_path / "turbocrawler_logs" / "ErrorJob" / error_job._run_id / "execution.log").read_text()
+
+    assert "Finished running SuccessJob" in success_log
+    assert "ErrorJob" not in success_log
+
+    assert "Finished running ErrorJob" in error_log
+    assert "SuccessJob" not in error_log

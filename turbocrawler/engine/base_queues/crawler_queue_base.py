@@ -1,10 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
 
 from turbocrawler.engine.base_queues.crawled_queue_base import CrawledQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest
 from turbocrawler.engine.data_types.info import CrawlerQueueInfo, ExecutionInfo
-from turbocrawler.logger import logger
 from turbocrawler.queues.crawled_queue import MemoryCrawledQueue
+
+logger = logging.getLogger(__name__)
 
 
 class CrawlerQueueABC(ABC):
@@ -19,6 +21,9 @@ class CrawlerQueueABC(ABC):
     @abstractmethod
     def __len__(self):
         pass
+
+    async def start_crawler(self):
+        logger.info(f"Calling {self.__class__.__name__}.start_crawler")
 
     async def get_info(self) -> CrawlerQueueInfo:
         """Returns the current state of the queue"""

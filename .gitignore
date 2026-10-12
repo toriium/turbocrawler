@@ -7,3 +7,4 @@ crawler_logs
 *crawled_queue.txt
 turbocrawler_logs/
 .claude
+quotes.json
