@@ -6,7 +6,6 @@ from typing import Any
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, LoggedData
 from turbocrawler.engine.data_types.info import ExecutionInfo
-from turbocrawler.engine.plugin import Plugin
 
 
 class Crawler(ABC):
@@ -17,7 +16,6 @@ class Crawler(ABC):
 
     run_id: str
     crawler_queue: CrawlerQueueABC
-    plugins: list[Plugin]
     logger: logging.Logger
     cli_kwargs: dict[str, Any]
 
@@ -27,13 +25,11 @@ class Crawler(ABC):
         self,
         run_id: str,
         crawler_queue: CrawlerQueueABC,
-        plugins: list[Plugin],
         logger: logging.Logger,
         cli_kwargs: dict[str, Any],
     ):
         self.run_id = run_id
         self.crawler_queue = crawler_queue
-        self.plugins = plugins
         self.logger = logger
         self.cli_kwargs = cli_kwargs
         if isinstance(self.time_between_requests, tuple):
@@ -70,10 +66,3 @@ class Crawler(ABC):
 
     @abstractmethod
     async def stop_crawler(self, execution_info: ExecutionInfo) -> None: ...
-
-    async def get_plugin(self, plugin_name) -> Plugin | None:
-        target_plugin = [plugin for plugin in self.plugins if plugin.__class__.__name__ == plugin_name]
-        if not target_plugin:
-            return None
-
-        return target_plugin[0]

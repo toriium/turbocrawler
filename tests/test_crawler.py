@@ -13,7 +13,6 @@ async def main():
         crawler_queue_params=None,
         crawled_queue=MemoryCrawledQueue,
         crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=False),
-        plugins=None,
     )
     result = await CrawlerRunner(crawler=QuotesToScrapeCrawler, config=config).run()
     print(result)

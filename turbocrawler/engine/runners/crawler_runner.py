@@ -13,9 +13,7 @@ from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerRespon
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
 from turbocrawler.engine.job import JobBase
-from turbocrawler.engine.plugin import Plugin
 from turbocrawler.engine.url_extractor import UrlExtractor
-from turbocrawler.logger import RunIdFilter, formatter
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +34,6 @@ class CrawlerRunner(JobBase):
         self.config = config
         self.cli_kwargs = cli_kwargs or {}
         self.crawler_queue: CrawlerQueueABC
-        self.plugins: list[Plugin] = []
 
         self._requests_info = {"Made": 0, "RetryRequest": 0, "SkipRequest": 0}
 
@@ -60,20 +57,9 @@ class CrawlerRunner(JobBase):
         self.config.crawler_queue_params["crawled_queue"] = crawled_queue
         self.crawler_queue = self.config.crawler_queue(**self.config.crawler_queue_params)
 
-        if self.config.plugins:
-            self.plugins = self._initialize_plugins(self._crawler_type, self.config.plugins)
-            for plugin in self.plugins:
-                plugin_handler = plugin.log_handler(crawler=self._crawler_type, run_id=self._run_id)
-                if plugin_handler is not None:
-                    plugin_handler.setFormatter(formatter)
-                    plugin_handler.addFilter(RunIdFilter(self._run_id))
-                    logging.getLogger("turbocrawler").addHandler(plugin_handler)
-                    self._log_handlers.append(plugin_handler)
-
         self.crawler = self._crawler_type(
             run_id=self._run_id,
             crawler_queue=self.crawler_queue,
-            plugins=self.plugins,
             logger=logger,
             cli_kwargs=self.cli_kwargs,
         )
@@ -104,8 +90,7 @@ class CrawlerRunner(JobBase):
     async def _call_all_start_crawler(self) -> None:
         logger.info(f"[Runner] Calling {self.crawler.crawler_name}.start_crawler")
 
-        start_crawler_objs: list[Plugin | Crawler | CrawledQueueABC] = [
-            *self.plugins,
+        start_crawler_objs: list[Crawler | CrawledQueueABC] = [
             self.crawler,
             self.crawler_queue,
             self.crawler_queue.crawled_queue,
@@ -138,8 +123,7 @@ class CrawlerRunner(JobBase):
             **await self._get_running_info(), exception=exception, error=error, forced_stop=forced_stop, reason=reason
         )
 
-        stop_crawler_objs: list[Plugin | Crawler | CrawledQueueABC] = [
-            *self.plugins,
+        stop_crawler_objs: list[Crawler | CrawledQueueABC] = [
             self.crawler,
             self.crawler_queue,
             self.crawler_queue.crawled_queue,
@@ -153,8 +137,6 @@ class CrawlerRunner(JobBase):
 
     async def _call_schedule_requests(self) -> None:
         logger.info(f"[Runner] Calling {self.crawler.crawler_name}.schedule_requests")
-        for plugin in self.plugins:
-            await plugin.schedule_requests()
         await self.crawler.schedule_requests()
 
     async def _start_crawler_queue_loop(self) -> bool:
@@ -174,36 +156,22 @@ class CrawlerRunner(JobBase):
         request_retries = 0
         while True:
             try:
+                # Wait for a random time between requests to avoid overloading the server
                 wait_time = random.uniform(*self.crawler.time_between_requests)
                 await asyncio.sleep(wait_time)
-                crawler_response: CrawlerResponse
 
-                # call all process_request
-                process_request_objs: list[Plugin | Crawler] = [*self.plugins, self.crawler]
-                for obj in process_request_objs:
-                    if isinstance(obj, Crawler):
-                        process_request_function = getattr(self.crawler, crawler_request.process_request_function)
-                    else:
-                        process_request_function = obj.process_request
-
-                    func_return = await process_request_function(crawler_request=crawler_request)
-                    if isinstance(func_return, CrawlerResponse):
-                        crawler_response = func_return
-                        break
-                else:
+                # Call process_request
+                process_request_function = getattr(self.crawler, crawler_request.process_request_function)
+                crawler_response = await process_request_function(crawler_request=crawler_request)
+                if not isinstance(crawler_response, CrawlerResponse):
                     raise StopCrawler(
-                        reason="Inside Crawler or Plugin process_request function must return a CrawlerResponse",
+                        reason="Inside Crawler process_request function must return a CrawlerResponse",
                         error=True,
                     )
 
-                # call all process_response
-                process_response_objs: list[Plugin | Crawler] = [*self.plugins, self.crawler]
-                for obj in process_response_objs:
-                    if isinstance(obj, Crawler):
-                        process_response_function = getattr(self.crawler, crawler_request.process_response_function)
-                    else:
-                        process_response_function = obj.process_response
-                    await process_response_function(crawler_request=crawler_request, crawler_response=crawler_response)
+                # Call process_request
+                process_response_function = getattr(self.crawler, crawler_request.process_response_function)
+                await process_response_function(crawler_request=crawler_request, crawler_response=crawler_response)
 
                 # Call parse function
                 if crawler_response.settings.parse_response:
@@ -265,13 +233,6 @@ class CrawlerRunner(JobBase):
             raw_regex = extract_rule.regex
             if not isinstance(raw_regex, re.Pattern):
                 self.crawler.regex_extract_rules[i].regex = re.compile(raw_regex)
-
-    @staticmethod
-    def _initialize_plugins(crawler: type[Crawler], plugins: list[type[Plugin]] = ()) -> list[Plugin]:
-        initialized = []
-        for plugin in plugins:
-            initialized.append(plugin(crawler=crawler))
-        return initialized
 
     async def _login(self) -> LoggedData:
         logger.info(f"[Runner] Calling {self.crawler.crawler_name}.login")
