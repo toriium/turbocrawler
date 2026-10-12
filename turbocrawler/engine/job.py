@@ -2,7 +2,7 @@ import logging
 import os
 import traceback
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 from turbocrawler.logger import RunIdFilter, formatter, run_id_var
@@ -67,7 +67,7 @@ class JobBase(ABC):
         logger.error(f"REASON: {exception_reason}")
         logger.exception("Error tracestack")
 
-    def running_time(self) -> datetime:
+    def running_time(self) -> timedelta:
         now = datetime.now()
         return now - self._start_process_time
 

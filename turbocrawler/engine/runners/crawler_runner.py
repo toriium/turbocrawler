@@ -120,7 +120,12 @@ class CrawlerRunner(JobBase):
         logger.info(f"[Runner] Calling {self.crawler.crawler_name}.stop_crawler")
 
         execution_info = ExecutionInfo(
-            **await self._get_running_info(), exception=exception, error=error, forced_stop=forced_stop, reason=reason
+            **await self._get_running_info(),
+            exception=exception,
+            error=error,
+            forced_stop=forced_stop,
+            reason=reason,
+            end_time=datetime.now(),
         )
 
         stop_crawler_objs: list[Crawler | CrawledQueueABC] = [
@@ -252,7 +257,6 @@ class CrawlerRunner(JobBase):
         )
 
     async def _get_running_info(self) -> RunningInfo:
-        running_time = self.running_time()
         return RunningInfo(
             crawler_name=self.crawler.crawler_name,
             crawler_queue=await self.crawler_queue.get_info(),
@@ -260,7 +264,8 @@ class CrawlerRunner(JobBase):
             requests_made=self._requests_info["Made"],
             requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
-            running_time=str(running_time),
+            running_time=self.running_time(),
+            start_time=self._start_process_time,
             run_id=self._run_id,
         )
 

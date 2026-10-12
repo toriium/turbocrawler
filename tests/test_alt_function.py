@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timedelta
 
 from turbocrawler import Crawler, CrawlerRequest, CrawlerResponse, CrawlerRunner, ExecutionInfo
 
@@ -76,6 +77,10 @@ async def test_default_functions_success():
     # Assert
     assert execution_info["error"] is False
     assert execution_info["reason"] == ""
+    assert isinstance(execution_info["start_time"], datetime)
+    assert isinstance(execution_info["end_time"], datetime)
+    assert execution_info["start_time"] <= execution_info["end_time"]
+    assert isinstance(execution_info["running_time"], timedelta)
 
 
 async def test_alternative_functions_success():

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import TypedDict
 
 
@@ -19,7 +20,8 @@ class RunningInfo(TypedDict):
     requests_made: int
     requests_retried: int
     requests_skipped: int
-    running_time: str
+    running_time: timedelta
+    start_time: datetime
     run_id: str
 
 
@@ -28,3 +30,4 @@ class ExecutionInfo(RunningInfo):
     forced_stop: bool
     error: bool
     reason: str
+    end_time: datetime
