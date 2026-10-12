@@ -5,5 +5,5 @@ dist/
 __pycache__
 crawler_logs
 *crawled_queue.txt
-turbocrawler_logs
+turbocrawler_logs/
 .claude
