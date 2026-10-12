@@ -15,4 +15,3 @@ class CrawlerRunnerConfig:
     crawled_queue_params: dict | None = None
 
     plugins: list[type[Plugin]] | None = ()
-    qtd_parse: int | None = 2

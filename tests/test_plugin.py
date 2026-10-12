@@ -34,6 +34,5 @@ if __name__ == "__main__":
         crawled_queue=MemoryCrawledQueue,
         crawled_queue_params=dict(save_crawled_queue=True, load_crawled_queue=False),
         plugins=[TestPlugin],
-        qtd_parse=2,
     )
     CrawlerRunner(crawler=QuotesToScrapeCrawler, config=config).run()

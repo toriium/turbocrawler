@@ -291,7 +291,6 @@ class CrawlerRunner(JobBase):
             requests_made=self._requests_info["Made"],
             requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
-            parse_queue=None,
             running_time=str(running_time),
             run_id=self._run_id,
         )
