@@ -25,6 +25,7 @@ class CrawlerRunner(JobBase):
         self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None, cli_kwargs: dict | None = None
     ):
         self._crawler_type = crawler
+        self.log_dir_name = crawler.crawler_name
         super().__init__()
 
         self._last_info_log_time = datetime.now()
@@ -39,8 +40,6 @@ class CrawlerRunner(JobBase):
         self.parse_queue_manager: WorkerQueueManager
 
     async def _initialize_runner_dependencies(self) -> None:
-        logger.create_file_handler(directory=self._crawler_type.crawler_name, filename=self._run_id)
-
         logger.info(f"crawler cli_kwargs: {self.cli_kwargs}")
 
         if self.config is None:
@@ -62,7 +61,9 @@ class CrawlerRunner(JobBase):
 
         if self.config.plugins:
             self.plugins = self._initialize_plugins(self._crawler_type, self.config.plugins)
-            logger.create_plugins_handlers(plugins=self.plugins, crawler=self._crawler_type, run_id=self._run_id)
+            self._log_handlers += logger.create_plugins_handlers(
+                plugins=self.plugins, crawler=self._crawler_type, run_id=self._run_id
+            )
 
         self.crawler = self._crawler_type(
             run_id=self._run_id,

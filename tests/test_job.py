@@ -1,6 +1,7 @@
 import re
 import asyncio
 from turbocrawler.engine.job import get_run_id, JobBase
+from turbocrawler.logger import logger
 
 
 def test_get_run_id_format():
@@ -40,3 +41,34 @@ def test_error_job_run():
         asyncio.run(error_job.start())
     except Exception as e:
         assert str(e) == "Intentional error for testing"
+
+def test_each_run_has_own_log_file(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    handlers_before = list(logger.handlers)
+
+    success_job = SuccessJob()
+    asyncio.run(success_job.start())
+    assert logger.handlers == handlers_before
+
+    error_job = ErrorJob()
+    asyncio.run(error_job.start())
+    assert logger.handlers == handlers_before
+
+    success_log = (tmp_path / "turbocrawler_logs" / "SuccessJob" / success_job._run_id / "execution.log").read_text()
+    error_log = (tmp_path / "turbocrawler_logs" / "ErrorJob" / error_job._run_id / "execution.log").read_text()
+
+    assert "SuccessJob --- Start ---" in success_log
+    assert "SuccessJob --- END" in success_log
+    assert "ErrorJob" not in success_log
+
+    assert "ErrorJob --- Error ---" in error_log
+    assert "SuccessJob" not in error_log
+
+
+def test_log_dir_name_overrides_name(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    job = SuccessJob()
+    job.log_dir_name = "custom_dir"
+    asyncio.run(job.start())
+
+    assert (tmp_path / "turbocrawler_logs" / "custom_dir" / job._run_id / "execution.log").exists()

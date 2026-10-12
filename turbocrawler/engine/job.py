@@ -1,3 +1,4 @@
+import os
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -14,24 +15,32 @@ def get_run_id() -> str:
 
 class JobBase(ABC):
     name: str
+    log_dir_name: str | None = None
+    logger = logger
 
     def __init__(self):
         self._run_id = get_run_id()
-        self.logger = logger
+        self._log_handlers = []
 
     async def start(self):
         self._start_process_time = datetime.now()
+        log_path = f"{os.getcwd()}/turbocrawler_logs/{self.log_dir_name or self.name}/{self._run_id}/execution.log"
+        self._log_handlers.append(logger.create_file_handler(log_path))
 
         logger.info(f"{self.name} --- Start ---")
+        response = None
         try:
             logger.info(f"Calling {self.name}.run")
             response = await self.run()
             self.job_success()
         except Exception as e:
             self.job_error(exception=e)
-            response = None
+        finally:
+            logger.info(f"{self.name} --- END took:{self.running_time()} ---")
+            for handler in self._log_handlers:
+                logger.remove_handler(handler)
+            self._log_handlers = []
 
-        logger.info(f"{self.name} --- END took:{self.running_time()} ---")
         return response
 
     def job_success(self):
