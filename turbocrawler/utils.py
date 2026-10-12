@@ -1,9 +1,6 @@
-import os
+from pathlib import Path
 
 
-def create_file_path(file_path: str):
-    directory = os.path.dirname(file_path)
-    os.makedirs(directory, exist_ok=True)
-    if not os.path.exists(file_path):
-        with open(file_path, "w"):
-            ...
+def create_file_path(file_path: Path):
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.touch(exist_ok=True)

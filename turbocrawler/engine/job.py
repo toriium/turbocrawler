@@ -1,8 +1,8 @@
 import logging
-import os
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
+from pathlib import Path
 from uuid import uuid4
 
 from turbocrawler.logger import RunIdFilter, formatter, run_id_var
@@ -50,9 +50,11 @@ class JobBase(ABC):
         return response
 
     def _create_file_handler(self) -> logging.FileHandler:
-        log_path = f"{os.getcwd()}/turbocrawler_logs/{self.log_dir_name or self.name}/{self._run_id}/execution.log"
-        create_file_path(log_path)
-        file_handler = logging.FileHandler(log_path, mode="w")
+        self._log_path = (
+            Path.cwd() / "turbocrawler_logs" / (self.log_dir_name or self.name) / self._run_id / "execution.log"
+        )
+        create_file_path(self._log_path)
+        file_handler = logging.FileHandler(self._log_path, mode="w")
         file_handler.setFormatter(formatter)
         file_handler.addFilter(RunIdFilter(self._run_id))
         logging.getLogger("turbocrawler").addHandler(file_handler)

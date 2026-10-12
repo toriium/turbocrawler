@@ -81,6 +81,8 @@ async def test_default_functions_success():
     assert isinstance(execution_info.end_time, datetime)
     assert execution_info.start_time <= execution_info.end_time
     assert isinstance(execution_info.running_time, timedelta)
+    assert execution_info.log_path.parts[-2:] == (execution_info.run_id, "execution.log")
+    assert execution_info.log_path.is_file()
 
 
 async def test_alternative_functions_success():

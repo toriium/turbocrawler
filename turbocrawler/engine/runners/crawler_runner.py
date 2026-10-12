@@ -267,6 +267,7 @@ class CrawlerRunner(JobBase):
             running_time=self.running_time(),
             start_time=self._start_process_time,
             run_id=self._run_id,
+            log_path=self._log_path,
         )
 
     async def _log_info(self) -> None:

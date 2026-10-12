@@ -1,13 +1,13 @@
 import json
-import os
 from datetime import datetime
+from pathlib import Path
 
 
 class JsonFileMaker:
     def __init__(self, crawler_name: str):
         self.crawler_name = crawler_name
         self.__jsons_dir_name = "jsons_data"
-        self.__jsons_dir_path = f"{os.getcwd()}/{self.__jsons_dir_name}"
+        self.__jsons_dir_path = Path.cwd() / self.__jsons_dir_name
         self.__file_name = None
         self.__json_file_path = None
         self.__json_today_dir = None
@@ -18,20 +18,18 @@ class JsonFileMaker:
         time_now = datetime_now.time().strftime("%H_%M_%S_%f")
 
         self.__file_name = f"{time_now}.json"
-        self.__json_today_dir = f"{self.__jsons_dir_path}/{self.crawler_name}/{date_today}"
-        self.__json_file_path = f"{self.__json_today_dir}/{self.__file_name}"
+        self.__json_today_dir = self.__jsons_dir_path / self.crawler_name / date_today
+        self.__json_file_path = self.__json_today_dir / self.__file_name
 
         self.__create_file_path()
 
         self.__create_json_file(json_data=json_data, file_path=self.__json_file_path)
 
     def __create_file_path(self):
-        os.makedirs(self.__json_today_dir, exist_ok=True)
-        if not os.path.exists(self.__json_file_path):
-            with open(self.__json_file_path, "w"):
-                ...
+        self.__json_today_dir.mkdir(parents=True, exist_ok=True)
+        self.__json_file_path.touch(exist_ok=True)
 
     @staticmethod
-    def __create_json_file(json_data: dict, file_path: str):
+    def __create_json_file(json_data: dict, file_path: Path):
         with open(file_path, "w") as file:
             json.dump(json_data, file)

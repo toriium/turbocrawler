@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from pathlib import Path
 
 
 @dataclass
@@ -18,6 +19,8 @@ class CrawledQueueInfo:
 @dataclass
 class RunningInfo:
     crawler_name: str
+    run_id: str
+    log_path: Path
     crawler_queue: CrawlerQueueInfo
     crawled_queue: CrawledQueueInfo
     requests_made: int
@@ -25,7 +28,6 @@ class RunningInfo:
     requests_skipped: int
     running_time: timedelta
     start_time: datetime
-    run_id: str
 
 
 @dataclass
