@@ -18,29 +18,32 @@ def get_run_id() -> str:
 
 
 class JobBase(ABC):
-    name: str
-    log_dir_name: str | None = None
-    logger = logger
+    name: str 
+    log_dir_name: str | None = None # Directory name for storing log files, defaults to job name if not set
+    logger: logging.Logger
+    _run_dir: Path # Directory for any runtime files related to the job
+    _log_path: Path # Path to the log file for the job
 
     def __init__(self):
         self._run_id = get_run_id()
         self._log_handlers = []
+        self.logger = logger
 
     async def start(self):
         self._start_process_time = datetime.now()
         run_id_token = run_id_var.set(self._run_id)
         self._log_handlers.append(self._create_file_handler())
 
-        logger.info(f"{self.name} --- Start ---")
+        logger.info(f"[Job] {self.name} --- Start ---")
         response = None
         try:
-            logger.info(f"Calling {self.name}.run")
+            logger.info(f"[Job] Calling {self.name}.run")
             response = await self.run()
             self.job_success()
         except Exception as e:
             self.job_error(exception=e)
         finally:
-            logger.info(f"{self.name} --- END took:{self.running_time()} ---")
+            logger.info(f"[Job] {self.name} --- END took:{self.running_time()} ---")
             for handler in self._log_handlers:
                 logging.getLogger("turbocrawler").removeHandler(handler)
                 handler.close()
@@ -60,13 +63,13 @@ class JobBase(ABC):
         return file_handler
 
     def job_success(self):
-        logger.info(f"{self.name} --- Success ---")
+        logger.info(f"[Job] {self.name} --- Success ---")
 
     def job_error(self, exception: Exception):
-        logger.error(f"{self.name} --- Error ---")
+        logger.error(f"[Job] {self.name} --- Error ---")
         exception_reason = traceback.format_exception_only(exception)[-1].strip()
         logger.error(f"REASON: {exception_reason}")
-        logger.exception("Error tracestack")
+        logger.exception("[Job] Error tracestack")
 
     def running_time(self) -> timedelta:
         now = datetime.now()

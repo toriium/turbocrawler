@@ -23,7 +23,7 @@ class CrawlerQueueABC(ABC):
         pass
 
     async def start_crawler(self):
-        logger.info(f"Calling {self.__class__.__name__}.start_crawler")
+        logger.info(f"[CrawlerQueue] Calling {self.__class__.__name__}.start_crawler")
 
     async def get_info(self) -> CrawlerQueueInfo:
         """Returns the current state of the queue"""

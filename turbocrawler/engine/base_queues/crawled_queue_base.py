@@ -19,7 +19,7 @@ class CrawledQueueABC(ABC):
 
     async def start_crawler(self):
         if self.must_load_crawled_queue:
-            logger.info(f"Calling {self.__class__.__name__}.load_crawled_queue")
+            logger.info(f"[CrawledQueue] Calling {self.__class__.__name__}.load_crawled_queue")
             await self.load_crawled_queue()
 
     @staticmethod
@@ -64,8 +64,8 @@ class CrawledQueueABC(ABC):
 
     async def stop_crawler(self, execution_info: ExecutionInfo):
         if self.must_save_crawled_queue:
-            logger.info(f"Calling {self.__class__.__name__}.save_crawled_queue")
+            logger.info(f"[CrawledQueue] Calling {self.__class__.__name__}.save_crawled_queue")
             await self.save_crawled_queue()
         else:
-            logger.info(f"Calling {self.__class__.__name__}.delete_crawled_queue")
+            logger.info(f"[CrawledQueue] Calling {self.__class__.__name__}.delete_crawled_queue")
             await self.delete_crawled_queue()
