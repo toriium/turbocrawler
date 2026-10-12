@@ -120,7 +120,7 @@ class CrawlerRunner(JobBase):
         logger.info(f"[Runner] Calling {self.crawler.crawler_name}.stop_crawler")
 
         execution_info = ExecutionInfo(
-            **await self._get_running_info(),
+            **vars(await self._get_running_info()),
             exception=exception,
             error=error,
             forced_stop=forced_stop,

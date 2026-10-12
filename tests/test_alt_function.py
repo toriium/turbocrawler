@@ -75,12 +75,12 @@ async def test_default_functions_success():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=DefaultFunctionsCrawler).start()
 
     # Assert
-    assert execution_info["error"] is False
-    assert execution_info["reason"] == ""
-    assert isinstance(execution_info["start_time"], datetime)
-    assert isinstance(execution_info["end_time"], datetime)
-    assert execution_info["start_time"] <= execution_info["end_time"]
-    assert isinstance(execution_info["running_time"], timedelta)
+    assert execution_info.error is False
+    assert execution_info.reason == ""
+    assert isinstance(execution_info.start_time, datetime)
+    assert isinstance(execution_info.end_time, datetime)
+    assert execution_info.start_time <= execution_info.end_time
+    assert isinstance(execution_info.running_time, timedelta)
 
 
 async def test_alternative_functions_success():
@@ -88,8 +88,8 @@ async def test_alternative_functions_success():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=AlternativeFunctionsCrawler).start()
 
     # Assert
-    assert execution_info["error"] is False
-    assert execution_info["reason"] == ""
+    assert execution_info.error is False
+    assert execution_info.reason == ""
 
 
 async def test_alternative_functions_exception():
@@ -97,8 +97,8 @@ async def test_alternative_functions_exception():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=FailAltFunctionsCrawler).start()
 
     # Assert
-    assert execution_info["error"] is True
-    assert execution_info["reason"] == "Wrong Function called"
+    assert execution_info.error is True
+    assert execution_info.reason == "Wrong Function called"
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ class CrawledQueueABC(ABC):
         self.__info = CrawledQueueInfo(add=0, length=0)
 
     async def get_info(self) -> CrawledQueueInfo:
-        return CrawledQueueInfo(add=self.__info["add"], length=len(self))
+        return CrawledQueueInfo(add=self.__info.add, length=len(self))
 
     async def start_crawler(self):
         if self.must_load_crawled_queue:
@@ -35,7 +35,7 @@ class CrawledQueueABC(ABC):
         pass
 
     async def add(self, url: str) -> None:
-        self.__info["add"] += 1
+        self.__info.add += 1
         await self.add_url_to_crawled_queue(url)
 
     @abstractmethod

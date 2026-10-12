@@ -1,19 +1,22 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import TypedDict
 
 
-class CrawlerQueueInfo(TypedDict):
+@dataclass
+class CrawlerQueueInfo:
     add: int
     get: int
     length: int
 
 
-class CrawledQueueInfo(TypedDict):
+@dataclass
+class CrawledQueueInfo:
     add: int
     length: int
 
 
-class RunningInfo(TypedDict):
+@dataclass
+class RunningInfo:
     crawler_name: str
     crawler_queue: CrawlerQueueInfo
     crawled_queue: CrawledQueueInfo
@@ -25,6 +28,7 @@ class RunningInfo(TypedDict):
     run_id: str
 
 
+@dataclass
 class ExecutionInfo(RunningInfo):
     exception: Exception | None
     forced_stop: bool

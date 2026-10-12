@@ -27,7 +27,7 @@ class CrawlerQueueABC(ABC):
 
     async def get_info(self) -> CrawlerQueueInfo:
         """Returns the current state of the queue"""
-        return CrawlerQueueInfo(add=self.__info["add"], get=self.__info["get"], length=len(self))
+        return CrawlerQueueInfo(add=self.__info.add, get=self.__info.get, length=len(self))
 
     async def get(self) -> CrawlerRequest | None:
         """
@@ -46,7 +46,7 @@ class CrawlerQueueABC(ABC):
         self.__urls_scheduled.remove(crawler_request.url)
 
         await self.__add_url_to_crawled_queue(url=crawler_request.url)
-        self.__info["get"] += 1
+        self.__info.get += 1
         return crawler_request
 
     async def add(self, crawler_request: CrawlerRequest, verify_crawled: bool = True) -> None:
@@ -65,7 +65,7 @@ class CrawlerQueueABC(ABC):
         url = crawler_request.url
 
         if not verify_crawled:
-            self.__info["add"] += 1
+            self.__info.add += 1
             await self._insert_queue(crawler_request)
             self.__urls_scheduled.append(url)
             return
@@ -75,7 +75,7 @@ class CrawlerQueueABC(ABC):
             return
 
         if not await self.__page_already_crawled(url=url):
-            self.__info["add"] += 1
+            self.__info.add += 1
             await self._insert_queue(crawler_request)
             self.__urls_scheduled.append(url)
         else:
