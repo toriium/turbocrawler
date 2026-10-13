@@ -1,0 +1,11 @@
+[tasks.requirements]
+description = "Update requirements.txt"
+run = "poetry export --without dev --output requirements.txt --without-hashes"
+
+[tasks.lint]
+description = "Run autoformatting and linting"
+run = ["uv run ruff format", "uv run ruff check ./ --fix"]
+
+[tasks.test]
+description = "Run tests"
+run = "uv run pytest"

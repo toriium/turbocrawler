@@ -4,3 +4,6 @@ requirements: ## Update requirements.txt
 
 lint: ## Run autoformatting and linting
 	uv run ruff format && uv run ruff check ./ --fix
+
+test: ## Run tests
+	uv run pytest

@@ -58,9 +58,7 @@ class CrawlerRunner(JobBase):
         self.crawler_queue = self.config.crawler_queue(**self.config.crawler_queue_params)
 
         self.crawler = self._crawler_type(
-            run_id=self._run_id,
-            run_dir=self._run_dir,
-            log_path=self._log_path,
+            job_info=self.job_info,
             crawler_queue=self.crawler_queue,
             logger=logger,
             cli_kwargs=self.cli_kwargs,
@@ -267,7 +265,7 @@ class CrawlerRunner(JobBase):
             requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
             running_time=self.running_time(),
-            start_time=self._start_process_time,
+            start_time=self._job_start_time,
             run_id=self._run_id,
             run_dir=self._run_dir,
             log_path=self._log_path,

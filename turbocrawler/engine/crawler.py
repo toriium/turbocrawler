@@ -7,6 +7,7 @@ from typing import Any
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, LoggedData
 from turbocrawler.engine.data_types.info import ExecutionInfo
+from turbocrawler.engine.job import JobInfo
 
 
 class Crawler(ABC):
@@ -15,9 +16,7 @@ class Crawler(ABC):
     regex_extract_rules: list[ExtractRule] = []
     time_between_requests: Number | tuple[Number] = 0
 
-    run_id: str
-    run_dir: Path
-    log_path: Path
+    job_info: JobInfo
     crawler_queue: CrawlerQueueABC
     logger: logging.Logger
     cli_kwargs: dict[str, Any]
@@ -26,16 +25,12 @@ class Crawler(ABC):
 
     def __init__(
         self,
-        run_id: str,
-        run_dir: Path,
-        log_path: Path,
+        job_info: JobInfo,
         crawler_queue: CrawlerQueueABC,
         logger: logging.Logger,
         cli_kwargs: dict[str, Any],
     ):
-        self.run_id = run_id
-        self.run_dir = run_dir
-        self.log_path = log_path
+        self.job_info = job_info
         self.crawler_queue = crawler_queue
         self.logger = logger
         self.cli_kwargs = cli_kwargs

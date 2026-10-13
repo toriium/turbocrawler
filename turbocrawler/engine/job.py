@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 import logging
 import traceback
 from abc import ABC, abstractmethod
@@ -16,28 +17,52 @@ def get_run_id() -> str:
     now_str = now.strftime("%Y%m%dT%H%M%S")
     return f"{now_str}_{uuid4().hex[:6]}"
 
+@dataclass
+class JobInfo:
+    name: str
+    run_id: str
+    run_dir: Path
+    log_path: Path
+    job_start_time: datetime
+    log_dir_name: str | None = None
+    kwargs: dict = field(default_factory=dict)
 
 class JobBase(ABC):
     name: str 
     log_dir_name: str | None = None # Directory name for storing log files, defaults to job name if not set
     logger: logging.Logger
+    job_info: JobInfo
+    _run_id: str # Unique identifier for the current job run
     _run_dir: Path # Directory for any runtime files related to the job
     _log_path: Path # Path to the log file for the job
+    _job_start_time: datetime # When the current job run started
 
     def __init__(self):
+        assert hasattr(self, "name"), "Job must have a name"
+        
         self._run_id = get_run_id()
         self._log_handlers = []
         self.logger = logger
 
     async def start(self, log_level: int = logging.INFO):
+        self._job_start_time = datetime.now()
+
         # Define logging for this job run
         logging.getLogger("turbocrawler").setLevel(log_level)
         run_id_token = run_id_var.set(self._run_id)
         self._log_handlers.append(self._create_file_handler())
 
+        self.job_info = JobInfo(
+            name=self.name,
+            log_dir_name=self.log_dir_name,
+            run_id=self._run_id,
+            run_dir=self._run_dir,
+            log_path=self._log_path,
+            job_start_time=self._job_start_time,
+        )
+
         logger.info(f"[Job] {self.name} --- Start ---")
 
-        self._start_process_time = datetime.now()
         
         response = None
         try:
@@ -77,7 +102,7 @@ class JobBase(ABC):
 
     def running_time(self) -> timedelta:
         now = datetime.now()
-        return now - self._start_process_time
+        return now - self._job_start_time
 
     @abstractmethod
     async def run(self):
