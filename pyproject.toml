@@ -1,6 +1,6 @@
 [project]
 name = "turbocrawler"
-version = "0.0.5rc1"
+version = "0.0.5rc2"
 license = "MIT"
 description = "Scraping and Crawling Micro-Framework"
 authors = [{ name = "toriium" }]
