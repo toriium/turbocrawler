@@ -11,16 +11,19 @@ from turbocrawler.engine.job import JobInfo
 
 
 class Crawler(ABC):
+    # Crawling config fields
     crawler_name: str
     allowed_domains: list[str]
     regex_extract_rules: list[ExtractRule] = []
     time_between_requests: Number | tuple[Number] = 0
 
+    # Internal job fields
     job_info: JobInfo
     crawler_queue: CrawlerQueueABC
     logger: logging.Logger
     cli_kwargs: dict[str, Any]
 
+    # Crawling process fields
     logged_data: LoggedData
 
     def __init__(
