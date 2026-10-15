@@ -17,21 +17,29 @@ def get_run_id() -> str:
     now_str = now.strftime("%Y%m%dT%H%M%S")
     return f"{now_str}_{uuid4().hex[:6]}"
 
-@dataclass
+@dataclass(kw_only=True)
 class JobInfo:
     name: str
     run_id: str
     run_dir: Path
     log_path: Path
-    job_start_time: datetime
     log_dir_name: str | None = None
-    kwargs: dict = field(default_factory=dict)
+    job_start_time: datetime
+
+@dataclass(kw_only=True)
+class JobExecutionResult(JobInfo):
+    job_end_time: datetime
+    job_running_time: timedelta
+    success: bool
+    reason: str | None
+    exception: Exception | None
 
 class JobBase(ABC):
     name: str 
     log_dir_name: str | None = None # Directory name for storing log files, defaults to job name if not set
     logger: logging.Logger
     job_info: JobInfo
+
     _run_id: str # Unique identifier for the current job run
     _run_dir: Path # Directory for any runtime files related to the job
     _log_path: Path # Path to the log file for the job
@@ -64,22 +72,42 @@ class JobBase(ABC):
         logger.info(f"[Job] {self.name} --- Start ---")
 
         
-        response = None
+        job_execution_result: JobExecutionResult = None
         try:
+            await self.notify_job_start(self.job_info)
             logger.info(f"[Job] Calling {self.name}.run")
-            response = await self.run()
-            self.job_success()
+            job_execution_result = await self.run()
+
+            assert isinstance(job_execution_result, JobExecutionResult), "Job did not return a valid JobExecutionResult"
+
+            self.job_log_success()
         except Exception as e:
-            self.job_error(exception=e)
+            self.job_log_error(exception=e)
+            job_execution_result = JobExecutionResult(
+                **self.job_info.__dict__,
+                job_end_time=datetime.now(),
+                job_running_time=self.running_time(),
+                success=False,
+                reason=str(e),
+                exception=e,
+            )
         finally:
+            # notify_job_end never raises an exception to the caller
+            try:
+                await self.notify_job_end(job_execution_result)
+            except Exception as e:
+                logger.error(f"[Job] Error during notify_job_end: {e}")
+
             logger.info(f"[Job] {self.name} --- END took:{self.running_time()} ---")
+            
+            # Clean up log handlers for this job run
             for handler in self._log_handlers:
                 logging.getLogger("turbocrawler").removeHandler(handler)
                 handler.close()
             self._log_handlers = []
             run_id_var.reset(run_id_token)
 
-        return response
+        return job_execution_result
 
     def _create_file_handler(self) -> logging.FileHandler:
         self._run_dir = Path.cwd() / "turbocrawler_logs" / (self.log_dir_name or self.name) / self._run_id
@@ -91,10 +119,16 @@ class JobBase(ABC):
         logging.getLogger("turbocrawler").addHandler(file_handler)
         return file_handler
 
-    def job_success(self):
+    async def notify_job_start(self, job_info: JobInfo):
+        logger.debug(f"[Job] {self.name} --- Notify Start ---")
+
+    async def notify_job_end(self, job_execution_result: JobExecutionResult):
+        logger.debug(f"[Job] {self.name} --- Notify End ---")
+
+    def job_log_success(self):
         logger.info(f"[Job] {self.name} --- Success ---")
 
-    def job_error(self, exception: Exception):
+    def job_log_error(self, exception: Exception):
         logger.error(f"[Job] {self.name} --- Error ---")
         exception_reason = traceback.format_exception_only(exception)[-1].strip()
         logger.error(f"REASON: {exception_reason}")
@@ -105,5 +139,5 @@ class JobBase(ABC):
         return now - self._job_start_time
 
     @abstractmethod
-    async def run(self):
+    async def run(self) -> JobExecutionResult:
         pass

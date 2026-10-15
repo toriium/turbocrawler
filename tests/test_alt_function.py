@@ -75,12 +75,12 @@ async def test_default_functions_success():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=DefaultFunctionsCrawler).start()
 
     # Assert
-    assert execution_info.error is False
-    assert execution_info.reason == ""
-    assert isinstance(execution_info.start_time, datetime)
-    assert isinstance(execution_info.end_time, datetime)
-    assert execution_info.start_time <= execution_info.end_time
-    assert isinstance(execution_info.running_time, timedelta)
+    assert execution_info.success is True
+    assert execution_info.reason is None
+    assert isinstance(execution_info.job_start_time, datetime)
+    assert isinstance(execution_info.job_end_time, datetime)
+    assert execution_info.job_start_time <= execution_info.job_end_time
+    assert isinstance(execution_info.job_running_time, timedelta)
     assert execution_info.log_path.parts[-2:] == (execution_info.run_id, "execution.log")
     assert execution_info.log_path.is_file()
 
@@ -90,8 +90,8 @@ async def test_alternative_functions_success():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=AlternativeFunctionsCrawler).start()
 
     # Assert
-    assert execution_info.error is False
-    assert execution_info.reason == ""
+    assert execution_info.success is True
+    assert execution_info.reason is None
 
 
 async def test_alternative_functions_exception():
@@ -99,7 +99,7 @@ async def test_alternative_functions_exception():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=FailAltFunctionsCrawler).start()
 
     # Assert
-    assert execution_info.error is True
+    assert execution_info.success is False
     assert execution_info.reason == "Wrong Function called"
 
 

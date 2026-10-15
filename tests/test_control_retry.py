@@ -27,7 +27,7 @@ async def test_retry_force_stop():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=RetryCrawler, cli_kwargs=cli_kwargs).start()
 
     # Assert
-    assert execution_info.error is True
+    assert execution_info.success is False
     assert "Test Retry" in execution_info.reason
     assert execution_info.requests_retried == 2
 
@@ -38,8 +38,8 @@ async def test_retry_no_force_stop():
     execution_info: ExecutionInfo = await CrawlerRunner(crawler=RetryCrawler, cli_kwargs=cli_kwargs).start()
 
     # Assert
-    assert execution_info.error is False
-    assert execution_info.reason == ""
+    assert execution_info.success is True
+    assert execution_info.reason is None
     assert execution_info.requests_retried == 2
 
 

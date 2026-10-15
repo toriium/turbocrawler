@@ -12,7 +12,7 @@ from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, LoggedData
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
-from turbocrawler.engine.job import JobBase
+from turbocrawler.engine.job import JobBase, JobInfo
 from turbocrawler.engine.url_extractor import UrlExtractor
 
 logger = logging.getLogger("turbocrawler")
@@ -103,7 +103,7 @@ class CrawlerRunner(JobBase):
     ) -> ExecutionInfo:
         forced_stop = False
         error = False
-        reason = ""
+        reason = None
 
         if exception:
             forced_stop = True
@@ -119,13 +119,21 @@ class CrawlerRunner(JobBase):
             logger.info(f"[Runner] StopCrawler raised reason {reason}")
         logger.info(f"[Runner] Calling {self.crawler.crawler_name}.stop_crawler")
 
+        running_info = await self._get_running_info()
         execution_info = ExecutionInfo(
-            **vars(await self._get_running_info()),
-            exception=exception,
-            error=error,
-            forced_stop=forced_stop,
+            **vars(running_info.job_info),
+            job_end_time=datetime.now(),
+            job_running_time=self.running_time(),
+            success=not error,
             reason=reason,
-            end_time=datetime.now(),
+            exception=exception,
+            crawler_name=running_info.crawler_name,
+            crawler_queue=running_info.crawler_queue,
+            crawled_queue=running_info.crawled_queue,
+            requests_made=running_info.requests_made,
+            requests_retried=running_info.requests_retried,
+            requests_skipped=running_info.requests_skipped,
+            forced_stop=forced_stop,
         )
 
         stop_crawler_objs: list[Crawler | CrawledQueueABC] = [
@@ -257,18 +265,23 @@ class CrawlerRunner(JobBase):
         )
 
     async def _get_running_info(self) -> RunningInfo:
+        job_info = JobInfo(
+            name=self.name,
+            run_id=self._run_id,
+            run_dir=self._run_dir,
+            log_path=self._log_path,
+            log_dir_name=self.log_dir_name,
+            job_start_time=self._job_start_time,
+        )
+        
         return RunningInfo(
+            job_info=job_info,
             crawler_name=self.crawler.crawler_name,
             crawler_queue=await self.crawler_queue.get_info(),
             crawled_queue=await self.crawler_queue.crawled_queue.get_info(),
             requests_made=self._requests_info["Made"],
             requests_retried=self._requests_info["RetryRequest"],
             requests_skipped=self._requests_info["SkipRequest"],
-            running_time=self.running_time(),
-            start_time=self._job_start_time,
-            run_id=self._run_id,
-            run_dir=self._run_dir,
-            log_path=self._log_path,
         )
 
     async def _log_info(self) -> None:

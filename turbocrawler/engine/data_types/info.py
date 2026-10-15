@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
+from turbocrawler.engine.job import JobExecutionResult, JobInfo
 
 
 @dataclass
@@ -18,23 +19,21 @@ class CrawledQueueInfo:
 
 @dataclass
 class RunningInfo:
+    job_info: JobInfo
     crawler_name: str
-    run_id: str
-    run_dir: Path
-    log_path: Path
     crawler_queue: CrawlerQueueInfo
     crawled_queue: CrawledQueueInfo
     requests_made: int
     requests_retried: int
     requests_skipped: int
-    running_time: timedelta
-    start_time: datetime
 
 
-@dataclass
-class ExecutionInfo(RunningInfo):
-    exception: Exception | None
+@dataclass(kw_only=True)
+class ExecutionInfo(JobExecutionResult):
+    crawler_name: str
+    crawler_queue: CrawlerQueueInfo
+    crawled_queue: CrawledQueueInfo
+    requests_made: int
+    requests_retried: int
+    requests_skipped: int
     forced_stop: bool
-    error: bool
-    reason: str
-    end_time: datetime
