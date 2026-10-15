@@ -21,9 +21,7 @@ logger = logging.getLogger("turbocrawler")
 class CrawlerRunner(JobBase):
     name: str = "CrawlerRunner"
 
-    def __init__(
-        self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None, cli_kwargs: dict | None = None
-    ):
+    def __init__(self, crawler: type[Crawler], config: CrawlerRunnerConfig | None = None):
         self._crawler_type = crawler
         self.log_dir_name = crawler.crawler_name
         super().__init__()
@@ -32,13 +30,11 @@ class CrawlerRunner(JobBase):
 
         self.crawler: Crawler
         self.config = config
-        self.cli_kwargs = cli_kwargs or {}
         self.crawler_queue: CrawlerQueueABC
 
         self._requests_info = {"Made": 0, "RetryRequest": 0, "SkipRequest": 0}
 
     async def _initialize_runner_dependencies(self) -> None:
-        logger.info(f"[Runner] crawler cli_kwargs: {self.cli_kwargs}")
 
         if self.config is None:
             self.config = CrawlerRunnerConfig()

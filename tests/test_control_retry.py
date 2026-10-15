@@ -24,7 +24,7 @@ class RetryCrawler(Crawler):
 async def test_retry_force_stop():
     # Setup
     cli_kwargs = {"force_stop": True}
-    execution_info: ExecutionInfo = await CrawlerRunner(crawler=RetryCrawler, cli_kwargs=cli_kwargs).start()
+    execution_info: ExecutionInfo = await CrawlerRunner(crawler=RetryCrawler).start(cli_kwargs=cli_kwargs)
 
     # Assert
     assert execution_info.success is False
@@ -35,7 +35,7 @@ async def test_retry_force_stop():
 async def test_retry_no_force_stop():
     # Setup
     cli_kwargs = {"force_stop": False}
-    execution_info: ExecutionInfo = await CrawlerRunner(crawler=RetryCrawler, cli_kwargs=cli_kwargs).start()
+    execution_info: ExecutionInfo = await CrawlerRunner(crawler=RetryCrawler).start(cli_kwargs=cli_kwargs)
 
     # Assert
     assert execution_info.success is True
@@ -44,4 +44,4 @@ async def test_retry_no_force_stop():
 
 
 if __name__ == "__main__":
-    asyncio.run(CrawlerRunner(crawler=RetryCrawler, cli_kwargs={}).start())
+    asyncio.run(CrawlerRunner(crawler=RetryCrawler).start(cli_kwargs={}))

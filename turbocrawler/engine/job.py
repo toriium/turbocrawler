@@ -40,8 +40,10 @@ class JobExecutionResult(JobInfo):
 class JobBase(ABC):
     name: str
     log_dir_name: str | None = None  # Directory name for storing log files, defaults to job name if not set
+    log_level: int
     logger: logging.Logger
     job_info: JobInfo
+    cli_kwargs: dict
 
     _run_id: str  # Unique identifier for the current job run
     _run_dir: Path  # Directory for any runtime files related to the job
@@ -55,8 +57,13 @@ class JobBase(ABC):
         self._log_handlers = []
         self.logger = logger
 
-    async def start(self, log_level: int = logging.INFO):
+    async def start(self, log_level: int = logging.INFO, cli_kwargs: dict | None = None):
         self._job_start_time = datetime.now()
+
+        self.log_level = log_level
+        self.cli_kwargs = cli_kwargs or {}
+
+        logger.info(f"[Runner] crawler cli_kwargs: {self.cli_kwargs}")
 
         # Define logging for this job run
         logging.getLogger("turbocrawler").setLevel(log_level)

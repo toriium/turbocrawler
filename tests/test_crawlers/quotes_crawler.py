@@ -74,4 +74,4 @@ class QuotesToScrapeCrawler(Crawler):
 
 if __name__ == "__main__":
     cli_kwargs = {"username": "admin", "password": "123"}
-    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler, cli_kwargs=cli_kwargs).start())
+    asyncio.run(CrawlerRunner(crawler=QuotesToScrapeCrawler).start(cli_kwargs=cli_kwargs))
