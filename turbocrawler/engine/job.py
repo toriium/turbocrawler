@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field
 import logging
 import traceback
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
@@ -17,6 +17,7 @@ def get_run_id() -> str:
     now_str = now.strftime("%Y%m%dT%H%M%S")
     return f"{now_str}_{uuid4().hex[:6]}"
 
+
 @dataclass(kw_only=True)
 class JobInfo:
     name: str
@@ -26,6 +27,7 @@ class JobInfo:
     log_dir_name: str | None = None
     job_start_time: datetime
 
+
 @dataclass(kw_only=True)
 class JobExecutionResult(JobInfo):
     job_end_time: datetime
@@ -34,20 +36,21 @@ class JobExecutionResult(JobInfo):
     reason: str | None
     exception: Exception | None
 
+
 class JobBase(ABC):
-    name: str 
-    log_dir_name: str | None = None # Directory name for storing log files, defaults to job name if not set
+    name: str
+    log_dir_name: str | None = None  # Directory name for storing log files, defaults to job name if not set
     logger: logging.Logger
     job_info: JobInfo
 
-    _run_id: str # Unique identifier for the current job run
-    _run_dir: Path # Directory for any runtime files related to the job
-    _log_path: Path # Path to the log file for the job
-    _job_start_time: datetime # When the current job run started
+    _run_id: str  # Unique identifier for the current job run
+    _run_dir: Path  # Directory for any runtime files related to the job
+    _log_path: Path  # Path to the log file for the job
+    _job_start_time: datetime  # When the current job run started
 
     def __init__(self):
         assert hasattr(self, "name"), "Job must have a name"
-        
+
         self._run_id = get_run_id()
         self._log_handlers = []
         self.logger = logger
@@ -71,7 +74,6 @@ class JobBase(ABC):
 
         logger.info(f"[Job] {self.name} --- Start ---")
 
-        
         job_execution_result: JobExecutionResult = None
         try:
             await self.notify_job_start(self.job_info)
@@ -99,7 +101,7 @@ class JobBase(ABC):
                 logger.error(f"[Job] Error during notify_job_end: {e}")
 
             logger.info(f"[Job] {self.name} --- END took:{self.running_time()} ---")
-            
+
             # Clean up log handlers for this job run
             for handler in self._log_handlers:
                 logging.getLogger("turbocrawler").removeHandler(handler)

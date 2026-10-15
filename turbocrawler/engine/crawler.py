@@ -1,7 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
 from numbers import Number
-from pathlib import Path
 from typing import Any
 
 from turbocrawler.engine.base_queues.crawler_queue_base import CrawlerQueueABC

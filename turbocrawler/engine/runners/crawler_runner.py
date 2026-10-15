@@ -12,7 +12,7 @@ from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, LoggedData
 from turbocrawler.engine.data_types.crawler_runner_config import CrawlerRunnerConfig
 from turbocrawler.engine.data_types.info import ExecutionInfo, RunningInfo
-from turbocrawler.engine.job import JobBase, JobInfo
+from turbocrawler.engine.job import JobBase
 from turbocrawler.engine.url_extractor import UrlExtractor
 
 logger = logging.getLogger("turbocrawler")
@@ -265,17 +265,9 @@ class CrawlerRunner(JobBase):
         )
 
     async def _get_running_info(self) -> RunningInfo:
-        job_info = JobInfo(
-            name=self.name,
-            run_id=self._run_id,
-            run_dir=self._run_dir,
-            log_path=self._log_path,
-            log_dir_name=self.log_dir_name,
-            job_start_time=self._job_start_time,
-        )
-        
+
         return RunningInfo(
-            job_info=job_info,
+            job_info=self.job_info,
             crawler_name=self.crawler.crawler_name,
             crawler_queue=await self.crawler_queue.get_info(),
             crawled_queue=await self.crawler_queue.crawled_queue.get_info(),

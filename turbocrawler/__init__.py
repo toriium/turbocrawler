@@ -1,4 +1,4 @@
-from turbocrawler.engine.control import RetryRequest, SkipRequest, PauseCrawler, StopCrawler
+from turbocrawler.engine.control import PauseCrawler, RetryRequest, SkipRequest, StopCrawler
 from turbocrawler.engine.crawler import Crawler
 from turbocrawler.engine.data_types.crawler import CrawlerRequest, CrawlerResponse, ExtractRule, LoggedData, Settings
 from turbocrawler.engine.data_types.info import ExecutionInfo
