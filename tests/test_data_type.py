@@ -7,6 +7,11 @@ def test_crawler_response_valid_json_dict():
     assert response.json() == {"key": "value"}
 
 
+def test_crawler_response_valid_json_empty_dict():
+    text = '{}'
+    response = CrawlerResponse(url="http://example.com", text=text, status_code=200)
+    assert response.json() == {}
+
 def test_crawler_response_valid_json_list():
     text = '["value1", "value2"]'
     response = CrawlerResponse(url="http://example.com", text=text, status_code=200)
