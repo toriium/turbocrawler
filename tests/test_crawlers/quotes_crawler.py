@@ -42,6 +42,7 @@ class QuotesToScrapeCrawler(Crawler):
         await self.crawler_queue.add(CrawlerRequest(url="https://quotes.toscrape.com/page/1/"))
 
     async def process_request(self, crawler_request: CrawlerRequest) -> CrawlerResponse:
+        self.logger.info(f"Processing request for URL: {crawler_request.url}")
         response = self.client.get(crawler_request.url)
         return CrawlerResponse(url=str(response.url), text=response.text, status_code=response.status_code)
 
